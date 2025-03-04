@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304173159_up")]
+    partial class up
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,6 +40,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("RoleName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -48,8 +52,7 @@ namespace Infrastructure.Migrations
                     b.HasKey("RoleId");
 
                     b.HasIndex("RoleName")
-                        .IsUnique()
-                        .HasFilter("[RoleName] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Roles", (string)null);
 
@@ -57,28 +60,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9036),
+                            CreatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5290),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9038),
+                            UpdatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5293),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9041),
+                            CreatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5295),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9041),
+                            UpdatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5295),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9042),
+                            CreatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5297),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 4, 18, 39, 39, 352, DateTimeKind.Utc).AddTicks(9042),
+                            UpdatedAt = new DateTime(2025, 3, 4, 17, 31, 58, 938, DateTimeKind.Utc).AddTicks(5297),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -90,9 +93,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Age")
+                    b.Property<int>("Age")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -114,11 +118,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("HashPassword")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")

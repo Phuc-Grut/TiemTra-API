@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250223072952_updateDB")]
-    partial class updateDB
+    [Migration("20250304183445_updatedb")]
+    partial class updatedb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,28 +60,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3489),
+                            CreatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7261),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3492),
+                            UpdatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7263),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3494),
+                            CreatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7266),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3494),
+                            UpdatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7266),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3496),
+                            CreatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7267),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 2, 23, 7, 29, 49, 697, DateTimeKind.Utc).AddTicks(3496),
+                            UpdatedAt = new DateTime(2025, 3, 4, 18, 34, 45, 325, DateTimeKind.Utc).AddTicks(7268),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -115,6 +115,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HashPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
