@@ -1,4 +1,5 @@
 ﻿using Application.Interface.Authentication;
+using Application.Services.Authentication;
 using Application.Services.Authentincation;
 using Application.Validations;
 using FluentValidation;
@@ -17,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthServices, AuthService>();
 
 builder.Services.AddControllers();

@@ -9,15 +9,20 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Shared.Common;
+using Application.Services.Authentication;
 
 namespace Application.Services.Authentincation
 {
     public class AuthService : IAuthServices
     {
         private readonly IAuthRepository _authRepository;
-        public AuthService(IAuthRepository authRepository)
+
+        private readonly IEmailService _emailService;
+
+        public AuthService(IAuthRepository authRepository, IEmailService emailService)
         {
             _authRepository = authRepository;
+            _emailService = emailService;
         }
         public async Task<ApiResponse> Register(RegisterDTO model)
         {
@@ -36,8 +41,15 @@ namespace Application.Services.Authentincation
 
             await _authRepository.AddUser(user);
             await _authRepository.SaveChanges();
-            
-            return new ApiResponse(true, "Đăng ký thành công!", user);
+
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            var token = VerificationService.GenerateVerificationToken(user.Email, otp);
+            var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong>. <br>Mã sẽ hết hạn sau 2 phút.";
+
+            await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
+
+            return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", token);
         }
 
         private string HashPassword(string password)
