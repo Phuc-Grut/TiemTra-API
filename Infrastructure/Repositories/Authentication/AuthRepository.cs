@@ -37,5 +37,15 @@ namespace Infrastructure.Repositories.Authentication
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> AnyUserExists()
+        {
+            return await _context.Users.AnyAsync();
+        }
+
+        public async Task AddUserRole(UserRole userRole)
+        {
+            await _context.UserRoles.AddAsync(userRole);
+        }
     }
 }

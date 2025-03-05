@@ -31,6 +31,8 @@ namespace Application.Services.Authentincation
             
             var hashedPassword = HashPassword(model.Password);
 
+            bool isFirstUser = !await _authRepository.AnyUserExists();
+
             var user = new User
             {
                 FullName = model.FullName,
@@ -42,6 +44,15 @@ namespace Application.Services.Authentincation
             await _authRepository.AddUser(user);
             await _authRepository.SaveChanges();
 
+            var userRole = new UserRole
+            {
+                UserId = user.UserId,
+                RoleId = isFirstUser ? 1 : 3  // ✅ Nếu là tài khoản đầu tiên → RoleId = 1, ngược lại RoleId = 2
+            };
+
+            await _authRepository.AddUserRole(userRole);
+            await _authRepository.SaveChanges();
+
             var otp = new Random().Next(100000, 999999).ToString();
 
             var token = VerificationService.GenerateVerificationToken(user.Email, otp);
@@ -49,7 +60,7 @@ namespace Application.Services.Authentincation
 
             await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
 
-            return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", token);
+            return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", user);
         }
 
         private string HashPassword(string password)
