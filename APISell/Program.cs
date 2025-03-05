@@ -1,5 +1,8 @@
-using Application.Interface.Authentication;
+﻿using Application.Interface.Authentication;
 using Application.Services.Authentincation;
+using Application.Validations;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure.Database;
 using Infrastructure.Interface.Authentication;
 using Infrastructure.Repositories.Authentication;
@@ -17,6 +20,12 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthServices, AuthService>();
 
 builder.Services.AddControllers();
+
+// đăng ký validate
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDTOValidator>();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

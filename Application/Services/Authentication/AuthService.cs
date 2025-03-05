@@ -28,8 +28,8 @@ namespace Application.Services.Authentincation
 
             var user = new User
             {
-                Email = model.Email,
                 FullName = model.FullName,
+                Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
                 HashPassword = hashedPassword
             };
