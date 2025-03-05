@@ -1,5 +1,5 @@
 ﻿using Application.Interface.Authentication;
-using Domain.DTOs.Authentication;
+using Application.DTOs.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +16,16 @@ namespace APISell.Controllers.Authentication
             _authServices = authServices;
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] RegisterDTO model)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
             var result = await _authServices.Register(model);
-            return Ok(new {message = result});
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
     }
 }

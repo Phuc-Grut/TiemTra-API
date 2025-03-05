@@ -1,4 +1,5 @@
-﻿using Domain.DTOs.Authentication;
+﻿using Application.DTOs.Authentication;
+using Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Application.Interface.Authentication
 {
     public interface IAuthServices
     {
-        Task<string> Register(RegisterDTO model);
+        Task<ApiResponse> Register(RegisterDTO model);
     }
 }

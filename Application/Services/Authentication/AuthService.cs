@@ -1,6 +1,6 @@
 ﻿using Application.Interface.Authentication;
 using Domain.Data.Entities;
-using Domain.DTOs.Authentication;
+using Application.DTOs.Authentication;
 using Infrastructure.Interface.Authentication;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Common;
 
 namespace Application.Services.Authentincation
 {
@@ -18,10 +19,10 @@ namespace Application.Services.Authentincation
         {
             _authRepository = authRepository;
         }
-        public async Task<string> Register(RegisterDTO model)
+        public async Task<ApiResponse> Register(RegisterDTO model)
         {
             if (await _authRepository.EmailExists(model.Email))
-                return "Email đã tồn tại";
+                return new ApiResponse(false, "Emaill đã tồn tại");
             
             var hashedPassword = HashPassword(model.Password);
 
@@ -36,7 +37,7 @@ namespace Application.Services.Authentincation
             await _authRepository.AddUser(user);
             await _authRepository.SaveChanges();
             
-            return "Đăng ký thành công, mã xác nhận đã được gửi đến mail của bạn!";
+            return new ApiResponse(true, "Đăng ký thành công!", user);
         }
 
         private string HashPassword(string password)
