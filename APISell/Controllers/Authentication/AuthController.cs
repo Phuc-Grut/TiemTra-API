@@ -27,5 +27,16 @@ namespace APISell.Controllers.Authentication
 
             return Ok(result);
         }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDTO model)
+        {
+            var result = await _authServices.VerifyOtp(model);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

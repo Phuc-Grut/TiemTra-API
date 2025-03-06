@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Shared.Common;
 using Application.Services.Authentication;
+using Domain.Enum;
 
 namespace Application.Services.Authentincation
 {
@@ -47,16 +48,19 @@ namespace Application.Services.Authentincation
             var userRole = new UserRole
             {
                 UserId = user.UserId,
-                RoleId = isFirstUser ? 1 : 3  // ✅ Nếu là tài khoản đầu tiên → RoleId = 1, ngược lại RoleId = 2
+                RoleId = isFirstUser ? 1 : 3
             };
 
             await _authRepository.AddUserRole(userRole);
             await _authRepository.SaveChanges();
 
             var otp = new Random().Next(100000, 999999).ToString();
-
             var token = VerificationService.GenerateVerificationToken(user.Email, otp);
-            var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong>. <br>Mã sẽ hết hạn sau 2 phút.";
+            var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong><br>Mã JWT: <strong>{token}</strong><br>Mã sẽ hết hạn sau 2 phút.";
+
+            Console.WriteLine($"otp dã tạo ra: {otp}");
+            Console.WriteLine($"JWT OTP dã tạo ra: {token}");
+            
 
             await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
 
@@ -68,6 +72,36 @@ namespace Application.Services.Authentincation
             using var sha256 = SHA256.Create();
             var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
             return Convert.ToBase64String(hashedBytes);
+        }
+
+        public async Task<ApiResponse> VerifyOtp(VerifyOtpDTO model)
+        {
+            var user = await _authRepository.GetUserByEmail(model.Email);
+            if (user == null)
+            {
+                Console.WriteLine("Email không tồn tại");
+                return new ApiResponse(false, "Email không tồn tại.");
+            }
+
+            Console.WriteLine($"User tìm thấy: {user.Email}");
+
+            // Kiểm tra OTP có hợp lệ
+            bool isValidOtp = VerificationService.ValidateVerificationToken(user.Email, model.Otp);
+            if (!isValidOtp)
+            {
+                Console.WriteLine($"❌ OTP không hợp lệ hoặc đã hết hạn: {model.Otp}");
+                return new ApiResponse(false, "Mã OTP không hợp lệ hoặc đã hết hạn.");
+            }
+
+            Console.WriteLine("OTP hợp lệ, cập nhật tài khoản.");
+            // Cập nhật trạng thái tài khoản
+            user.EmailConfirmed = true;
+            user.Status = UserStatus.Active;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _authRepository.SaveChanges();
+
+            return new ApiResponse(true, "Xác thực thành công! Tài khoản đã được kích hoạt.");
         }
     }
 }

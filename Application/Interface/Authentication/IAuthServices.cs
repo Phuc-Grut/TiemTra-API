@@ -11,5 +11,6 @@ namespace Application.Interface.Authentication
     public interface IAuthServices
     {
         Task<ApiResponse> Register(RegisterDTO model);
+        Task<ApiResponse> VerifyOtp(VerifyOtpDTO model);
     }
 }

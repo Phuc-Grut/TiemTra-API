@@ -21,9 +21,9 @@ namespace Application.Services.Authentication
 
             var claims = new[]
             {
-                new Claim("email", email),
+                new Claim(ClaimTypes.Email, email),
                 new Claim("otp", otp),
-                new Claim("exp", DateTime.UtcNow.AddMinutes(2).ToString())
+                //new Claim("exp", DateTime.UtcNow.AddMinutes(2).ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -36,5 +36,42 @@ namespace Application.Services.Authentication
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public static bool ValidateVerificationToken(string email, string otpToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(SecretKey); // Key bảo mật
+
+            try
+            {
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = "https://grunt-app.com",
+                    ValidAudience = "https://grunt-api.com",
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(otpToken, tokenValidationParameters, out SecurityToken validatedToken);
+                var jwtToken = (JwtSecurityToken)validatedToken;
+
+                var tokenEmail = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var tokenOtp = jwtToken.Claims.FirstOrDefault(c => c.Type == "otp")?.Value;
+
+                Console.WriteLine($"Giải mã JWT: Email = {tokenEmail}, OTP = {tokenOtp}");
+
+                return tokenEmail == email && tokenOtp == otpToken;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Lỗi khi giải mã OTP: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }
