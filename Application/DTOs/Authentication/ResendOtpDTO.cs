@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Authentication
 {
-    public class LoginDTO
+    public class ResendOtpDTO
     {
         public string Email { get; set; }
-        public string Password { get; set; }
     }
 }

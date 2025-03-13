@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313090952_upDb")]
+    partial class upDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,28 +60,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2159),
+                            CreatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4894),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2163),
+                            UpdatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4897),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2165),
+                            CreatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4900),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2165),
+                            UpdatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4900),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2166),
+                            CreatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4901),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 13, 9, 10, 41, 768, DateTimeKind.Utc).AddTicks(2166),
+                            UpdatedAt = new DateTime(2025, 3, 13, 9, 9, 50, 468, DateTimeKind.Utc).AddTicks(4901),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -138,8 +141,8 @@ namespace Infrastructure.Migrations
                     b.Property<string>("VerificationCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("VerificationExpiry")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("VerificationExpiry")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
 

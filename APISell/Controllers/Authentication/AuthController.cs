@@ -2,6 +2,7 @@
 using Application.DTOs.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APISell.Controllers.Authentication
 {
@@ -15,6 +16,8 @@ namespace APISell.Controllers.Authentication
         {
             _authServices = authServices;
         }
+
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
@@ -28,10 +31,35 @@ namespace APISell.Controllers.Authentication
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost("verify-otp")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDTO model)
         {
             var result = await _authServices.VerifyOtp(model);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("resend-otp")]
+        public async Task<IActionResult> ResendOtp([FromBody] ResendOtpDTO model)
+        {
+            var result = await _authServices.ResendOtp(model);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO model)
+        {
+            var result = await _authServices.Login(model);
             if (!result.Success)
             {
                 return BadRequest(result);
