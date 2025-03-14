@@ -14,7 +14,13 @@ namespace Infrastructure.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-
+        public DbSet<Attributes> Attributes { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductAttribute> ProductAttributes { get; set; }
+        public DbSet<CategoryAttribute> CategoryAttributes { get; set; }
+        
         public AppDbContext() { }
 
         public AppDbContext(DbContextOptions options) : base(options)
