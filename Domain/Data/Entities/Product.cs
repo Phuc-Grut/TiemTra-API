@@ -16,9 +16,17 @@ namespace Domain.Data.Entities
         public string? Description { get; set; }
         public string? PrivewImage { get; set; }
         public string? Origin { get; set; }
+
+        public string? ProductCode { get; set; }
+        public decimal? Price { get; set; }
+        public int? Stock { get; set; }
+
         //public string?  { get; set; }
         public Category? Category { get; set; }
         public Brand? Brand { get; set; }
+
         public ICollection<ProductAttribute> ProductAttributes { get; set; }
+        public ICollection<ProductVariations> ProductVariations { get; set; }
+        public ICollection<ProductImage> ProductImages { get; set; }
     }
 }

@@ -26,6 +26,20 @@ namespace Infrastructure.Database.Configurations
                 .HasForeignKey(p => p.BrandId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasMany(p => p.ProductImages)
+              .WithOne(pi => pi.Product)   // Mỗi ProductImage thuộc về một Product
+              .HasForeignKey(pi => pi.ProductId)
+              .OnDelete(DeleteBehavior.NoAction);
+
+            // Product có thể có nhiều ProductVariations
+            builder.HasMany(p => p.ProductVariations)
+                   .WithOne(pv => pv.Product)  // Mỗi ProductVariation thuộc về một Product
+                   .HasForeignKey(pv => pv.ProductId)
+                   .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Property(p => p.Price)
+              .HasColumnType("decimal(18, 2)");
+
             builder.Property(p => p.CreatedBy).IsRequired();
             builder.Property(p => p.UpdatedBy).IsRequired();
 

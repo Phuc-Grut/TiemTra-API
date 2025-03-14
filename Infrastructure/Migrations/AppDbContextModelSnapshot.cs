@@ -200,12 +200,21 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Origin")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
                     b.Property<string>("PrivewImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Stock")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -266,6 +275,131 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProductAttributes", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Data.Entities.ProductImage", b =>
+                {
+                    b.Property<int>("ProductImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductImageId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ProductVariationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductImageId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariationId");
+
+                    b.ToTable("ProductImages", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.ProductVariationDetails", b =>
+                {
+                    b.Property<string>("ProductVariationDetailsId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ProductCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProductVariationsId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductVariationDetailsId");
+
+                    b.HasIndex("ProductVariationsId");
+
+                    b.ToTable("ProductVariationDetails", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.ProductVariations", b =>
+                {
+                    b.Property<int>("ProductVariationsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductVariationsId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VariationType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VariationValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductVariationsId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductVariations", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Data.Entities.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -301,28 +435,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3210),
+                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5174),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3212),
+                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5176),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3214),
+                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3215),
+                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3216),
+                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5179),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 14, 12, 50, 54, 688, DateTimeKind.Utc).AddTicks(3216),
+                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5180),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -470,6 +604,43 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Data.Entities.ProductImage", b =>
+                {
+                    b.HasOne("Domain.Data.Entities.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Data.Entities.ProductVariations", "ProductVariation")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductVariationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariation");
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.ProductVariationDetails", b =>
+                {
+                    b.HasOne("Domain.Data.Entities.ProductVariations", "ProductVariation")
+                        .WithMany("ProductVariationDetails")
+                        .HasForeignKey("ProductVariationsId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("ProductVariation");
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.ProductVariations", b =>
+                {
+                    b.HasOne("Domain.Data.Entities.Product", "Product")
+                        .WithMany("ProductVariations")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Domain.Data.Entities.UserRole", b =>
                 {
                     b.HasOne("Domain.Data.Entities.Role", "Role")
@@ -513,6 +684,17 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
                 {
                     b.Navigation("ProductAttributes");
+
+                    b.Navigation("ProductImages");
+
+                    b.Navigation("ProductVariations");
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.ProductVariations", b =>
+                {
+                    b.Navigation("ProductImages");
+
+                    b.Navigation("ProductVariationDetails");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Role", b =>
