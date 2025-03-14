@@ -41,7 +41,7 @@ namespace Application.Services.Authentincation
 
             var token = GenerateJwtToken(user);
 
-            return new ApiResponse(true, "Đăng nhập thành công", user);
+            return new ApiResponse(true, "Đăng nhập thành công", user, token);
         }
 
         // Đăng ký tài khoản
