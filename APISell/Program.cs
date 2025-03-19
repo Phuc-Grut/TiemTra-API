@@ -1,15 +1,20 @@
-﻿using Application.Interface.Authentication;
+﻿using Application.Interface;
+using Application.Interface.Authentication;
+using Application.Services;
 using Application.Services.Authentication;
 using Application.Services.Authentincation;
 using Application.Validations;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Database;
+using Infrastructure.Interface;
 using Infrastructure.Interface.Authentication;
+using Infrastructure.Repositories;
 using Infrastructure.Repositories.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +28,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthServices, AuthService>();
+builder.Services.AddScoped<ICategoryServices, CategoryServices>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // cấu hình jwt
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -50,12 +57,42 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// cấu hình JSON để tránh vòng lặp dữ liệu
-builder.Services.AddControllers().AddJsonOptions(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    options.JsonSerializerOptions.WriteIndented = true;
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Bearer {your token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
 });
+
+
+// cấu hình JSON để tránh vòng lặp dữ liệu
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 
 // đăng ký validate
 builder.Services.AddFluentValidationAutoValidation();

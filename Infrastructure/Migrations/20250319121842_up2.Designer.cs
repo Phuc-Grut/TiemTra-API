@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250314162845_up")]
-    partial class up
+    [Migration("20250319121842_up2")]
+    partial class up2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,10 +103,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -138,7 +135,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.CategoryAttribute", b =>
+            modelBuilder.Entity("Domain.Data.Entities.CategoryAttributes", b =>
                 {
                     b.Property<int>("CategoryAttributeId")
                         .ValueGeneratedOnAdd()
@@ -199,6 +196,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("HasVariations")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Origin")
                         .HasColumnType("nvarchar(max)");
@@ -438,28 +438,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5174),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9015),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5176),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9019),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9021),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9022),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5179),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9023),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5180),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9024),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -554,7 +554,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("ParentCategory");
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.CategoryAttribute", b =>
+            modelBuilder.Entity("Domain.Data.Entities.CategoryAttributes", b =>
                 {
                     b.HasOne("Domain.Data.Entities.Attributes", "Attribute")
                         .WithMany("CategoryAttributes")

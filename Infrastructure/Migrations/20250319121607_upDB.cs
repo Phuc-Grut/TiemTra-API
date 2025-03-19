@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class up : Migration
+    public partial class upDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,8 +54,7 @@ namespace Infrastructure.Migrations
                 name: "Category",
                 columns: table => new
                 {
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
                     CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ParentId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
@@ -83,7 +82,7 @@ namespace Infrastructure.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -151,15 +150,16 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: true),
-                    BrandId = table.Column<int>(type: "int", nullable: true),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrivewImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Origin = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrivewImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Stock = table.Column<int>(type: "int", nullable: true),
+                    Origin = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HasVariations = table.Column<bool>(type: "bit", nullable: true),
+                    CategoryId = table.Column<int>(type: "int", nullable: true),
+                    BrandId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
@@ -321,9 +321,9 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RoleId", "CreatedAt", "CreatedBy", "RoleName", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5174), new Guid("00000000-0000-0000-0000-000000000000"), "Admin", new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5176), new Guid("00000000-0000-0000-0000-000000000000") },
-                    { 2, new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178), new Guid("00000000-0000-0000-0000-000000000000"), "Staff", new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5178), new Guid("00000000-0000-0000-0000-000000000000") },
-                    { 3, new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5179), new Guid("00000000-0000-0000-0000-000000000000"), "Customer", new DateTime(2025, 3, 14, 16, 28, 45, 472, DateTimeKind.Utc).AddTicks(5180), new Guid("00000000-0000-0000-0000-000000000000") }
+                    { 1, new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3667), new Guid("00000000-0000-0000-0000-000000000000"), "Admin", new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3669), null },
+                    { 2, new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672), new Guid("00000000-0000-0000-0000-000000000000"), "Staff", new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672), null },
+                    { 3, new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713), new Guid("00000000-0000-0000-0000-000000000000"), "Customer", new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713), null }
                 });
 
             migrationBuilder.CreateIndex(

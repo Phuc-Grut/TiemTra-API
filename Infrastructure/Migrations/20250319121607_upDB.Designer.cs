@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250319083601_updb2")]
-    partial class updb2
+    [Migration("20250319121607_upDB")]
+    partial class upDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,7 +53,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("AttributeId");
@@ -92,7 +93,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("BrandId");
@@ -103,10 +105,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -128,7 +127,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CategoryId");
@@ -136,6 +136,46 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Category", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.CategoryAttributes", b =>
+                {
+                    b.Property<int>("CategoryAttributeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryAttributeId"));
+
+                    b.Property<int>("AttributeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CategoryAttributeId");
+
+                    b.HasIndex("AttributeId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("CategoryAttributes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
@@ -161,6 +201,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("HasVariations")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Origin")
                         .HasColumnType("nvarchar(max)");
 
@@ -185,7 +228,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductId");
@@ -224,7 +268,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value")
@@ -270,7 +315,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductImageId");
@@ -312,7 +358,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductVariationDetailsId");
@@ -346,7 +393,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("VariationType")
@@ -384,7 +432,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("RoleId");
@@ -399,29 +447,26 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6653),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3667),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6658),
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3669)
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6663),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6664),
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672)
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6668),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 19, 8, 35, 57, 96, DateTimeKind.Utc).AddTicks(6668),
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713)
                         });
                 });
 
@@ -474,7 +519,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("VerificationCode")
@@ -513,6 +559,25 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("Domain.Data.Entities.CategoryAttributes", b =>
+                {
+                    b.HasOne("Domain.Data.Entities.Attributes", "Attribute")
+                        .WithMany("CategoryAttributes")
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Data.Entities.Category", "Category")
+                        .WithMany("CategoryAttributes")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attribute");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
@@ -607,6 +672,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Data.Entities.Attributes", b =>
                 {
+                    b.Navigation("CategoryAttributes");
+
                     b.Navigation("ProductAttributes");
                 });
 
@@ -617,6 +684,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Data.Entities.Category", b =>
                 {
+                    b.Navigation("CategoryAttributes");
+
                     b.Navigation("ChildCategories");
 
                     b.Navigation("Products");

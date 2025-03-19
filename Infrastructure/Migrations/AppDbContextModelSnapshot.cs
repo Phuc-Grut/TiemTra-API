@@ -100,10 +100,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -438,28 +435,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(197),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9015),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(203),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9019),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(211),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9021),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(211),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9022),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(215),
+                            CreatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9023),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 19, 9, 14, 13, 424, DateTimeKind.Utc).AddTicks(216),
+                            UpdatedAt = new DateTime(2025, 3, 19, 12, 18, 41, 823, DateTimeKind.Utc).AddTicks(9024),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
