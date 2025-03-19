@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Category
 {
-    public class CategoryDto
+    public class UpCategoryDto
     {
-        public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
         public int? ParentId { get; set; }
     }

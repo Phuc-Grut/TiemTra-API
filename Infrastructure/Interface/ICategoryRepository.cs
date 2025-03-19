@@ -1,17 +1,16 @@
 ﻿using Domain.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.DTOs.Category;
 
 namespace Infrastructure.Interface
 {
     public interface ICategoryRepository
     {
+        IQueryable<Category> GetCategoriesQuery();
         Task<Category> AddCategory(Category category, CancellationToken cancellationToken);
-        //Task DeleteCategory(int categoryId);
+        Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken);
         Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken);
         Task<IEnumerable<Category>> GetAllCategories( CancellationToken cancellationToken);
+        //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
+        Task<bool> UpdateCategory(Category category, CancellationToken cancellationToken);
     }
 }

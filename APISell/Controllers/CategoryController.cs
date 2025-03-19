@@ -1,11 +1,10 @@
 ﻿using Application.DTOs.Category;
 using Application.Interface;
-using Application.Services;
+using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
-using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APISell.Controllers
 {
@@ -21,27 +20,51 @@ namespace APISell.Controllers
             _categoryServices = categoryServices;
         }
 
-        [HttpGet("get-all-category")]
-        public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken)
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllCategories( [FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
         {
             try
             {
-                var categories = await _categoryServices.GetAllCategories(cancellationToken);
+                if (pageNumber <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { success = false, message = "PageNumber và PageSize phải lớn hơn 0." });
+                }
 
-                return Ok(new { success = true, message = "Lấy danh sách danh mục thành công", data = categories });
+                var filters = new CategoryFilterDto
+                {
+                    Keyword = keyword,
+                    //ParentId = parentId,
+                    //CategoryId = categoryId
+                };
+
+                var pagedResult = await _categoryServices.GetAllCategories(filters, pageNumber, pageSize, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Lấy danh sách danh mục thành công",
+                    data = pagedResult.Items,
+                    totalItems = pagedResult.TotalItems,
+                    totalPages = pagedResult.TotalPages,
+                    currentPage = pagedResult.CurrentPage,
+                    pageSize = pagedResult.PageSize
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi server", error = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Đã xảy ra lỗi khi lấy danh mục",
+                    error = ex.Message
+                });
             }
         }
 
 
         [HttpPost("add-category")]
-        public async Task<IActionResult> AddCategory([FromBody] CategoryDto categoryDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddCategory([FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
-            
-
             try
             {
                 // Lấy thông tin User từ HttpContext
@@ -56,11 +79,79 @@ namespace APISell.Controllers
 
                 return Ok(new ApiResponse(true, "tạo danh mục thành công", categoryDto));
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                return Unauthorized("Bạn chưa đăng nhập.");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
             }
         }
 
+        [HttpDelete("delete-category")]
+        public async Task<IActionResult> DeleteCategory(int categoryId , CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _categoryServices.DeleteCategory(categoryId, cancellationToken);
+
+                if (!result)
+                {
+                    return NotFound(new ApiResponse(false, "Danh mục không tồn tại."));
+                }
+                return Ok(new ApiResponse(true, "Xóa danh mục thành công."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("update-category")]
+        public async Task<IActionResult> UpdateCategory([FromBody] UpCategoryDto categoryDto, int categoryId, CancellationToken cancellationToken)
+        {
+            try
+            {
+
+                var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, cancellationToken);
+                if (!result)
+                {
+                    return NotFound(new ApiResponse(false, "Danh mục không tồn tại."));
+                }
+
+                return Ok(new ApiResponse(true, "Cập nhật danh mục thành công."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
+
+        //[HttpGet("filter-category")]
+        //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)
+        //{
+        //    try
+        //    {
+        //        var categories = await _categoryServices.FilterCategories(filters, cancellationToken);
+        //        return Ok(new ApiResponse(true, "Lọc anh mục thành công", categories));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new
+        //        {
+        //            success = false,
+        //            error = ex.Message
+        //        });
+        //    }
+        //}
     }
 }
