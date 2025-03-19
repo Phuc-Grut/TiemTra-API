@@ -23,8 +23,8 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<Category>> GetAllCategories(CancellationToken cancellationToken)
         {
             return await _context.Categories
-                .Include(c => c.ChildCategories) // Lấy danh mục con ngay từ database
-                .AsNoTracking() // Tăng hiệu suất, tránh lỗi vòng lặp EF
+                .Include(c => c.ChildCategories)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
@@ -54,9 +54,9 @@ namespace Infrastructure.Repositories
             return _context.Categories.AsQueryable();
         }
 
-        public Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken)
+        public async Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken)
         {
-            return _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == categoryId, cancellationToken);
+            return await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == categoryId, cancellationToken);
         }
 
         public async Task<bool> UpdateCategory(Category category, CancellationToken cancellationToken)

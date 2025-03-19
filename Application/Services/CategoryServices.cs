@@ -69,7 +69,6 @@ namespace Application.Services
 
             return newId;
         }
-        
 
         public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
         {

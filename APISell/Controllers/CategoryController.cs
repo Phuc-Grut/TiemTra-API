@@ -4,7 +4,6 @@ using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APISell.Controllers
 {

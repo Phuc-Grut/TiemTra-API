@@ -10,7 +10,7 @@ namespace Infrastructure.Interface
         Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken);
         Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken);
         Task<IEnumerable<Category>> GetAllCategories( CancellationToken cancellationToken);
-        //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
         Task<bool> UpdateCategory(Category category, CancellationToken cancellationToken);
+        //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
     }
 }
