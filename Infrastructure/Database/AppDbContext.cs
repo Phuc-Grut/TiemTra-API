@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -22,6 +23,7 @@ namespace Infrastructure.Database
         public DbSet<ProductImage> ProductImages { get; set; }
         public ProductVariations Variations { get; set; }
         public ProductVariationDetails VariationDetails { get; set; }
+        public ICollection<CategoryAttributes> CategoryAttributes { get; set; }
 
         public AppDbContext() { }
 

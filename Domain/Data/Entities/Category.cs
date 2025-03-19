@@ -1,6 +1,7 @@
 ﻿using Domain.Data.Base;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,5 +16,6 @@ namespace Domain.Data.Entities
         public Category ParentCategory { get; set; }
         public ICollection<Category> ChildCategories { get; set; }
         public ICollection<Product> Products { get; set; }
+        public ICollection<CategoryAttributes> CategoryAttributes { get; set; }
     }
 }
