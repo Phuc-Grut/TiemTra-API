@@ -30,11 +30,6 @@ namespace Infrastructure.Database.Configurations
                .HasForeignKey(p => p.CategoryId)
                .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(c => c.CategoryAttributes)
-              .WithOne(ca => ca.Category)
-              .HasForeignKey(ca => ca.CategoryId)
-              .OnDelete(DeleteBehavior.Cascade);
-
             builder.Property(c => c.CreatedBy).IsRequired();
             builder.Property(c => c.UpdatedBy).IsRequired();
 

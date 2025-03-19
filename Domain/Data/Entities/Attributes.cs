@@ -13,6 +13,5 @@ namespace Domain.Data.Entities
         public string Name { get; set; }
         public string? Description { get; set; }
         public ICollection<ProductAttribute> ProductAttributes { get; set; }
-        public ICollection<CategoryAttribute> CategoryAttributes { get; set; }
     }
 }

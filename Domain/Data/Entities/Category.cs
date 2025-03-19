@@ -15,6 +15,5 @@ namespace Domain.Data.Entities
         public Category ParentCategory { get; set; }
         public ICollection<Category> ChildCategories { get; set; }
         public ICollection<Product> Products { get; set; }
-        public ICollection<CategoryAttribute> CategoryAttributes { get; set; }
     }
 }

@@ -19,7 +19,6 @@ namespace Infrastructure.Database
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
-        public DbSet<CategoryAttribute> CategoryAttributes { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public ProductVariations Variations { get; set; }
         public ProductVariationDetails VariationDetails { get; set; }
