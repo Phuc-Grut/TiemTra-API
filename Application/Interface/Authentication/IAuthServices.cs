@@ -14,5 +14,6 @@ namespace Application.Interface.Authentication
         Task<ApiResponse> Login(LoginDTO model);
         Task<ApiResponse> VerifyOtp(VerifyOtpDTO model);
         Task<ApiResponse> ResendOtp(ResendOtpDTO model);
+        Task<ApiResponse> RefreshTokenAsync(RefreshTokenDTO model);
     }
 }

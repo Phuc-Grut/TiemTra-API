@@ -3,6 +3,7 @@ using Application.DTOs.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Application.Services.Authentincation;
 
 namespace APISell.Controllers.Authentication
 {
@@ -66,5 +67,21 @@ namespace APISell.Controllers.Authentication
             }
             return Ok(result);
         }
+
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO model)
+        {
+            var result = await _authServices.RefreshTokenAsync(model);
+
+            if (!result.Success)
+            {
+                return Unauthorized(result);
+            }
+
+            return Ok(result);
+        }
+
+
     }
 }

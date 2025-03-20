@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Infrastructure.Interface;
 
 namespace Application.Services.Authentincation
 {
@@ -18,30 +19,15 @@ namespace Application.Services.Authentincation
         private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IAuthRepository authRepository, IEmailService emailService, IConfiguration configuration)
+        public AuthService(IAuthRepository authRepository, IEmailService emailService, IConfiguration configuration, IUserRepository userRepository)
         {
 
             _authRepository = authRepository;
             _configuration = configuration;
             _emailService = emailService;
-        }
-        // đăng nhập
-        public async Task<ApiResponse> Login(LoginDTO model)
-        {
-            var user = await _authRepository.GetUserByEmail(model.Email);
-            if (user == null)
-                return new ApiResponse(false, "Email không tồn tại");
-
-            if (user.HashPassword != HashPassword(model.Password))
-                return new ApiResponse(false, "Mật khẩu không chính xác");
-
-            if (!user.EmailConfirmed)
-                return new ApiResponse(false, "Vui lòng xác thực email trước khi đăng nhập");
-
-            var token = GenerateJwtToken(user);
-
-            return new ApiResponse(true, "Đăng nhập thành công", user, token);
+            _userRepository = userRepository;
         }
 
         // Đăng ký tài khoản
@@ -137,7 +123,45 @@ namespace Application.Services.Authentincation
             return new ApiResponse(true, "Mã OTP mới đã được gửi đến email của bạn.");
         }
 
-        private string GenerateJwtToken(User user)
+        public async Task<ApiResponse> Login(LoginDTO model)
+        {
+            var user = await _authRepository.GetUserByEmail(model.Email);
+            if (user == null)
+                return new ApiResponse(false, "Email không tồn tại");
+
+            if (user.HashPassword != HashPassword(model.Password))
+                return new ApiResponse(false, "Mật khẩu không chính xác");
+
+            if (!user.EmailConfirmed)
+                return new ApiResponse(false, "Vui lòng xác thực email trước khi đăng nhập");
+
+            // ✅ Kiểm tra nếu user đã có refresh token cũ => thu hồi token cũ (có thể làm nếu muốn tăng bảo mật)
+            if (!string.IsNullOrEmpty(user.RefreshToken))
+            {
+                user.RefreshToken = null;
+                user.RefreshTokenExpiryTime = null;
+                await _userRepository.UpdateUser(user, CancellationToken.None);
+            }
+
+            // ✅ Tạo Access Token & Refresh Token
+            string refreshToken;
+            var token = GenerateJwtToken(user, out refreshToken);
+
+            // ✅ Lưu Refresh Token vào database
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(3);
+
+            var updateResult = await _userRepository.UpdateUser(user, CancellationToken.None);
+            if (!updateResult)
+            {
+                return new ApiResponse(false, "Đăng nhập thất bại");
+            }
+
+            return new ApiResponse(true, "Đăng nhập thành công", user, token, refreshToken);
+        }
+
+
+        private string GenerateJwtToken(User user, out string refreshToken)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
@@ -145,22 +169,62 @@ namespace Application.Services.Authentincation
 
             var role = user.UserRoles.FirstOrDefault()?.Role?.RoleName ?? "Customer";
 
+            // ✅ Tạo một GUID mới cho Refresh Token
+            refreshToken = GenerateRefreshToken();
+            var refreshTokenId = Guid.NewGuid().ToString();
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim(JwtRegisteredClaimNames.Jti, refreshTokenId)
             };
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddMinutes(2),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    }
+
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+            }
+
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        public async Task<ApiResponse> RefreshTokenAsync(RefreshTokenDTO model)
+        {
+            var user = await _userRepository.GetUserByRefreshToken(model.RefreshToken);
+
+            if (user == null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
+            {
+                return new ApiResponse(false, "Refresh Token hết hạn. Vui lòng đăng nhập lại.");
+            }
+
+            string newRefreshToken;
+            var newAccessToken = GenerateJwtToken(user, out newRefreshToken);
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(10);
+            var updateResult = await _userRepository.UpdateUser(user, CancellationToken.None);
+
+            if (!updateResult)
+            {
+                return new ApiResponse(false, "Lỗi hệ thống, không thể cập nhật Refresh Token.");
+            }
+
+            return new ApiResponse(true, "Cấp lại token thành công", user, newAccessToken, newRefreshToken);
+        }
+    }                                                                                                       
 }

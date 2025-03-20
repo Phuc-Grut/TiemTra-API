@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Category;
+using Application.DTOs.User;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
@@ -16,11 +17,13 @@ namespace Application.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
         private static readonly Random _random = new Random();
+        private readonly IUserRepository _userRepository;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper)
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository)
         {
             _categoryRepository = categoryRepository;
-           _mapper = mapper;
+            _mapper = mapper;
+            _userRepository = userRepository;
         }
 
         public async Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
@@ -119,16 +122,6 @@ namespace Application.Services
                 query = query.Where(c => c.CategoryName.ToLower().Contains(filters.Keyword.ToLower()));
             }
 
-            //if (filters.ParentId.HasValue)
-            //{
-            //    query = query.Where(c => c.ParentId == filters.ParentId);
-            //}
-
-            //if (filters.CategoryId.HasValue)
-            //{
-            //    query = query.Where(c => c.CategoryId == filters.CategoryId);
-            //}
-
             int totalItems = await query.CountAsync(cancellationToken);
 
             var categories = await query
@@ -137,11 +130,31 @@ namespace Application.Services
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
 
+            // Lấy danh sách ID của người tạo & cập nhật
+            var userIds = categories.Select(c => c.CreatedBy).Union(categories.Select(c => c.UpdatedBy)).Distinct().ToList();
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
             var categoryDtos = categories.Select(c => new CategoryDto
             {
                 CategoryId = c.CategoryId,
                 CategoryName = c.CategoryName,
-                ParentId = c.ParentId
+                ParentId = c.ParentId,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt,
+                Creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy) != null
+                ? new UserDTO
+                {
+                    FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy).FullName,
+                    Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy).Email
+                }: null,
+
+                Updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy) != null
+                ? new UserDTO
+                {
+                    FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy).FullName,
+                    Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy).Email
+                } : null,
             }).ToList();
 
             return new PagedResult<CategoryDto>
@@ -153,7 +166,6 @@ namespace Application.Services
                 PageSize = pageSize
             };
         }
-
 
         //public async Task<IEnumerable<Category>> GetAllCategories(CancellationToken cancellationToken)
         //{

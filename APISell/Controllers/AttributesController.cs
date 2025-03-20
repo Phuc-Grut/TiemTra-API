@@ -32,7 +32,7 @@ namespace APISell.Controllers
                     return StatusCode(500, "Lỗi khi thêm thuộc tính.");
                 }
 
-                return Ok(new ApiResponse(true, "Tạo thuộc tính thành công", attributesDTO));
+                return Ok(attributesDTO);
             }
             catch (Exception ex)
             {

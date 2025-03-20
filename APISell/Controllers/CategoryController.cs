@@ -1,5 +1,7 @@
-﻿using Application.DTOs.Category;
+﻿using Application.DTOs;
+using Application.DTOs.Category;
 using Application.Interface;
+using Domain.Data.Entities;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +10,7 @@ using Shared.Common;
 namespace APISell.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -19,15 +21,13 @@ namespace APISell.Controllers
             _categoryServices = categoryServices;
         }
 
-        [HttpGet("paging")]
-        public async Task<IActionResult> GetAllCategories( [FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
+        [HttpGet("get-paging-category")]
+        public async Task<IActionResult> GetAllCategories( [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (pageNumber <= 0 || pageSize <= 0)
-                {
-                    return BadRequest(new { success = false, message = "PageNumber và PageSize phải lớn hơn 0." });
-                }
+                pageNumber = pageNumber < 1 ? 1 : pageNumber;
+                pageSize = pageSize < 1 ? 10 : pageSize;
 
                 var filters = new CategoryFilterDto
                 {
@@ -75,7 +75,7 @@ namespace APISell.Controllers
                     return StatusCode(500, "Lỗi khi thêm danh mục.");
                 }
 
-                return Ok(new ApiResponse(true, "tạo danh mục thành công", categoryDto));
+                return Ok(category);
             }
             catch (Exception ex)
             {
@@ -96,9 +96,13 @@ namespace APISell.Controllers
 
                 if (!result)
                 {
-                    return NotFound(new ApiResponse(false, "Danh mục không tồn tại."));
+                    return NotFound();
                 }
-                return Ok(new ApiResponse(true, "Xóa danh mục thành công."));
+                return Ok(new
+                {
+                    success = true,
+                    message = "Xóa thành công",
+                });
             }
             catch (Exception ex)
             {
@@ -118,10 +122,10 @@ namespace APISell.Controllers
                 var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, cancellationToken);
                 if (!result)
                 {
-                    return NotFound(new ApiResponse(false, "Danh mục không tồn tại."));
+                    return NotFound();
                 }
 
-                return Ok(new ApiResponse(true, "Cập nhật danh mục thành công."));
+                return Ok();
             }
             catch (Exception ex)
             {
