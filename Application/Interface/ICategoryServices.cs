@@ -8,8 +8,8 @@ namespace Application.Interface
 {
     public interface ICategoryServices
     {
-        Task<Category> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
-        Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken);
+        Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<CategoryDto> GetCategoryById(int categoryId, CancellationToken cancellationToken);
         Task<PagedResult<CategoryDto>> GetAllCategories(CategoryFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken);
         Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, CancellationToken cancellationToken);

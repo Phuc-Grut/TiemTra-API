@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories
         public async Task<Category> AddCategory(Category category, CancellationToken cancellationToken)
         {
             _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             return category;
         }
 

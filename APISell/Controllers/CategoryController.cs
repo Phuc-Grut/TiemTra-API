@@ -60,7 +60,6 @@ namespace APISell.Controllers
             }
         }
 
-
         [HttpPost("add-category")]
         public async Task<IActionResult> AddCategory([FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
@@ -116,7 +115,6 @@ namespace APISell.Controllers
         {
             try
             {
-
                 var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, cancellationToken);
                 if (!result)
                 {

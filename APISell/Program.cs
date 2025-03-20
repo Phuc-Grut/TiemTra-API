@@ -1,5 +1,6 @@
 ﻿using Application.Interface;
 using Application.Interface.Authentication;
+using Application.Mappings;
 using Application.Services;
 using Application.Services.Authentication;
 using Application.Services.Authentincation;
@@ -30,6 +31,11 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthServices, AuthService>();
 builder.Services.AddScoped<ICategoryServices, CategoryServices>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAttributesServices, AttributesServices>();
+builder.Services.AddScoped<IAttributesRepository, AttributesRepository>();
+
+//map
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // cấu hình jwt
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

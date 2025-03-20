@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Category;
 using Application.Interface;
+using AutoMapper;
 using Domain.Data.Entities;
 using Domain.DTOs.Category;
 using Infrastructure.Interface;
@@ -12,15 +13,17 @@ namespace Application.Services
 {
     public class CategoryServices : ICategoryServices
     {
-        private ICategoryRepository _categoryRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
         private static readonly Random _random = new Random();
 
-        public CategoryServices(ICategoryRepository categoryRepository)
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+           _mapper = mapper;
         }
 
-        public async Task<Category> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        public async Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             try
             {
@@ -38,7 +41,7 @@ namespace Application.Services
                 };
 
                 var result = await _categoryRepository.AddCategory(newCategory, cancellationToken);
-                return result;
+                return _mapper.Map<CategoryDto>(result);
             }
             catch (Exception ex)
             {
@@ -47,9 +50,14 @@ namespace Application.Services
             }
         }
 
-        public async Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken)
+        public async Task<CategoryDto> GetCategoryById(int categoryId, CancellationToken cancellationToken)
         {
-            return await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+            var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
+            if (category == null)
+                return null;
+
+            return _mapper.Map<CategoryDto>(category);
         }
 
         //Tạo id
