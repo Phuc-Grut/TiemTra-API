@@ -25,10 +25,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Attributes", b =>
                 {
                     b.Property<int>("AttributeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttributeId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -61,10 +58,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Brand", b =>
                 {
                     b.Property<int>("BrandId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BrandId"));
 
                     b.Property<string>("BrandName")
                         .IsRequired()
@@ -113,6 +107,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -435,28 +432,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6401),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2329),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6404),
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2332),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6406),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6406),
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6407),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 20, 14, 2, 59, 969, DateTimeKind.Utc).AddTicks(6407),
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });

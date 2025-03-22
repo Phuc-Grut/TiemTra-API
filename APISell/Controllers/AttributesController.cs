@@ -1,12 +1,14 @@
 ﻿using Application.DTOs.Attributes;
 using Application.DTOs.Category;
 using Application.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
 
 namespace APISell.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AttributesController : ControllerBase

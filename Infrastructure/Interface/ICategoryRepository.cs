@@ -11,6 +11,8 @@ namespace Infrastructure.Interface
         Task<Category> GetCategoryById(int categoryId, CancellationToken cancellationToken);
         Task<IEnumerable<Category>> GetAllCategories( CancellationToken cancellationToken);
         Task<bool> UpdateCategory(Category category, CancellationToken cancellationToken);
+        Task<bool> HasChildCategories(int categoryId);
+        Task<bool> CategoryExists(int categoryId);
         //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
     }
 }

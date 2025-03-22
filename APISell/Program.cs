@@ -35,6 +35,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAttributesServices, AttributesServices>();
 builder.Services.AddScoped<IAttributesRepository, AttributesRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryAttributeService, CategoryAttributeService>();
+builder.Services.AddScoped<ICategoryAttributesRepository, CategoryAttributesRepository>();
 
 //map
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

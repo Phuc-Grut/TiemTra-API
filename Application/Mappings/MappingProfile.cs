@@ -16,6 +16,7 @@ namespace Application.Mappings
         {
             CreateMap<Category, CategoryDto>();
             CreateMap<Attributes, AttributesDTO>();
+            CreateMap<CategoryAttributes, AddAttributeToCategoryDTO>();
         }
     }
 }

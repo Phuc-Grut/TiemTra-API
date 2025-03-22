@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250319121607_upDB")]
-    partial class upDB
+    [Migration("20250322080334_updb")]
+    partial class updb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,10 +28,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Attributes", b =>
                 {
                     b.Property<int>("AttributeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttributeId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -53,8 +50,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("AttributeId");
@@ -65,10 +61,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Brand", b =>
                 {
                     b.Property<int>("BrandId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BrandId"));
 
                     b.Property<string>("BrandName")
                         .IsRequired()
@@ -93,8 +86,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("BrandId");
@@ -119,6 +111,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
@@ -127,8 +122,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CategoryId");
@@ -165,8 +159,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CategoryAttributeId");
@@ -228,8 +221,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductId");
@@ -268,8 +260,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value")
@@ -315,8 +306,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductImageId");
@@ -358,8 +348,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductVariationDetailsId");
@@ -393,8 +382,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("VariationType")
@@ -432,7 +420,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UpdatedBy")
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("RoleId");
@@ -447,26 +435,29 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3667),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2329),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3669)
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2332),
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3672)
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713),
+                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 19, 12, 16, 6, 928, DateTimeKind.Utc).AddTicks(3713)
+                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
 
@@ -511,6 +502,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -519,8 +516,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .IsRequired()
+                    b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("VerificationCode")

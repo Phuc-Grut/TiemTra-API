@@ -38,13 +38,14 @@ namespace Application.Services
                 {
                     CategoryId = await GenerateUniqueCategoryId(cancellationToken),
                     CategoryName = categoryDto.CategoryName,
+                    Description = categoryDto.Description,
                     ParentId = parentId,
                     CreatedBy = userId,
                     UpdatedBy = userId
                 };
 
                 var result = await _categoryRepository.AddCategory(newCategory, cancellationToken);
-                return _mapper.Map<CategoryDto>(result);
+                return _mapper.Map<CategoryDto>(newCategory);
             }
             catch (Exception ex)
             {
@@ -61,24 +62,6 @@ namespace Application.Services
                 return null;
 
             return _mapper.Map<CategoryDto>(category);
-        }
-
-        //Tạo id
-        public async Task<int> GenerateUniqueCategoryId(CancellationToken cancellationToken)
-        {
-            // Lấy danh sách ID hiện có từ danh sách danh mục
-            var existingIds = (await _categoryRepository.GetAllCategories(cancellationToken))
-                                .Select(c => c.CategoryId)
-                                .ToHashSet();
-
-            int newId;
-            do
-            {
-                newId = new Random().Next(100, 999);
-            }
-            while (existingIds.Contains(newId)); // check ID trùng
-
-            return newId;
         }
 
         public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
@@ -98,6 +81,11 @@ namespace Application.Services
             if (!string.IsNullOrEmpty(categoryDto.CategoryName))
             {
                 category.CategoryName = categoryDto.CategoryName;
+            }
+
+            if (!string.IsNullOrEmpty(categoryDto.Description))
+            {
+                category.Description = categoryDto.Description;
             }
 
             if (categoryDto.ParentId.HasValue)
@@ -165,6 +153,21 @@ namespace Application.Services
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
+        }
+        //tạo id
+        private async Task<int> GenerateUniqueCategoryId(CancellationToken cancellationToken)
+        {
+            var existingIds = (await _categoryRepository.GetAllCategories(cancellationToken))
+                                .Select(c => c.CategoryId)
+                                .ToHashSet();
+
+            int newId;
+            do
+            {
+                newId = new Random().Next(100, 999);
+            }
+            while (existingIds.Contains(newId));
+            return newId;
         }
 
         //public async Task<IEnumerable<Category>> GetAllCategories(CancellationToken cancellationToken)

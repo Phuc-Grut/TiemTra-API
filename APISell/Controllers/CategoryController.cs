@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Category;
 using Application.Interface;
+using Application.Services;
 using Domain.Data.Entities;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,17 @@ namespace APISell.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private ICategoryServices _categoryServices;
+        private readonly ICategoryServices _categoryServices;
+        private readonly ICategoryAttributeService _categoryAttSv;
 
-        public CategoryController(ICategoryServices categoryServices)
+        public CategoryController(ICategoryServices categoryServices, ICategoryAttributeService categoryAttribute)
         {
             _categoryServices = categoryServices;
+            _categoryAttSv = categoryAttribute;
         }
 
         [HttpGet("get-paging-category")]
-        public async Task<IActionResult> GetAllCategories( [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAllCategories([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -88,7 +91,7 @@ namespace APISell.Controllers
         }
 
         [HttpDelete("delete-category")]
-        public async Task<IActionResult> DeleteCategory(int categoryId , CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
         {
             try
             {
@@ -136,6 +139,22 @@ namespace APISell.Controllers
                 });
             }
         }
+
+        [HttpPost("add-attribute-to-category")]
+        public async Task<IActionResult> AddAttributeToCategory([FromBody] AddAttributeToCategoryDTO addDto, CancellationToken cancellationToken)
+        {
+            var user = HttpContext.User;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var rs = await _categoryAttSv.AddAttributesToCategory(addDto, user, cancellationToken);
+            return Ok(rs);
+        }
+
+        //[HttpPost("get-category-by-id")]
+
+
 
         //[HttpGet("filter-category")]
         //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)

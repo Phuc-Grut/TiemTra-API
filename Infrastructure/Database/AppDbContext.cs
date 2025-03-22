@@ -21,9 +21,9 @@ namespace Infrastructure.Database
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
-        public ProductVariations Variations { get; set; }
-        public ProductVariationDetails VariationDetails { get; set; }
-        public ICollection<CategoryAttributes> CategoryAttributes { get; set; }
+        public DbSet<ProductVariations> ProductVariations { get; set; }
+        public DbSet<ProductVariationDetails> VariationDetails { get; set; }
+        public DbSet<CategoryAttributes> CategoryAttributes { get; set; }
 
         public AppDbContext() { }
 

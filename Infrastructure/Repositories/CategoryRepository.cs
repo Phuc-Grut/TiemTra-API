@@ -58,7 +58,15 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
+        public async Task<bool> HasChildCategories(int categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.ParentId == categoryId);
+        }
 
+        public async Task<bool> CategoryExists(int categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
+        }
 
         //public async Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken)
         //{

@@ -28,5 +28,10 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return attributes;
         }
+
+        public async Task<bool> AttributeExists(int attributeId)
+        {
+            return await _context.Attributes.AnyAsync(a => a.AttributeId == attributeId);
+        }
     }
 }

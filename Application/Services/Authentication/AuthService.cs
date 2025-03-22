@@ -185,7 +185,7 @@ namespace Application.Services.Authentincation
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(2),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: creds
             );
 
@@ -216,7 +216,7 @@ namespace Application.Services.Authentincation
             var newAccessToken = GenerateJwtToken(user, out newRefreshToken);
 
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(10);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(3);
             var updateResult = await _userRepository.UpdateUser(user, CancellationToken.None);
 
             if (!updateResult)

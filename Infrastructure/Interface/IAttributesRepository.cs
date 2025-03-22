@@ -12,5 +12,6 @@ namespace Infrastructure.Interface
     {
         Task<Attributes> AddAttribute(Attributes attributes , CancellationToken cancellationToken);
         Task<IEnumerable<Attributes>> GetAllAttributes(CancellationToken cancellationToken);
+        Task<bool> AttributeExists(int attributeId);
     }
 }
