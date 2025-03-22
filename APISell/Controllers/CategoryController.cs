@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APISell.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -148,12 +148,18 @@ namespace APISell.Controllers
             return Ok(rs);
         }
 
-        [HttpPost("get-category-by-id")]
-        public async Task<IActionResult> GetCategoryById([FromBody] CategoryIdRequest rq, CancellationToken cancellationToken)
+        [HttpPost("get-by-id")]
+        public async Task<IActionResult> GetCategoryById([FromBody] CategoryIdRequest2 rq, CancellationToken cancellationToken = default)
         {
-            var result = await _categoryServices.GetCategoryById(rq.CategoryId, cancellationToken);
+            var result = await _categoryServices.GetCategoryById(
+                rq.CategoryId,
+                rq.PageNumber,
+                rq.PageSize,
+                cancellationToken
+            );
             return Ok(result);
         }
+
 
         //[HttpGet("filter-category")]
         //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)

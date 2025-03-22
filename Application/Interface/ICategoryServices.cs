@@ -9,7 +9,7 @@ namespace Application.Interface
     {
         Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
 
-        Task<object> GetCategoryById(int categoryId, CancellationToken cancellationToken);
+        Task<object> GetCategoryById(int categoryId, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
         Task<PagedResult<CategoryDto>> GetAllCategories(CategoryFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
 

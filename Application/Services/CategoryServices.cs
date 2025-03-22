@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Attributes;
 using Application.DTOs.Category;
 using Application.DTOs.User;
 using Application.Interface;
@@ -9,6 +10,7 @@ using Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Application.Services
 {
@@ -58,9 +60,12 @@ namespace Application.Services
             }
         }
 
-        public async Task<object> GetCategoryById(int categoryId, CancellationToken cancellationToken)
+        public async Task<object> GetCategoryById(int categoryId, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-            Console.WriteLine(categoryId);
+
+            Console.WriteLine(" ádasdasdasd ádasdasdasd", categoryId);
+            var query = _categoryRepository.GetCategoriesQuery();
+
             var categoryExists = await _categoryRepository.CategoryExists(categoryId);
             if (!categoryExists)
                 throw new Exception("Danh mục không tồn tại.");
@@ -69,45 +74,105 @@ namespace Application.Services
 
             if (subCategories != null && subCategories.Any())
             {
-                return new
+                var pagedSubCategories = subCategories
+                    .OrderBy(c => c.CategoryName)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var totalItems = subCategories.Count;
+
+                var userIds = pagedSubCategories
+                    .Select(c => c.CreatedBy)
+                    .Union(pagedSubCategories.Select(c => c.UpdatedBy))
+                    .Distinct()
+                    .ToList();
+
+                var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+                var categoryDtos = pagedSubCategories.Select(c => new CategoryDto
                 {
-                    Type = "Category",
-                    Data = subCategories.Select(c => new CategoryDto
-                    {
-                        CategoryId = c.CategoryId,
-                        CategoryName = c.CategoryName,
-                        Description = c.Description,
-                        //ParentId = c.ParentId,
-                        CreatedAt = c.CreatedAt,
-                        UpdatedAt = c.UpdatedAt
-                    }).ToList()
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    Description = c.Description,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                    Creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy) != null
+                        ? new UserDTO
+                        {
+                            FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy)?.FullName,
+                            Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy)?.Email
+                        }
+                        : null,
+                    Updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy) != null
+                        ? new UserDTO
+                        {
+                            FullName = users.FirstOrDefault(u => u.UserId == c.UpdatedBy)?.FullName,
+                            Email = users.FirstOrDefault(u => u.UserId == c.UpdatedBy)?.Email
+                        }
+                        : null
+                }).ToList();
+
+                return new PagedResult<CategoryDto>
+                {
+                    Items = categoryDtos,
+                    TotalItems = totalItems,
+                    TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                    CurrentPage = pageNumber,
+                    PageSize = pageSize
                 };
             }
 
             var attributes = await _categoryAttRepo.GetAttributesByCategory(categoryId, cancellationToken);
+
             if (attributes?.Any() == true)
             {
+                var userIds = attributes
+                    .Select(a => a.CreatedBy)
+                    .Union(attributes.Select(a => a.UpdatedBy))
+                    .Distinct()
+                    .ToList();
+
+                var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+
+                var user = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
                 return new
                 {
                     Type = "Attributes",
-                    Data = attributes.Select(a => new
+                    Data = attributes.Select(a => new AttributesDTO
                     {
-                        a.AttributeId,
-                        a.Name,
-                        a.Description,
-                        a.UpdatedBy,
-                        a.CreatedBy,
-                        a.CreatedAt,
-                        a.UpdatedAt
+                        AttributeId = a.AttributeId,
+                        Name = a.Name,
+                        Description = a.Description,
+                        CreatedAt = a.CreatedAt,
+                        UpdatedAt = a.UpdatedAt,
+                        Creator = user.FirstOrDefault(u => u.UserId == a.CreatedBy) != null
+                        ? new UserDTO
+                        {
+                            FullName = user.FirstOrDefault(u => u.UserId == a.CreatedBy)?.FullName,
+                            Email = user.FirstOrDefault(u => u.UserId == a.CreatedBy)?.Email
+                        }
+                        : null,
+
+                        Updater = user.FirstOrDefault(u => u.UserId == a.UpdatedBy) != null
+                        ? new UserDTO
+                        {
+                            FullName = user.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.FullName,
+                            Email = user.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.Email
+                        }
+                        : null,
                     }).ToList()
                 };
             }
+
             return new
             {
                 Type = "Empty",
                 Data = new List<object>()
             };
         }
+
 
         public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
         {

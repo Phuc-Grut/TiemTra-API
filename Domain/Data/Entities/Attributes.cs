@@ -7,7 +7,6 @@ namespace Domain.Data.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int AttributeId { get; set; }
-
         public string Name { get; set; }
         public string? Description { get; set; }
         public ICollection<ProductAttribute> ProductAttributes { get; set; }
