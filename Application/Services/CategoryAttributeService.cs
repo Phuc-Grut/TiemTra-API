@@ -4,12 +4,7 @@ using AutoMapper;
 using Domain.Data.Entities;
 using Infrastructure.Interface;
 using Shared.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -19,6 +14,7 @@ namespace Application.Services
         private readonly IAttributesRepository _attributesRepo;
         private readonly ICategoryRepository _categoryRepo;
         private readonly IMapper _mapper;
+
         public CategoryAttributeService(ICategoryAttributesRepository categoryAttributesRepository, IMapper mapper, ICategoryRepository categoryRepository, IAttributesRepository attributesRepo)
         {
             _categoryAttRepo = categoryAttributesRepository;
@@ -26,6 +22,7 @@ namespace Application.Services
             _categoryRepo = categoryRepository;
             _attributesRepo = attributesRepo;
         }
+
         public async Task<AddAttributeToCategoryDTO> AddAttributesToCategory(AddAttributeToCategoryDTO addDto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
@@ -35,7 +32,7 @@ namespace Application.Services
             var attributeExists = await _attributesRepo.AttributeExists(addDto.AttributesId);
 
             if (!categoryExists)
-                    throw new Exception("Danh mục không tồn tại.");
+                throw new Exception("Danh mục không tồn tại.");
 
             if (!attributeExists)
                 throw new Exception("Thuộc tính không tồn tại.");
@@ -55,7 +52,6 @@ namespace Application.Services
                 UpdatedAt = DateTime.Now,
                 UpdatedBy = userId,
                 CreatedBy = userId,
-
             };
 
             var rs = _categoryAttRepo.AddAttributesToCategory(newCtgrAtb, cancellationToken);
@@ -65,12 +61,6 @@ namespace Application.Services
                 CategoryId = newCtgrAtb.CategoryId,
                 AttributesId = newCtgrAtb.AttributeId
             };
-        }
-
-        public async Task<List<AddAttributeToCategoryDTO>> GetAttributesByCategory(int categoryId)
-        {
-            var attributes = await _categoryAttRepo.GetAttributesByCategory(categoryId);
-            return _mapper.Map<List<AddAttributeToCategoryDTO>>(attributes);
         }
 
         public Task RemoveAttributesToCategory(int categoryId, int attributeId)

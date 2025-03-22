@@ -8,6 +8,7 @@ namespace Infrastructure.Repositories
     public class CategoryAttributesRepository : ICategoryAttributesRepository
     {
         private readonly AppDbContext _context;
+
         public CategoryAttributesRepository(AppDbContext context)
         {
             _context = context;
@@ -19,13 +20,23 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Attributes>> GetAttributesByCategory(int categoryId)
+        public async Task<List<Attributes>> GetAttributesByCategory(int categoryId, CancellationToken cancellationToken)
         {
             return await _context.CategoryAttributes
                 .Where(ca => ca.CategoryId == categoryId)
                 .Include(ca => ca.Attribute)
-                .Select(ca => ca.Attribute)
-                .ToListAsync();
+                .Where(ca => ca.Attribute != null)
+                .Select(ca => new Attributes
+                {
+                    AttributeId = ca.Attribute.AttributeId,
+                    Name = ca.Attribute.Name,
+                    Description = ca.Attribute.Description,
+                    CreatedBy = ca.Attribute.CreatedBy,
+                    UpdatedBy = ca.Attribute.UpdatedBy,
+                    CreatedAt = ca.Attribute.CreatedAt,
+                    UpdatedAt = ca.Attribute.UpdatedAt
+                })
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsAsync(int categoryId, int attributeId)

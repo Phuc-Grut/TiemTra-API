@@ -5,7 +5,7 @@ namespace Application.Validations
 {
     public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
     {
-        public RegisterDTOValidator() 
+        public RegisterDTOValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Vui lòng nhập Email.")
@@ -18,7 +18,7 @@ namespace Application.Validations
 
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Vui lòng nhập sđt.")
-                .Matches(@"^[0-9]{10,11}").WithMessage("Số điện thoại không hợp lệ.");    
+                .Matches(@"^[0-9]{10,11}").WithMessage("Số điện thoại không hợp lệ.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Vui lòng nhập mật khẩu và nhớ nó.")

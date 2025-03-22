@@ -1,12 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database
 {
@@ -25,11 +19,11 @@ namespace Infrastructure.Database
         public DbSet<ProductVariationDetails> VariationDetails { get; set; }
         public DbSet<CategoryAttributes> CategoryAttributes { get; set; }
 
-        public AppDbContext() { }
+        public AppDbContext()
+        { }
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,10 +1,7 @@
 ﻿using Application.DTOs.Attributes;
-using Application.DTOs.Category;
 using Application.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Common;
 
 namespace APISell.Controllers
 {
@@ -14,6 +11,7 @@ namespace APISell.Controllers
     public class AttributesController : ControllerBase
     {
         private readonly IAttributesServices _attributesServices;
+
         public AttributesController(IAttributesServices attributesServices)
         {
             _attributesServices = attributesServices;

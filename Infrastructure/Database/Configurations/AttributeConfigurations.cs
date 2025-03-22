@@ -1,11 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database.Configurations
 {
@@ -24,7 +19,6 @@ namespace Infrastructure.Database.Configurations
                    .HasForeignKey(pa => pa.AttributeId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-
             builder.Property(a => a.CreatedBy).IsRequired();
             builder.Property(a => a.UpdatedBy).IsRequired();
 
@@ -37,5 +31,4 @@ namespace Infrastructure.Database.Configurations
                 .ValueGeneratedOnAddOrUpdate();
         }
     }
-
 }

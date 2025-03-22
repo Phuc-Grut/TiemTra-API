@@ -3,7 +3,6 @@ using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
 using Infrastructure.Interface;
-using Infrastructure.Repositories;
 using Shared.Common;
 using System.Security.Claims;
 
@@ -19,6 +18,7 @@ namespace Application.Services
             _attributesRepository = attributesRepository;
             _mapper = mapper;
         }
+
         public async Task<AttributesDTO> AddAttribute(AttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
@@ -57,6 +57,5 @@ namespace Application.Services
 
             return newId;
         }
-
     }
 }

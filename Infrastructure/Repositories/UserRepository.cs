@@ -2,20 +2,16 @@
 using Infrastructure.Database;
 using Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
+
         public UserRepository(AppDbContext context)
         {
-               _context = context;
+            _context = context;
         }
 
         public async Task<User> GetUserByRefreshToken(string refreshToken)
@@ -39,7 +35,7 @@ namespace Infrastructure.Repositories
         public async Task<bool> UpdateUser(User user, CancellationToken cancellationToken)
         {
             _context.Users.Update(user);
-            return await _context.SaveChangesAsync(cancellationToken) > 0 ;
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
     }
 }

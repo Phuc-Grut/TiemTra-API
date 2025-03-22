@@ -1,11 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database.Configurations
 {
@@ -29,7 +24,7 @@ namespace Infrastructure.Database.Configurations
                 .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(b => b.UpdatedAt)  
+            builder.Property(b => b.UpdatedAt)
                 .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAddOrUpdate();
         }

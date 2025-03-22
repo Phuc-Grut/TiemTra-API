@@ -1,8 +1,7 @@
 ﻿namespace Application.DTOs.Category
 {
-    public class AddAttributeToCategoryDTO
+    public class CategoryIdRequest
     {
         public int CategoryId { get; set; }
-        public int AttributesId { get; set; }
     }
 }

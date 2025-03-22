@@ -1,9 +1,4 @@
 ﻿using Domain.Data.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Data.Entities
 {
@@ -16,6 +11,5 @@ namespace Domain.Data.Entities
 
         public Product Product { get; set; }
         public Attributes Attribute { get; set; }
-
     }
 }

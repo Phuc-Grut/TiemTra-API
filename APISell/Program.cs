@@ -94,7 +94,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 // cấu hình JSON để tránh vòng lặp dữ liệu
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -102,7 +101,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
         options.JsonSerializerOptions.WriteIndented = true;
     });
-
 
 // đăng ký validate
 builder.Services.AddFluentValidationAutoValidation();

@@ -1,16 +1,16 @@
-﻿using Application.Interface.Authentication;
+﻿using Application.DTOs.Authentication;
+using Application.Interface.Authentication;
 using Domain.Data.Entities;
-using Application.DTOs.Authentication;
-using Infrastructure.Interface.Authentication;
-using System.Security.Cryptography;
-using System.Text;
-using Shared.Common;
 using Domain.Enum;
+using Infrastructure.Interface;
+using Infrastructure.Interface.Authentication;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.Extensions.Configuration;
-using Infrastructure.Interface;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Application.Services.Authentincation
 {
@@ -23,7 +23,6 @@ namespace Application.Services.Authentincation
 
         public AuthService(IAuthRepository authRepository, IEmailService emailService, IConfiguration configuration, IUserRepository userRepository)
         {
-
             _authRepository = authRepository;
             _configuration = configuration;
             _emailService = emailService;
@@ -65,7 +64,6 @@ namespace Application.Services.Authentincation
             var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong><br> <br>Mã sẽ hết hạn sau 2 phút.";
 
             Console.WriteLine($"otp dã tạo ra: {otp}");
-
 
             await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
 
@@ -160,7 +158,6 @@ namespace Application.Services.Authentincation
             return new ApiResponse(true, "Đăng nhập thành công", user, token, refreshToken);
         }
 
-
         private string GenerateJwtToken(User user, out string refreshToken)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -226,5 +223,5 @@ namespace Application.Services.Authentincation
 
             return new ApiResponse(true, "Cấp lại token thành công", user, newAccessToken, newRefreshToken);
         }
-    }                                                                                                       
+    }
 }

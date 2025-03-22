@@ -1,12 +1,8 @@
-﻿using Application.DTOs;
-using Application.DTOs.Category;
+﻿using Application.DTOs.Category;
 using Application.Interface;
-using Application.Services;
-using Domain.Data.Entities;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Common;
 
 namespace APISell.Controllers
 {
@@ -152,9 +148,12 @@ namespace APISell.Controllers
             return Ok(rs);
         }
 
-        //[HttpPost("get-category-by-id")]
-
-
+        [HttpPost("get-category-by-id")]
+        public async Task<IActionResult> GetCategoryById([FromBody] CategoryIdRequest rq, CancellationToken cancellationToken)
+        {
+            var result = await _categoryServices.GetCategoryById(rq.CategoryId, cancellationToken);
+            return Ok(result);
+        }
 
         //[HttpGet("filter-category")]
         //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)

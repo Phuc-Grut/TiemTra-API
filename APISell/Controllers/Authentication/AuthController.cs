@@ -1,9 +1,7 @@
-﻿using Application.Interface.Authentication;
-using Application.DTOs.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Application.DTOs.Authentication;
+using Application.Interface.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Application.Services.Authentincation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APISell.Controllers.Authentication
 {
@@ -81,7 +79,5 @@ namespace APISell.Controllers.Authentication
 
             return Ok(result);
         }
-
-
     }
 }

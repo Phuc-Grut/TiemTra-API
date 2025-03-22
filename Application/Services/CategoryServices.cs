@@ -18,12 +18,16 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private static readonly Random _random = new Random();
         private readonly IUserRepository _userRepository;
+        private readonly ICategoryAttributesRepository _categoryAttRepo;
+        private readonly IAttributesRepository _attributesRepository;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository)
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _userRepository = userRepository;
+            _attributesRepository = attributesRepository;
+            _categoryAttRepo = categoryAttributesRepository;
         }
 
         public async Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
@@ -54,14 +58,55 @@ namespace Application.Services
             }
         }
 
-        public async Task<CategoryDto> GetCategoryById(int categoryId, CancellationToken cancellationToken)
+        public async Task<object> GetCategoryById(int categoryId, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+            Console.WriteLine(categoryId);
+            var categoryExists = await _categoryRepository.CategoryExists(categoryId);
+            if (!categoryExists)
+                throw new Exception("Danh mục không tồn tại.");
 
-            if (category == null)
-                return null;
+            var subCategories = await _categoryRepository.GetSubCategories(categoryId, cancellationToken);
 
-            return _mapper.Map<CategoryDto>(category);
+            if (subCategories != null && subCategories.Any())
+            {
+                return new
+                {
+                    Type = "Category",
+                    Data = subCategories.Select(c => new CategoryDto
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName,
+                        Description = c.Description,
+                        //ParentId = c.ParentId,
+                        CreatedAt = c.CreatedAt,
+                        UpdatedAt = c.UpdatedAt
+                    }).ToList()
+                };
+            }
+
+            var attributes = await _categoryAttRepo.GetAttributesByCategory(categoryId, cancellationToken);
+            if (attributes?.Any() == true)
+            {
+                return new
+                {
+                    Type = "Attributes",
+                    Data = attributes.Select(a => new
+                    {
+                        a.AttributeId,
+                        a.Name,
+                        a.Description,
+                        a.UpdatedBy,
+                        a.CreatedBy,
+                        a.CreatedAt,
+                        a.UpdatedAt
+                    }).ToList()
+                };
+            }
+            return new
+            {
+                Type = "Empty",
+                Data = new List<object>()
+            };
         }
 
         public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
@@ -73,7 +118,7 @@ namespace Application.Services
         {
             var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
 
-            if (category == null) 
+            if (category == null)
             {
                 return false;
             }
@@ -135,7 +180,7 @@ namespace Application.Services
                 {
                     FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy).FullName,
                     Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy).Email
-                }: null,
+                } : null,
 
                 Updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy) != null
                 ? new UserDTO
@@ -154,6 +199,7 @@ namespace Application.Services
                 PageSize = pageSize
             };
         }
+
         //tạo id
         private async Task<int> GenerateUniqueCategoryId(CancellationToken cancellationToken)
         {

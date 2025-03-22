@@ -13,6 +13,7 @@ namespace Infrastructure.Repositories.Authentication
         {
             _context = context;
         }
+
         public async Task AddUser(User user)
         {
             await _context.Users.AddAsync(user);

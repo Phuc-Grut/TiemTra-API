@@ -1,9 +1,4 @@
 ﻿using Domain.Data.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Data.Entities
 {
@@ -11,7 +6,7 @@ namespace Domain.Data.Entities
     {
         public Guid ProductId { get; set; }
         public string? ProductCode { get; set; }
-        public string ProductName { get; set; } 
+        public string ProductName { get; set; }
         public string? PrivewImage { get; set; }
         public decimal? Price { get; set; }
         public int? Stock { get; set; }
@@ -23,6 +18,7 @@ namespace Domain.Data.Entities
 
         //public string?  { get; set; }
         public Category? Category { get; set; }
+
         public Brand? Brand { get; set; }
 
         public ICollection<ProductAttribute> ProductAttributes { get; set; }

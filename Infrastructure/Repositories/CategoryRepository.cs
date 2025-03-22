@@ -9,10 +9,11 @@ namespace Infrastructure.Repositories
     {
         private readonly AppDbContext _context;
 
-        public CategoryRepository(AppDbContext context) 
+        public CategoryRepository(AppDbContext context)
         {
             _context = context;
         }
+
         public async Task<IEnumerable<Category>> GetAllCategories(CancellationToken cancellationToken)
         {
             return await _context.Categories
@@ -58,6 +59,7 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
+
         public async Task<bool> HasChildCategories(int categoryId)
         {
             return await _context.Categories.AnyAsync(c => c.ParentId == categoryId);
@@ -67,6 +69,18 @@ namespace Infrastructure.Repositories
         {
             return await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
         }
+
+        public async Task<List<Category>> GetSubCategories(int parentId, CancellationToken cancellationToken)
+        {
+            return await _context.Categories
+                .Where(c => c.ParentId == parentId)
+                .ToListAsync();
+        }
+
+        //public Task<List<Category>> GetSubCategories(int parentId, CancellationToken cancellationToken)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         //public async Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken)
         //{

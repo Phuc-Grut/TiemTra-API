@@ -2,21 +2,18 @@
 using Infrastructure.Database;
 using Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
     public class AttributesRepository : IAttributesRepository
     {
         private readonly AppDbContext _context;
+
         public AttributesRepository(AppDbContext context)
         {
-                _context = context;
+            _context = context;
         }
+
         public async Task<IEnumerable<Attributes>> GetAllAttributes(CancellationToken cancellationToken)
         {
             return await _context.Attributes.AsNoTracking().ToListAsync(cancellationToken);

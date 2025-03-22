@@ -1,11 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database.Configurations
 {
@@ -20,7 +15,6 @@ namespace Infrastructure.Database.Configurations
                 .WithMany(u => u.UserRoles)
                 .HasForeignKey(ur => ur.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
 
             builder.HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
