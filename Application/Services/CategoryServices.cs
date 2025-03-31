@@ -67,6 +67,8 @@ namespace Application.Services
             if (!categoryExists)
                 throw new Exception("Danh mục không tồn tại.");
 
+            var currentCategory = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
             var subCategories = await _categoryRepository.GetSubCategories(categoryId, cancellationToken);
 
             if (subCategories != null && subCategories.Any())
@@ -113,6 +115,11 @@ namespace Application.Services
                 return new
                 {
                     Type = "Categories",
+                    CurrentCategory = new
+                    {
+                        CategoryId = currentCategory.CategoryId,
+                        CategoryName = currentCategory.CategoryName
+                    },
                     Data = new PagedResult<CategoryDto>
                     {
                         Items = categoryDtos,
@@ -165,6 +172,11 @@ namespace Application.Services
                 return new
                 {
                     Type = "Attributes",
+                    CurrentCategory = new
+                    {
+                        CategoryId = currentCategory.CategoryId,
+                        CategoryName = currentCategory.CategoryName
+                    },
                     Data = new PagedResult<AttributesDTO>
                     {
                         Items = attributesDtoList,
@@ -178,6 +190,11 @@ namespace Application.Services
 
             return new
             {
+                CurrentCategory = new
+                {
+                    CategoryId = currentCategory.CategoryId,
+                    CategoryName = currentCategory.CategoryName
+                },
                 Type = "Empty",
                 Data = new List<object>()
             };

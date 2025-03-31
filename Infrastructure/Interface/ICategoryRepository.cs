@@ -23,6 +23,7 @@ namespace Infrastructure.Interface
         Task<bool> CategoryExists(int categoryId);
 
         Task<List<Category>> GetSubCategories(int parentId, CancellationToken cancellationToken);
+        //Task<Category> 
 
         //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
     }
