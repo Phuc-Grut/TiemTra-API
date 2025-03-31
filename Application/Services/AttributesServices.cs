@@ -19,13 +19,13 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<AttributesDTO> AddAttribute(AttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken)
+        public async Task<AttributesDTO> AddAttribute(AddAttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
             var newAttribute = new Attributes
             {
                 AttributeId = await GenerateUniqueAttributesId(cancellationToken),
-                Name = attributesDTO.Name,
+                Name = attributesDTO.AttributeName,
                 Description = attributesDTO.Description,
                 CreatedBy = userId,
                 UpdatedBy = userId

@@ -10,7 +10,6 @@ using Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Application.Services
 {
@@ -62,19 +61,19 @@ namespace Application.Services
 
         public async Task<object> GetCategoryById(int categoryId, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-
-            Console.WriteLine(" ádasdasdasd ádasdasdasd", categoryId);
             var query = _categoryRepository.GetCategoriesQuery();
 
             var categoryExists = await _categoryRepository.CategoryExists(categoryId);
             if (!categoryExists)
                 throw new Exception("Danh mục không tồn tại.");
 
+            var currentCategory = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
             var subCategories = await _categoryRepository.GetSubCategories(categoryId, cancellationToken);
 
             if (subCategories != null && subCategories.Any())
             {
-                var pagedSubCategories = subCategories
+                var pageSubCategories = subCategories
                     .OrderBy(c => c.CategoryName)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
@@ -82,15 +81,15 @@ namespace Application.Services
 
                 var totalItems = subCategories.Count;
 
-                var userIds = pagedSubCategories
+                var userIds = pageSubCategories
                     .Select(c => c.CreatedBy)
-                    .Union(pagedSubCategories.Select(c => c.UpdatedBy))
+                    .Union(pageSubCategories.Select(c => c.UpdatedBy))
                     .Distinct()
                     .ToList();
 
                 var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
 
-                var categoryDtos = pagedSubCategories.Select(c => new CategoryDto
+                var categoryDtos = pageSubCategories.Select(c => new CategoryDto
                 {
                     CategoryId = c.CategoryId,
                     CategoryName = c.CategoryName,
@@ -113,13 +112,22 @@ namespace Application.Services
                         : null
                 }).ToList();
 
-                return new PagedResult<CategoryDto>
+                return new
                 {
-                    Items = categoryDtos,
-                    TotalItems = totalItems,
-                    TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-                    CurrentPage = pageNumber,
-                    PageSize = pageSize
+                    Type = "Categories",
+                    CurrentCategory = new
+                    {
+                        CategoryId = currentCategory.CategoryId,
+                        CategoryName = currentCategory.CategoryName
+                    },
+                    Data = new PagedResult<CategoryDto>
+                    {
+                        Items = categoryDtos,
+                        TotalItems = totalItems,
+                        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                        CurrentPage = pageNumber,
+                        PageSize = pageSize
+                    }
                 };
             }
 
@@ -134,45 +142,63 @@ namespace Application.Services
                     .ToList();
 
                 var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
-
-
                 var user = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+                var totalItems = attributes.Count;
+
+                var attributesDtoList = attributes.Select(a => new AttributesDTO
+                {
+                    AttributeId = a.AttributeId,
+                    Name = a.Name,
+                    Description = a.Description,
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt,
+                    Creator = users.FirstOrDefault(u => u.UserId == a.CreatedBy) != null
+                    ? new UserDTO
+                    {
+                        FullName = users.FirstOrDefault(u => u.UserId == a.CreatedBy)?.FullName,
+                        Email = users.FirstOrDefault(u => u.UserId == a.CreatedBy)?.Email
+                    }
+                    : null,
+                    Updater = users.FirstOrDefault(u => u.UserId == a.UpdatedBy) != null
+                    ? new UserDTO
+                    {
+                        FullName = users.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.FullName,
+                        Email = users.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.Email
+                    }
+                    : null,
+                }).ToList();
+
                 return new
                 {
                     Type = "Attributes",
-                    Data = attributes.Select(a => new AttributesDTO
+                    CurrentCategory = new
                     {
-                        AttributeId = a.AttributeId,
-                        Name = a.Name,
-                        Description = a.Description,
-                        CreatedAt = a.CreatedAt,
-                        UpdatedAt = a.UpdatedAt,
-                        Creator = user.FirstOrDefault(u => u.UserId == a.CreatedBy) != null
-                        ? new UserDTO
-                        {
-                            FullName = user.FirstOrDefault(u => u.UserId == a.CreatedBy)?.FullName,
-                            Email = user.FirstOrDefault(u => u.UserId == a.CreatedBy)?.Email
-                        }
-                        : null,
-
-                        Updater = user.FirstOrDefault(u => u.UserId == a.UpdatedBy) != null
-                        ? new UserDTO
-                        {
-                            FullName = user.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.FullName,
-                            Email = user.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.Email
-                        }
-                        : null,
-                    }).ToList()
+                        CategoryId = currentCategory.CategoryId,
+                        CategoryName = currentCategory.CategoryName
+                    },
+                    Data = new PagedResult<AttributesDTO>
+                    {
+                        Items = attributesDtoList,
+                        TotalItems = attributes.Count,
+                        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                        CurrentPage = pageNumber,
+                        PageSize = pageSize
+                    }
                 };
             }
 
             return new
             {
+                CurrentCategory = new
+                {
+                    CategoryId = currentCategory.CategoryId,
+                    CategoryName = currentCategory.CategoryName
+                },
                 Type = "Empty",
                 Data = new List<object>()
             };
         }
-
 
         public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
         {
