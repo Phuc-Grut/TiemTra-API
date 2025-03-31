@@ -18,7 +18,7 @@ namespace APISell.Controllers
         }
 
         [HttpPost("add-attributes")]
-        public async Task<IActionResult> AddAttributes([FromBody] AttributesDTO attributesDTO, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddAttributes([FromBody] AddAttributesDTO attributesDTO, CancellationToken cancellationToken)
         {
             try
             {
