@@ -33,8 +33,8 @@ namespace Infrastructure.Database.Configurations
                 .ValueGeneratedOnAdd();
 
             builder.Property(c => c.UpdatedAt)
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAddOrUpdate();
+            .IsRequired(); 
+
         }
     }
 }
