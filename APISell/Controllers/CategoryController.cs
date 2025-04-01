@@ -3,10 +3,11 @@ using Application.Interface;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace APISell.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -86,7 +87,7 @@ namespace APISell.Controllers
             }
         }
 
-        [HttpDelete("delete-category")]
+        [HttpDelete("delete-category/{categoryId}")]
         public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
         {
             try
@@ -113,12 +114,14 @@ namespace APISell.Controllers
             }
         }
 
-        [HttpPut("update-category")]
-        public async Task<IActionResult> UpdateCategory([FromBody] UpCategoryDto categoryDto, int categoryId, CancellationToken cancellationToken)
+        [HttpPut("update-category/{categoryId}")]
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, cancellationToken);
+                var user = HttpContext.User;
+
+                var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, user, cancellationToken);
                 if (!result)
                 {
                     return NotFound();

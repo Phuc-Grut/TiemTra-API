@@ -15,7 +15,7 @@ namespace Application.Interface
 
         Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken);
 
-        Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, CancellationToken cancellationToken);
+        Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
 
         //Task DeleteCategory(int categoryId);
         //Task<IEnumerable<CategoryDto>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);

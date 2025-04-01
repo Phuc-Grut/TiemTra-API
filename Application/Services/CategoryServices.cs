@@ -205,9 +205,10 @@ namespace Application.Services
             return await _categoryRepository.DeleteCategory(categoryId, cancellationToken);
         }
 
-        public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, CancellationToken cancellationToken)
+        public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+            var userId = GetUserIdFromClaims.GetUserId(user);
 
             if (category == null)
             {
@@ -224,15 +225,23 @@ namespace Application.Services
                 category.Description = categoryDto.Description;
             }
 
-            if (categoryDto.ParentId.HasValue)
-            {
-                var parentCategory = await _categoryRepository.GetCategoryById(categoryDto.ParentId.Value, cancellationToken);
-                if (parentCategory == null)
-                {
-                    return false;
-                }
-                category.ParentId = categoryDto.ParentId;
-            }
+            //if (categoryDto.ParentId.HasValue)
+            //{
+            //    if (categoryDto.ParentId == category.CategoryId)
+            //        return false;
+
+            //    var parentCategory = await _categoryRepository.GetCategoryById(categoryDto.ParentId.Value, cancellationToken);
+            //    if (parentCategory == null)
+            //    {
+            //        return false;
+            //    }
+
+            //    category.ParentId = categoryDto.ParentId;
+            //}
+
+            category.UpdatedBy = userId;
+            category.UpdatedAt = DateTime.UtcNow;
+
             await _categoryRepository.UpdateCategory(category, cancellationToken);
             return true;
         }
@@ -263,6 +272,7 @@ namespace Application.Services
             {
                 CategoryId = c.CategoryId,
                 CategoryName = c.CategoryName,
+                Description = c.Description,
                 ParentId = c.ParentId,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,
