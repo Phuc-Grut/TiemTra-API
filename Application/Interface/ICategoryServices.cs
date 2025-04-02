@@ -13,9 +13,10 @@ namespace Application.Interface
 
         Task<PagedResult<CategoryDto>> GetAllCategories(CategoryFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
-        Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken);
+        Task<(bool Success, string Message)> DeleteCategory(int categoryId, CancellationToken cancellationToken);
 
         Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken);
 
         //Task DeleteCategory(int categoryId);
         //Task<IEnumerable<CategoryDto>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);

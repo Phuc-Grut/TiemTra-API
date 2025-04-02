@@ -21,14 +21,17 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICategoryAttributesRepository _categoryAttRepo;
         private readonly IAttributesRepository _attributesRepository;
+        private readonly IProductRepository _productRepository;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository)
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, 
+            IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository, IProductRepository productRepository)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _userRepository = userRepository;
             _attributesRepository = attributesRepository;
             _categoryAttRepo = categoryAttributesRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
@@ -200,9 +203,42 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+        public async Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken)
         {
-            return await _categoryRepository.DeleteCategory(categoryId, cancellationToken);
+            var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
+            if (category == null)
+                return (false, "Danh mục không tồn tại.");
+
+             //check con
+            var hasChildren = await _categoryRepository.HasChildCategories(categoryId, cancellationToken);
+            if (hasChildren)
+                return (false, $"Danh mục \"{category.CategoryName}\" vẫn còn danh mục con. Vui lòng xoá danh mục con trước.");
+
+            var linkedProductCount = await _productRepository.CountProductByCategory(categoryId, cancellationToken);
+            if (linkedProductCount > 0)
+                return (true, $"Danh mục \"{category.CategoryName}\" đang liên kết với {linkedProductCount} sản phẩm. Bạn có xác nhận xóa");
+
+            if (linkedProductCount == 0)
+            {
+                var attributeCount = await _categoryAttRepo.CountAttributesByCategory(categoryId, cancellationToken);
+                if (attributeCount > 0)
+                    return (true, $"Danh mục \"{category.CategoryName}\" đang liên kết với {attributeCount} thuộc tính. Bạn có xác nhận xóa");
+            }
+
+            return (true, $"Bạn có chắc chắn muốn xoá danh mục \"{category.CategoryName}\"?");
+        }
+
+        public async Task<(bool Success, string Message)> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+        {
+            var check = await CheckIfCategoryCanBeDeleted(categoryId, cancellationToken);
+            if (!check.CanDelete)
+                return (false, check.Message);
+
+            await _productRepository.RemoveCategoryFromProducts(categoryId, cancellationToken);
+            await _categoryAttRepo.RemoveAllAttributesFromCategory(categoryId, cancellationToken);
+            var result = await _categoryRepository.DeleteCategory(categoryId, cancellationToken);
+            return result ? (true, "Xoá thành công") : (false, "Xoá thất bại");
         }
 
         public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
