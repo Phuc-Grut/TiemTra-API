@@ -117,7 +117,7 @@ namespace APISell.Controllers
             if (categoryIds == null || !categoryIds.Any())
                 return BadRequest(new { success = false, message = "Danh sách danh mục không được để trống." });
 
-            var results = await _categoryServices.DeleteMultipleCategoriesAsync(categoryIds, ct);
+            var results = await _categoryServices.DeleteCategoriesAsync(categoryIds, ct);
 
             var failed = results.Where(x => !x.IsDeleted).ToList();
             var success = results.Where(x => x.IsDeleted).ToList();
