@@ -88,52 +88,49 @@ namespace APISell.Controllers
             }
         }
 
-        [HttpDelete("delete-category/{categoryId}")]
-        public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken = default)
+        [HttpPost("check-delete-by-ids")]
+        public async Task<IActionResult> CheckDeleteCategories([FromBody] List<int> categoryIds, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _categoryServices.DeleteCategory(categoryId, cancellationToken);
+            if (categoryIds == null || !categoryIds.Any())
+                return BadRequest(new { success = false, message = "Danh sách danh mục không được để trống." });
 
-                if (!result.Success)
-                    return BadRequest(new { success = false, message = result.Message });
+            var results = await _categoryServices.CheckCanDeleteCategories(categoryIds, cancellationToken);
+            var blockers = results.Where(r => !r.CanDelete).ToList();
 
-                return Ok(new { success = true, message = result.Message });
-            }
-            catch (Exception ex)
+            return Ok(new
             {
-                return StatusCode(500, new
+                success = true,
+                canDeleteAll = !blockers.Any(),
+                cannotDeleteCount = blockers.Count,
+                blockers = blockers.Select(x => new
                 {
-                    success = false,
-                    error = ex.Message
-                });
-            }
+                    x.CategoryName,
+                    x.Message
+                }),
+                results
+            });
         }
 
-        [HttpGet("{id}/check-delete")]
-        public async Task<IActionResult> CheckIfCategoryCanBeDeleted(int id, CancellationToken cancellationToken)
+        [HttpDelete("delete-category-by-ids")]
+        public async Task<IActionResult> DeleteMultipleCategories([FromBody] List<int> categoryIds, CancellationToken ct)
         {
-            try
-            {
-                var result = await _categoryServices.CheckIfCategoryCanBeDeleted(id, cancellationToken);
+            if (categoryIds == null || !categoryIds.Any())
+                return BadRequest(new { success = false, message = "Danh sách danh mục không được để trống." });
 
-                return Ok(new
-                {
-                    success = result.CanDelete,
-                    message = result.Message
-                });
-            }
-            catch (Exception ex)
+            var results = await _categoryServices.DeleteMultipleCategoriesAsync(categoryIds, ct);
+
+            var failed = results.Where(x => !x.IsDeleted).ToList();
+            var success = results.Where(x => x.IsDeleted).ToList();
+
+            return Ok(new
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    error = "Lỗi hệ thống",
-                    detail = ex.Message
-                });
-            }
+                success = failed.Count == 0,
+                deletedCount = success.Count,
+                failedCount = failed.Count,
+                results
+            });
         }
-
+        
         [HttpPut("update-category/{categoryId}")]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
