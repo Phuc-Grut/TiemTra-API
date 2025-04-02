@@ -17,7 +17,7 @@ namespace Infrastructure.Repositories
         public async Task AddAttributesToCategory(CategoryAttributes categoryAttribute, CancellationToken cancellationToken)
         {
             _context.CategoryAttributes.Add(categoryAttribute);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<List<Attributes>> GetAttributesByCategory(int categoryId, CancellationToken cancellationToken)
@@ -35,7 +35,7 @@ namespace Infrastructure.Repositories
                     UpdatedBy = ca.Attribute.UpdatedBy,
                     CreatedAt = ca.Attribute.CreatedAt,
                     UpdatedAt = ca.Attribute.UpdatedAt
-                })
+                }) 
                 .ToListAsync(cancellationToken);
         }
 
@@ -45,9 +45,17 @@ namespace Infrastructure.Repositories
                 .AnyAsync(ca => ca.CategoryId == categoryId && ca.AttributeId == attributeId);
         }
 
-        public Task RemoveAttributesToCategory(CategoryAttributes categoryAttribute, CancellationToken cancellationToken)
+        public async Task RemoveAllAttributesFromCategory(int categoryId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var items = await _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).ToListAsync(cancellationToken);
+
+            _context.CategoryAttributes.RemoveRange(items);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public Task<int> CountAttributesByCategory(int categoryId, CancellationToken cancellationToken)
+        {
+           return _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).CountAsync(cancellationToken);
         }
     }
 }

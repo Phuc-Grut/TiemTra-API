@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Category;
 using Application.Interface;
+using Application.Services;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -88,21 +89,16 @@ namespace APISell.Controllers
         }
 
         [HttpDelete("delete-category/{categoryId}")]
-        public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken = default)
         {
             try
             {
                 var result = await _categoryServices.DeleteCategory(categoryId, cancellationToken);
 
-                if (!result)
-                {
-                    return NotFound();
-                }
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xóa thành công",
-                });
+                if (!result.Success)
+                    return BadRequest(new { success = false, message = result.Message });
+
+                return Ok(new { success = true, message = result.Message });
             }
             catch (Exception ex)
             {
@@ -110,6 +106,30 @@ namespace APISell.Controllers
                 {
                     success = false,
                     error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("{id}/check-delete")]
+        public async Task<IActionResult> CheckIfCategoryCanBeDeleted(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _categoryServices.CheckIfCategoryCanBeDeleted(id, cancellationToken);
+
+                return Ok(new
+                {
+                    success = result.CanDelete,
+                    message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Lỗi hệ thống",
+                    detail = ex.Message
                 });
             }
         }

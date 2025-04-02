@@ -18,7 +18,7 @@ namespace Infrastructure.Interface
 
         Task<bool> UpdateCategory(Category category, CancellationToken cancellationToken);
 
-        Task<bool> HasChildCategories(int categoryId);
+        Task<bool> HasChildCategories(int categoryId, CancellationToken cancellationToken);
 
         Task<bool> CategoryExists(int categoryId);
 

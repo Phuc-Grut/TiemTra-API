@@ -6,10 +6,11 @@ namespace Infrastructure.Interface
     {
         Task AddAttributesToCategory(CategoryAttributes categoryAttribute, CancellationToken cancellationToken);
 
-        Task RemoveAttributesToCategory(CategoryAttributes categoryAttribute, CancellationToken cancellationToken);
+        Task RemoveAllAttributesFromCategory(int categoryId, CancellationToken cancellationToken);
 
         Task<List<Attributes>> GetAttributesByCategory(int categoryId, CancellationToken cancellationToken);
 
         Task<bool> ExistsAsync(int categoryId, int attributeId);
+        Task<int> CountAttributesByCategory(int categoryId, CancellationToken cancellationToken);
     }
 }

@@ -60,7 +60,7 @@ namespace Infrastructure.Repositories
             return true;
         }
 
-        public async Task<bool> HasChildCategories(int categoryId)
+        public async Task<bool> HasChildCategories(int categoryId, CancellationToken cancellationToken)
         {
             return await _context.Categories.AnyAsync(c => c.ParentId == categoryId);
         }

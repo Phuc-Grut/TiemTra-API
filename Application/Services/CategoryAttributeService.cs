@@ -26,7 +26,7 @@ namespace Application.Services
         public async Task<AddAttributeToCategoryDTO> AddAttributesToCategory(AddAttributeToCategoryDTO addDto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
-            var hasChildren = await _categoryRepo.HasChildCategories(addDto.CategoryId);
+            var hasChildren = await _categoryRepo.HasChildCategories(addDto.CategoryId, cancellationToken);
 
             var categoryExists = await _categoryRepo.CategoryExists(addDto.CategoryId);
             var attributeExists = await _attributesRepo.AttributeExists(addDto.AttributesId);
