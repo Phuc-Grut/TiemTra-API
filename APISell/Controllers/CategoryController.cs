@@ -1,12 +1,14 @@
 ﻿using Application.DTOs.Category;
 using Application.Interface;
+using Application.Services;
 using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace APISell.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -86,39 +88,57 @@ namespace APISell.Controllers
             }
         }
 
-        [HttpDelete("delete-category")]
-        public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+        [HttpPost("check-delete-by-ids")]
+        public async Task<IActionResult> CheckDeleteCategories([FromBody] List<int> categoryIds, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _categoryServices.DeleteCategory(categoryId, cancellationToken);
+            if (categoryIds == null || !categoryIds.Any())
+                return BadRequest(new { success = false, message = "Danh sách danh mục không được để trống." });
 
-                if (!result)
-                {
-                    return NotFound();
-                }
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xóa thành công",
-                });
-            }
-            catch (Exception ex)
+            var results = await _categoryServices.CheckCanDeleteCategories(categoryIds, cancellationToken);
+            var blockers = results.Where(r => !r.CanDelete).ToList();
+
+            return Ok(new
             {
-                return StatusCode(500, new
+                success = true,
+                canDeleteAll = !blockers.Any(),
+                cannotDeleteCount = blockers.Count,
+                blockers = blockers.Select(x => new
                 {
-                    success = false,
-                    error = ex.Message
-                });
-            }
+                    x.CategoryName,
+                    x.Message
+                }),
+                results
+            });
         }
 
-        [HttpPut("update-category")]
-        public async Task<IActionResult> UpdateCategory([FromBody] UpCategoryDto categoryDto, int categoryId, CancellationToken cancellationToken)
+        [HttpDelete("delete-category-by-ids")]
+        public async Task<IActionResult> DeleteMultipleCategories([FromBody] List<int> categoryIds, CancellationToken ct)
+        {
+            if (categoryIds == null || !categoryIds.Any())
+                return BadRequest(new { success = false, message = "Danh sách danh mục không được để trống." });
+
+            var results = await _categoryServices.DeleteCategoriesAsync(categoryIds, ct);
+
+            var failed = results.Where(x => !x.IsDeleted).ToList();
+            var success = results.Where(x => x.IsDeleted).ToList();
+
+            return Ok(new
+            {
+                success = failed.Count == 0,
+                deletedCount = success.Count,
+                failedCount = failed.Count,
+                results
+            });
+        }
+        
+        [HttpPut("update-category/{categoryId}")]
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, cancellationToken);
+                var user = HttpContext.User;
+
+                var result = await _categoryServices.UpdateCategory(categoryId, categoryDto, user, cancellationToken);
                 if (!result)
                 {
                     return NotFound();
