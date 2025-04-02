@@ -229,16 +229,86 @@ namespace Application.Services
             return (true, $"Bạn có chắc chắn muốn xoá danh mục \"{category.CategoryName}\"?");
         }
 
-        public async Task<(bool Success, string Message)> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+        public async Task<List<CategoryCheckResult>> CheckCanDeleteCategories(List<int> categoryIds, CancellationToken cancellationToken)
         {
-            var check = await CheckIfCategoryCanBeDeleted(categoryId, cancellationToken);
-            if (!check.CanDelete)
-                return (false, check.Message);
+            var results = new List<CategoryCheckResult>();
 
-            await _productRepository.RemoveCategoryFromProducts(categoryId, cancellationToken);
-            await _categoryAttRepo.RemoveAllAttributesFromCategory(categoryId, cancellationToken);
-            var result = await _categoryRepository.DeleteCategory(categoryId, cancellationToken);
-            return result ? (true, "Xoá thành công") : (false, "Xoá thất bại");
+            foreach (var id in categoryIds)
+            {
+                var category = await _categoryRepository.GetCategoryById(id, cancellationToken);
+
+                if (category == null)
+                {
+                    results.Add(new CategoryCheckResult
+                    {
+                        CategoryId = id,
+                        CategoryName = $"[ID {id}]",
+                        CanDelete = false,
+                        Message = "Danh mục không tồn tại."
+                    });
+                    continue;
+                }
+
+                var (canDelete, message) = await CheckIfCategoryCanBeDeleted(id, cancellationToken);
+                results.Add(new CategoryCheckResult
+                {
+                    CategoryId = id,
+                    CategoryName = category.CategoryName,
+                    CanDelete = canDelete,
+                    Message = message
+                });
+            }
+
+            return results;
+        }
+
+        public async Task<List<CategoryDeleteResult>> DeleteCategoriesAsync(List<int> categoryIds, CancellationToken cancellationToken)
+        {
+            var results = new List<CategoryDeleteResult>();
+
+            foreach (var id in categoryIds)
+            {
+                var category = await _categoryRepository.GetCategoryById(id, cancellationToken);
+                if (category == null)
+                {
+                    results.Add(new CategoryDeleteResult
+                    {
+                        CategoryId = id,
+                        CategoryName = $"[ID {id}]",
+                        IsDeleted = false,
+                        Message = "Danh mục không tồn tại."
+                    });
+                    continue;
+                }
+
+                var check = await CheckIfCategoryCanBeDeleted(id, cancellationToken);
+                if (!check.CanDelete)
+                {
+                    results.Add(new CategoryDeleteResult
+                    {
+                        CategoryId = id,
+                        CategoryName = category.CategoryName,
+                        IsDeleted = false,
+                        Message = check.Message
+                    });
+                    continue;
+                }
+
+                // Thực hiện xoá
+                await _productRepository.RemoveCategoryFromProducts(id, cancellationToken);
+                await _categoryAttRepo.RemoveAllAttributesFromCategory(id, cancellationToken);
+                var deleted = await _categoryRepository.DeleteCategory(id, cancellationToken);
+
+                results.Add(new CategoryDeleteResult
+                {
+                    CategoryId = id,
+                    CategoryName = category.CategoryName,
+                    IsDeleted = deleted,
+                    Message = deleted ? "Xoá thành công." : "Xoá thất bại."
+                });
+            }
+
+            return results;
         }
 
         public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
