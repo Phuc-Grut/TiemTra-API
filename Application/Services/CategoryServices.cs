@@ -21,14 +21,17 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICategoryAttributesRepository _categoryAttRepo;
         private readonly IAttributesRepository _attributesRepository;
+        private readonly IProductRepository _productRepository;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository)
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, 
+            IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository, IProductRepository productRepository)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _userRepository = userRepository;
             _attributesRepository = attributesRepository;
             _categoryAttRepo = categoryAttributesRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<CategoryDto> AddCategory(UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
@@ -200,14 +203,118 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> DeleteCategory(int categoryId, CancellationToken cancellationToken)
-        {
-            return await _categoryRepository.DeleteCategory(categoryId, cancellationToken);
-        }
-
-        public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, CancellationToken cancellationToken)
+        public async Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
+            if (category == null)
+                return (false, "Danh mục không tồn tại.");
+
+             //check con
+            var hasChildren = await _categoryRepository.HasChildCategories(categoryId, cancellationToken);
+            if (hasChildren)
+                return (false, $"Danh mục \"{category.CategoryName}\" vẫn còn danh mục con. Vui lòng xoá danh mục con trước.");
+
+            var linkedProductCount = await _productRepository.CountProductByCategory(categoryId, cancellationToken);
+            if (linkedProductCount > 0)
+                return (true, $"Danh mục \"{category.CategoryName}\" đang liên kết với {linkedProductCount} sản phẩm. Bạn có xác nhận xóa");
+
+            if (linkedProductCount == 0)
+            {
+                var attributeCount = await _categoryAttRepo.CountAttributesByCategory(categoryId, cancellationToken);
+                if (attributeCount > 0)
+                    return (true, $"Danh mục \"{category.CategoryName}\" đang liên kết với {attributeCount} thuộc tính. Bạn có xác nhận xóa");
+            }
+
+            return (true, $"Bạn có chắc chắn muốn xoá danh mục \"{category.CategoryName}\"?");
+        }
+
+        public async Task<List<CategoryCheckResult>> CheckCanDeleteCategories(List<int> categoryIds, CancellationToken cancellationToken)
+        {
+            var results = new List<CategoryCheckResult>();
+
+            foreach (var id in categoryIds)
+            {
+                var category = await _categoryRepository.GetCategoryById(id, cancellationToken);
+
+                if (category == null)
+                {
+                    results.Add(new CategoryCheckResult
+                    {
+                        CategoryId = id,
+                        CategoryName = $"[ID {id}]",
+                        CanDelete = false,
+                        Message = "Danh mục không tồn tại."
+                    });
+                    continue;
+                }
+
+                var (canDelete, message) = await CheckIfCategoryCanBeDeleted(id, cancellationToken);
+                results.Add(new CategoryCheckResult
+                {
+                    CategoryId = id,
+                    CategoryName = category.CategoryName,
+                    CanDelete = canDelete,
+                    Message = message
+                });
+            }
+
+            return results;
+        }
+
+        public async Task<List<CategoryDeleteResult>> DeleteCategoriesAsync(List<int> categoryIds, CancellationToken cancellationToken)
+        {
+            var results = new List<CategoryDeleteResult>();
+
+            foreach (var id in categoryIds)
+            {
+                var category = await _categoryRepository.GetCategoryById(id, cancellationToken);
+                if (category == null)
+                {
+                    results.Add(new CategoryDeleteResult
+                    {
+                        CategoryId = id,
+                        CategoryName = $"[ID {id}]",
+                        IsDeleted = false,
+                        Message = "Danh mục không tồn tại."
+                    });
+                    continue;
+                }
+
+                var check = await CheckIfCategoryCanBeDeleted(id, cancellationToken);
+                if (!check.CanDelete)
+                {
+                    results.Add(new CategoryDeleteResult
+                    {
+                        CategoryId = id,
+                        CategoryName = category.CategoryName,
+                        IsDeleted = false,
+                        Message = check.Message
+                    });
+                    continue;
+                }
+
+                // Thực hiện xoá
+                await _productRepository.RemoveCategoryFromProducts(id, cancellationToken);
+                await _categoryAttRepo.RemoveAllAttributesFromCategory(id, cancellationToken);
+                var deleted = await _categoryRepository.DeleteCategory(id, cancellationToken);
+
+                results.Add(new CategoryDeleteResult
+                {
+                    CategoryId = id,
+                    CategoryName = category.CategoryName,
+                    IsDeleted = deleted,
+                    Message = deleted ? "Xoá thành công." : "Xoá thất bại."
+                });
+            }
+
+            return results;
+        }
+
+        public async Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            var category = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+            var userId = GetUserIdFromClaims.GetUserId(user);
 
             if (category == null)
             {
@@ -224,15 +331,23 @@ namespace Application.Services
                 category.Description = categoryDto.Description;
             }
 
-            if (categoryDto.ParentId.HasValue)
-            {
-                var parentCategory = await _categoryRepository.GetCategoryById(categoryDto.ParentId.Value, cancellationToken);
-                if (parentCategory == null)
-                {
-                    return false;
-                }
-                category.ParentId = categoryDto.ParentId;
-            }
+            //if (categoryDto.ParentId.HasValue)
+            //{
+            //    if (categoryDto.ParentId == category.CategoryId)
+            //        return false;
+
+            //    var parentCategory = await _categoryRepository.GetCategoryById(categoryDto.ParentId.Value, cancellationToken);
+            //    if (parentCategory == null)
+            //    {
+            //        return false;
+            //    }
+
+            //    category.ParentId = categoryDto.ParentId;
+            //}
+
+            category.UpdatedBy = userId;
+            category.UpdatedAt = DateTime.UtcNow;
+
             await _categoryRepository.UpdateCategory(category, cancellationToken);
             return true;
         }
@@ -263,6 +378,7 @@ namespace Application.Services
             {
                 CategoryId = c.CategoryId,
                 CategoryName = c.CategoryName,
+                Description = c.Description,
                 ParentId = c.ParentId,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,

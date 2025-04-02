@@ -133,7 +133,6 @@ namespace Application.Services.Authentincation
             if (!user.EmailConfirmed)
                 return new ApiResponse(false, "Vui lòng xác thực email trước khi đăng nhập");
 
-            // ✅ Kiểm tra nếu user đã có refresh token cũ => thu hồi token cũ (có thể làm nếu muốn tăng bảo mật)
             if (!string.IsNullOrEmpty(user.RefreshToken))
             {
                 user.RefreshToken = null;
@@ -141,11 +140,9 @@ namespace Application.Services.Authentincation
                 await _userRepository.UpdateUser(user, CancellationToken.None);
             }
 
-            // ✅ Tạo Access Token & Refresh Token
             string refreshToken;
             var token = GenerateJwtToken(user, out refreshToken);
 
-            // ✅ Lưu Refresh Token vào database
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(3);
 
