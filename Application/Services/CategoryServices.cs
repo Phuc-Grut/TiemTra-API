@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Data.Entities;
 using Domain.DTOs.Category;
 using Infrastructure.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
@@ -65,6 +66,7 @@ namespace Application.Services
         public async Task<object> GetCategoryById(int categoryId, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
             var query = _categoryRepository.GetCategoriesQuery();
+            var breadcrumbs = await GetCategoryBreadcrumbs(categoryId, cancellationToken);
 
             var categoryExists = await _categoryRepository.CategoryExists(categoryId);
             if (!categoryExists)
@@ -92,27 +94,21 @@ namespace Application.Services
 
                 var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
 
-                var categoryDtos = pageSubCategories.Select(c => new CategoryDto
+                var categoryDtos = pageSubCategories.Select(c =>
                 {
-                    CategoryId = c.CategoryId,
-                    CategoryName = c.CategoryName,
-                    Description = c.Description,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt,
-                    Creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy) != null
-                        ? new UserDTO
-                        {
-                            FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy)?.FullName,
-                            Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy)?.Email
-                        }
-                        : null,
-                    Updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy) != null
-                        ? new UserDTO
-                        {
-                            FullName = users.FirstOrDefault(u => u.UserId == c.UpdatedBy)?.FullName,
-                            Email = users.FirstOrDefault(u => u.UserId == c.UpdatedBy)?.Email
-                        }
-                        : null
+                    var creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy);
+                    var updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy);
+                    return new CategoryDto
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName,
+                        Description = c.Description,
+                        ParentId = c.ParentId,
+                        CreatedAt = c.CreatedAt,
+                        UpdatedAt = c.UpdatedAt,
+                        CreatorName = creator?.FullName,
+                        UpdaterName = updater?.FullName,
+                    };
                 }).ToList();
 
                 return new
@@ -121,7 +117,8 @@ namespace Application.Services
                     CurrentCategory = new
                     {
                         CategoryId = currentCategory.CategoryId,
-                        CategoryName = currentCategory.CategoryName
+                        CategoryName = currentCategory.CategoryName,
+                        Breadcrumbs = breadcrumbs.ToArray()
                     },
                     Data = new PagedResult<CategoryDto>
                     {
@@ -149,27 +146,19 @@ namespace Application.Services
 
                 var totalItems = attributes.Count;
 
-                var attributesDtoList = attributes.Select(a => new AttributesDTO
+                var attributesDtoList = attributes.Select(atb => 
                 {
-                    AttributeId = a.AttributeId,
-                    Name = a.Name,
-                    Description = a.Description,
-                    CreatedAt = a.CreatedAt,
-                    UpdatedAt = a.UpdatedAt,
-                    Creator = users.FirstOrDefault(u => u.UserId == a.CreatedBy) != null
-                    ? new UserDTO
+                    var creator = users.FirstOrDefault(u => u.UserId == atb.CreatedBy);
+                    var updater = users.FirstOrDefault(u => u.UserId == atb.UpdatedBy);
+
+                    return new AttributesDTO
                     {
-                        FullName = users.FirstOrDefault(u => u.UserId == a.CreatedBy)?.FullName,
-                        Email = users.FirstOrDefault(u => u.UserId == a.CreatedBy)?.Email
-                    }
-                    : null,
-                    Updater = users.FirstOrDefault(u => u.UserId == a.UpdatedBy) != null
-                    ? new UserDTO
-                    {
-                        FullName = users.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.FullName,
-                        Email = users.FirstOrDefault(u => u.UserId == a.UpdatedBy)?.Email
-                    }
-                    : null,
+                        AttributeId = atb.AttributeId,
+                        Name = atb.Name,
+                        Description = atb.Description,
+                        CreatorName = creator?.FullName,
+                        UpdaterName = updater?.FullName,
+                    };
                 }).ToList();
 
                 return new
@@ -178,7 +167,8 @@ namespace Application.Services
                     CurrentCategory = new
                     {
                         CategoryId = currentCategory.CategoryId,
-                        CategoryName = currentCategory.CategoryName
+                        CategoryName = currentCategory.CategoryName,
+                        Breadcrumbs = breadcrumbs.ToArray()
                     },
                     Data = new PagedResult<AttributesDTO>
                     {
@@ -196,11 +186,33 @@ namespace Application.Services
                 CurrentCategory = new
                 {
                     CategoryId = currentCategory.CategoryId,
-                    CategoryName = currentCategory.CategoryName
+                    CategoryName = currentCategory.CategoryName,
+                    Breadcrumbs = breadcrumbs.ToArray()
                 },
                 Type = "Empty",
                 Data = new List<object>()
             };
+        }
+
+        private async Task<List<CategoryBreadcrumbDto>> GetCategoryBreadcrumbs(int categoryId, CancellationToken cancellationToken)
+        {
+            var breadcrumbs = new List<CategoryBreadcrumbDto>();
+            var current = await _categoryRepository.GetCategoryById(categoryId, cancellationToken);
+
+            while (current != null)
+            {
+                breadcrumbs.Insert(0, new CategoryBreadcrumbDto
+                {
+                    CategoryId = current.CategoryId,
+                    CategoryName = current.CategoryName
+                });
+
+                if (current.ParentId == null) break;
+
+                current = await _categoryRepository.GetCategoryById(current.ParentId.Value, cancellationToken);
+            }
+
+            return breadcrumbs;
         }
 
         public async Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken)
@@ -356,9 +368,11 @@ namespace Application.Services
         {
             var query = _categoryRepository.GetCategoriesQuery();
 
+            var keyword = filters.Keyword?.Trim();
+
             if (!string.IsNullOrEmpty(filters.Keyword))
             {
-                query = query.Where(c => c.CategoryName.ToLower().Contains(filters.Keyword.ToLower()));
+                query = query.Where(c => EF.Functions.Like(c.CategoryName, $"%{keyword}"));
             }
 
             int totalItems = await query.CountAsync(cancellationToken);
@@ -374,27 +388,21 @@ namespace Application.Services
 
             var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
 
-            var categoryDtos = categories.Select(c => new CategoryDto
+            var categoryDtos = categories.Select(c =>
             {
-                CategoryId = c.CategoryId,
-                CategoryName = c.CategoryName,
-                Description = c.Description,
-                ParentId = c.ParentId,
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt,
-                Creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy) != null
-                ? new UserDTO
+                var creator = users.FirstOrDefault(u => u.UserId == c.CreatedBy);
+                var updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy);
+                return new CategoryDto
                 {
-                    FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy).FullName,
-                    Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy).Email
-                } : null,
-
-                Updater = users.FirstOrDefault(u => u.UserId == c.UpdatedBy) != null
-                ? new UserDTO
-                {
-                    FullName = users.FirstOrDefault(u => u.UserId == c.CreatedBy).FullName,
-                    Email = users.FirstOrDefault(u => u.UserId == c.CreatedBy).Email
-                } : null,
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    Description = c.Description,
+                    ParentId = c.ParentId,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                    CreatorName = creator?.FullName,
+                    UpdaterName = updater?.FullName,
+                };
             }).ToList();
 
             return new PagedResult<CategoryDto>

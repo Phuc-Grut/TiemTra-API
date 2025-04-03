@@ -4,9 +4,9 @@ namespace Infrastructure.Interface
 {
     public interface IAttributesRepository
     {
-        Task<Attributes> AddAttribute(Attributes attributes, CancellationToken cancellationToken);
-
+        IQueryable<Attributes> GetAttributesQuery();
         Task<IEnumerable<Attributes>> GetAllAttributes(CancellationToken cancellationToken);
+        Task<Attributes> AddAttribute(Attributes attributes, CancellationToken cancellationToken);
 
         Task<bool> AttributeExists(int attributeId);
     }

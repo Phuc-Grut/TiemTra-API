@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Attributes;
+﻿using Application.DTOs;
+using Application.DTOs.Attributes;
 using System.Security.Claims;
 
 namespace Application.Interface
@@ -7,6 +8,6 @@ namespace Application.Interface
     {
         Task<AttributesDTO> AddAttribute(AddAttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken);
 
-        Task<IEnumerable<AttributesDTO>> GetAllAttributes(CancellationToken cancellationToken);
+        Task<PagedResult<AttributesDTO>> GetAllAttributes(AttributesFilterDTO filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

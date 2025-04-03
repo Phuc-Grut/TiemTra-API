@@ -9,7 +9,7 @@ namespace Application.DTOs.Category
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
         public int? ParentId { get; set; }
-        public UserDTO? Creator { get; set; }
-        public UserDTO? Updater { get; set; }
+        public string? UpdaterName { get; set; }
+        public string? CreatorName { get; set; }
     }
 }

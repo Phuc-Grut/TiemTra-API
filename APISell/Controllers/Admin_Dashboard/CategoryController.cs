@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace APISell.Controllers
+namespace APISell.Controllers.Admin_Dashboard
 {
     [Authorize]
-    [Route("api/category")]
+    [Route("api/admin/category")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -22,43 +22,17 @@ namespace APISell.Controllers
             _categoryAttSv = categoryAttribute;
         }
 
-        [HttpGet("get-paging-category")]
-        public async Task<IActionResult> GetAllCategories([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword = null, CancellationToken cancellationToken = default)
+        [HttpGet("get-paging-categories")]
+        public async Task<IActionResult> GetAllCategories( [FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
-            try
+            var filter = new CategoryFilterDto
             {
-                pageNumber = pageNumber < 1 ? 1 : pageNumber;
-                pageSize = pageSize < 1 ? 10 : pageSize;
+                Keyword = keyword
+            };
 
-                var filters = new CategoryFilterDto
-                {
-                    Keyword = keyword,
-                    //ParentId = parentId,
-                    //CategoryId = categoryId
-                };
+            var result = await _categoryServices.GetAllCategories(filter, pageNumber, pageSize, cancellationToken);
 
-                var pagedResult = await _categoryServices.GetAllCategories(filters, pageNumber, pageSize, cancellationToken);
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy danh sách danh mục thành công",
-                    data = pagedResult.Items,
-                    totalItems = pagedResult.TotalItems,
-                    totalPages = pagedResult.TotalPages,
-                    currentPage = pagedResult.CurrentPage,
-                    pageSize = pagedResult.PageSize
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Đã xảy ra lỗi khi lấy danh mục",
-                    error = ex.Message
-                });
-            }
+            return Ok(result);
         }
 
         [HttpPost("add-category")]
@@ -130,7 +104,7 @@ namespace APISell.Controllers
                 results
             });
         }
-        
+
         [HttpPut("update-category/{categoryId}")]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] UpCategoryDto categoryDto, CancellationToken cancellationToken)
         {
@@ -159,13 +133,22 @@ namespace APISell.Controllers
         [HttpPost("add-attribute-to-category")]
         public async Task<IActionResult> AddAttributeToCategory([FromBody] AddAttributeToCategoryDTO addDto, CancellationToken cancellationToken)
         {
-            var user = HttpContext.User;
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var user = HttpContext.User;
+
+                var rs = await _categoryAttSv.AddAttributesToCategory(addDto, user, cancellationToken);
+                
+                return Ok(rs);
             }
-            var rs = await _categoryAttSv.AddAttributesToCategory(addDto, user, cancellationToken);
-            return Ok(rs);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
         }
 
         [HttpPost("get-by-id")]
