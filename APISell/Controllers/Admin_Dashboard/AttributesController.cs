@@ -1,12 +1,13 @@
 ﻿using Application.DTOs.Attributes;
 using Application.Interface;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace APISell.Controllers
+namespace APISell.Controllers.Admin_Dashboard
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class AttributesController : ControllerBase
     {
@@ -42,6 +43,19 @@ namespace APISell.Controllers
                     error = ex.Message
                 });
             }
+        }
+
+        [HttpGet("get-paging-attributes")]
+        public async Task<IActionResult> GetAllAttributes( [FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            var filter = new AttributesFilterDTO
+            {
+                Keyword = keyword
+            };
+
+            var result = await _attributesServices.GetAllAttributes(filter, pageNumber, pageSize, cancellationToken);
+
+            return Ok(result);
         }
     }
 }

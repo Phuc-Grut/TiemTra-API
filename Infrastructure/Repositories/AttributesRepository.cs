@@ -30,5 +30,10 @@ namespace Infrastructure.Repositories
         {
             return await _context.Attributes.AnyAsync(a => a.AttributeId == attributeId);
         }
+
+        public IQueryable<Attributes> GetAttributesQuery()
+        {
+            return _context.Attributes.AsNoTracking();
+        }
     }
 }
