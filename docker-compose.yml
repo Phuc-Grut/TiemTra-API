@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Grunt.0514"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - apinetwork
+
+  apisell:
+    build:
+      context: .
+      dockerfile: APISell/Dockerfile
+    container_name: apisell
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=host.docker.internal;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
+    ports:
+      - "5001:80"
+    networks:
+      - apinetwork
+
+networks:
+  apinetwork:
+    driver: bridge
