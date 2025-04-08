@@ -20,7 +20,10 @@ using Shared.Common;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:80");
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    builder.WebHost.UseUrls("http://0.0.0.0:80");
+}
 
 // Cấu hình kết nối cơ sở dữ liệu
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -136,5 +139,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
