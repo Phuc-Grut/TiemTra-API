@@ -430,28 +430,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3886),
+                            CreatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3622),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3889),
+                            UpdatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3629),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3891),
+                            CreatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3630),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3891),
+                            UpdatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3631),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3892),
+                            CreatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3632),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 4, 1, 10, 26, 45, 274, DateTimeKind.Utc).AddTicks(3893),
+                            UpdatedAt = new DateTime(2025, 4, 6, 17, 8, 51, 755, DateTimeKind.Utc).AddTicks(3632),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
