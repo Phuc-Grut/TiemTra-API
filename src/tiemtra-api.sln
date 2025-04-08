@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{131C0F45-AE3D-4903-901E-E837ED40F47F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APISell", "APISell\APISell.csproj", "{C9541DE9-ADED-47C7-B48C-AB3820763326}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{0F3BEA54-98A1-492F-BE23-AF554F9E0F48}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6EFCC42-CD39-41AC-B0AE-A181BB964B37}"
@@ -18,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.dockerignore = ..\.dockerignore
 		..\docker-compose.yml = ..\docker-compose.yml
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiemTra_Api", "TiemTra_Api\TiemTra_Api.csproj", "{AA128217-A4AB-49BB-80EF-5705E6D91A88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,14 @@ Global
 		{131C0F45-AE3D-4903-901E-E837ED40F47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{131C0F45-AE3D-4903-901E-E837ED40F47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{131C0F45-AE3D-4903-901E-E837ED40F47F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9541DE9-ADED-47C7-B48C-AB3820763326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9541DE9-ADED-47C7-B48C-AB3820763326}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9541DE9-ADED-47C7-B48C-AB3820763326}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9541DE9-ADED-47C7-B48C-AB3820763326}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F3BEA54-98A1-492F-BE23-AF554F9E0F48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F3BEA54-98A1-492F-BE23-AF554F9E0F48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F3BEA54-98A1-492F-BE23-AF554F9E0F48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F3BEA54-98A1-492F-BE23-AF554F9E0F48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA128217-A4AB-49BB-80EF-5705E6D91A88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA128217-A4AB-49BB-80EF-5705E6D91A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA128217-A4AB-49BB-80EF-5705E6D91A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA128217-A4AB-49BB-80EF-5705E6D91A88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
