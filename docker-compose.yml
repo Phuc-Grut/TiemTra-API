@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  sqlserver:
+  tiemtra-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+    container_name: tiemtra-server
     environment:
       SA_PASSWORD: "Grunt.0514"
       ACCEPT_EULA: "Y"
@@ -12,13 +12,13 @@ services:
     networks:
       - apinetwork
 
-  apisell:
+  tiemtra-api:
     build:
       context: .
-      dockerfile: .src/APISell/Dockerfile
-    container_name: apisell
+      dockerfile: src/TiemTra_Api/Dockerfile
+    container_name: tiemtra-api
     depends_on:
-      - sqlserver
+      - tiemtra-server
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Server=host.docker.internal;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
