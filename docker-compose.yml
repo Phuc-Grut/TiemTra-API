@@ -15,7 +15,7 @@ services:
   apisell:
     build:
       context: .
-      dockerfile: APISell/Dockerfile
+      dockerfile: .src/APISell/Dockerfile
     container_name: apisell
     depends_on:
       - sqlserver
