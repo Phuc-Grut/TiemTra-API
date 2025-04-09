@@ -14,6 +14,7 @@ using Infrastructure.Repositories;
 using Infrastructure.Repositories.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Common;
@@ -28,7 +29,10 @@ if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
 // Cấu hình kết nối cơ sở dữ liệu
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString,
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    )
+);
 
 // Đăng ký các dịch vụ cần thiết
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -72,10 +76,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Cấu hình CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
 
 // Cấu hình Swagger
 builder.Services.AddSwaggerGen(c =>
@@ -120,16 +120,30 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterDTOValidator>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Cấu hình CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://host.docker.internal:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+
 var app = builder.Build();
 
 // Cấu hình pipeline yêu cầu HTTP
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
