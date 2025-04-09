@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250322080334_updb")]
-    partial class updb
+    [Migration("20250409110951_addDb")]
+    partial class addDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,9 +118,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -435,28 +433,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2329),
+                            CreatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6243),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2332),
+                            UpdatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6245),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
+                            CreatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6247),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334),
+                            UpdatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6248),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
+                            CreatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6249),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335),
+                            UpdatedAt = new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6249),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });

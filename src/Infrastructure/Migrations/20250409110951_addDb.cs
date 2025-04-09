@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class updb : Migration
+    public partial class addDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,7 +58,7 @@ namespace Infrastructure.Migrations
                     ParentId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -322,9 +322,9 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RoleId", "CreatedAt", "CreatedBy", "RoleName", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2329), new Guid("00000000-0000-0000-0000-000000000000"), "Admin", new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2332), new Guid("00000000-0000-0000-0000-000000000000") },
-                    { 2, new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334), new Guid("00000000-0000-0000-0000-000000000000"), "Staff", new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2334), new Guid("00000000-0000-0000-0000-000000000000") },
-                    { 3, new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335), new Guid("00000000-0000-0000-0000-000000000000"), "Customer", new DateTime(2025, 3, 22, 8, 3, 33, 987, DateTimeKind.Utc).AddTicks(2335), new Guid("00000000-0000-0000-0000-000000000000") }
+                    { 1, new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6243), new Guid("00000000-0000-0000-0000-000000000000"), "Admin", new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6245), new Guid("00000000-0000-0000-0000-000000000000") },
+                    { 2, new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6247), new Guid("00000000-0000-0000-0000-000000000000"), "Staff", new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6248), new Guid("00000000-0000-0000-0000-000000000000") },
+                    { 3, new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6249), new Guid("00000000-0000-0000-0000-000000000000"), "Customer", new DateTime(2025, 4, 9, 11, 9, 51, 245, DateTimeKind.Utc).AddTicks(6249), new Guid("00000000-0000-0000-0000-000000000000") }
                 });
 
             migrationBuilder.CreateIndex(
