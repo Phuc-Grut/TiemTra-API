@@ -163,7 +163,6 @@ namespace Application.Services.Authentincation
 
             var role = user.UserRoles.FirstOrDefault()?.Role?.RoleName ?? "Customer";
 
-            // ✅ Tạo một GUID mới cho Refresh Token
             refreshToken = GenerateRefreshToken();
             var refreshTokenId = Guid.NewGuid().ToString();
 

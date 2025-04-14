@@ -10,7 +10,7 @@ services:
     ports:
       - "1433:1433"
     networks:
-      - apinetwork
+      - tiemtra-network
 
   tiemtra-api:
     build:
@@ -21,12 +21,12 @@ services:
       - tiemtra-server
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=host.docker.internal;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=host.docker.internal,1433;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
     ports:
       - "5001:80"
     networks:
-      - apinetwork
+      - tiemtra-network
 
 networks:
-  apinetwork:
+  tiemtra-network:
     driver: bridge
