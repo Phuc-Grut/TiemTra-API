@@ -90,6 +90,8 @@ namespace Application.Services
                     AttributeId = atb.AttributeId,
                     Name = atb.Name,
                     Description = atb.Description,
+                    UpdatedAt = atb.UpdatedAt,
+                    CreatedAt = atb.CreatedAt,
                     CreatorName = creator?.FullName,
                     UpdaterName = updater?.FullName,
                 };
