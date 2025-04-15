@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace APISell.Controllers.Admin_Dashboard
 {
     [Authorize]
-    [Route("api/admin/[controller]")]
+    [Route("api/admin/attributes")]
     [ApiController]
     public class AttributesController : ControllerBase
     {
