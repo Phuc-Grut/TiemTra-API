@@ -151,7 +151,7 @@ namespace APISell.Controllers.Admin_Dashboard
             return Ok(result);
         }
 
-        [HttpGet("get-selected-attributes/{categoryId}")]
+        [HttpGet("{categoryId}/attributes")]
         public async Task<IActionResult> GetSelectedAttributes(int categoryId, CancellationToken cancellationToken)
         {
             var selected = await _categoryAttSv.GetSelectedAttributeIds(categoryId, cancellationToken);
