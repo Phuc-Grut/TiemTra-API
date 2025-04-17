@@ -14,12 +14,6 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task AddAttributesToCategory(CategoryAttributes categoryAttribute, CancellationToken cancellationToken)
-        {
-            _context.CategoryAttributes.Add(categoryAttribute);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-
         public async Task<List<Attributes>> GetAttributesByCategory(int categoryId, CancellationToken cancellationToken)
         {
             return await _context.CategoryAttributes
@@ -56,6 +50,33 @@ namespace Infrastructure.Repositories
         public Task<int> CountAttributesByCategory(int categoryId, CancellationToken cancellationToken)
         {
            return _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).CountAsync(cancellationToken);
+        }
+
+        public Task<List<int>> GetAttributeIdsByCategory(int categoryId, CancellationToken cancellationToken)
+        {
+            return _context.CategoryAttributes
+                .Where(ca => ca.CategoryId == categoryId)
+                .Select(ca => ca.AttributeId)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task AddAsync(CategoryAttributes categoryAttribute, CancellationToken cancellationToken)
+        {
+            await _context.CategoryAttributes.AddAsync(categoryAttribute, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task RemoveAsync(int categoryId, List<int> attributeIds, CancellationToken cancellationToken)
+        {
+            var toRemove = await _context.CategoryAttributes
+                .Where(ca => ca.CategoryId == categoryId && attributeIds.Contains(ca.AttributeId))
+                .ToListAsync(cancellationToken);
+
+            if (toRemove.Any())
+            {
+                _context.CategoryAttributes.RemoveRange(toRemove);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
         }
     }
 }

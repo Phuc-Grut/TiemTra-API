@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Category;
+﻿using Application.DTOs.Attributes;
+using Application.DTOs.Category;
 using Application.Interface;
 using Application.Services;
 using Domain.DTOs.Category;
@@ -130,25 +131,12 @@ namespace APISell.Controllers.Admin_Dashboard
             }
         }
 
-        [HttpPost("add-attribute-to-category")]
-        public async Task<IActionResult> AddAttributeToCategory([FromBody] AddAttributeToCategoryDTO addDto, CancellationToken cancellationToken)
+        [HttpPost("set-attributes")]
+        public async Task<IActionResult> SetAttributesForCategory([FromBody] SetAttributesForCategoryDTO dto, CancellationToken cancellationToken)
         {
-            try
-            {
-                var user = HttpContext.User;
-
-                var rs = await _categoryAttSv.AddAttributesToCategory(addDto, user, cancellationToken);
-                
-                return Ok(rs);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-            }
+            var user = HttpContext.User;
+            await _categoryAttSv.SetAttributesForCategory(dto, user, cancellationToken);
+            return Ok(new { success = true });
         }
 
         [HttpPost("get-by-id")]
@@ -162,6 +150,14 @@ namespace APISell.Controllers.Admin_Dashboard
             );
             return Ok(result);
         }
+
+        [HttpGet("get-selected-attributes/{categoryId}")]
+        public async Task<IActionResult> GetSelectedAttributes(int categoryId, CancellationToken cancellationToken)
+        {
+            var selected = await _categoryAttSv.GetSelectedAttributeIds(categoryId, cancellationToken);
+            return Ok(selected);
+        }
+
 
 
         //[HttpGet("filter-category")]

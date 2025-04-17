@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Category;
+﻿using Application.DTOs.Attributes;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
@@ -23,49 +23,32 @@ namespace Application.Services
             _attributesRepo = attributesRepo;
         }
 
-        public async Task<AddAttributeToCategoryDTO> AddAttributesToCategory(AddAttributeToCategoryDTO addDto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        public async Task SetAttributesForCategory(SetAttributesForCategoryDTO dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
-            var hasChildren = await _categoryRepo.HasChildCategories(addDto.CategoryId, cancellationToken);
 
-            var categoryExists = await _categoryRepo.CategoryExists(addDto.CategoryId);
-            var attributeExists = await _attributesRepo.AttributeExists(addDto.AttributesId);
+            var existing = await _categoryAttRepo.GetAttributeIdsByCategory(dto.CategoryId, cancellationToken);
+            var toAdd = dto.AttributeIds.Except(existing).ToList();
+            var toRemove = existing.Except(dto.AttributeIds).ToList();
 
-            if (!categoryExists)
-                throw new Exception("Danh mục không tồn tại.");
-
-            if (!attributeExists)
-                throw new Exception("Thuộc tính không tồn tại.");
-
-            if (hasChildren)
+            //thêm mới
+            foreach (var attributeId in toAdd)
             {
-                throw new Exception("Danh mục này có danh mục con.");
+                var entry = new CategoryAttributes
+                {
+                    CategoryId = dto.CategoryId,
+                    AttributeId = attributeId,
+                };
+                await _categoryAttRepo.AddAsync(entry, cancellationToken);
             }
-
-            if (await _categoryAttRepo.ExistsAsync(addDto.CategoryId, addDto.AttributesId))
-                throw new Exception("Thuộc tính đã tồn tại trong danh mục.");
-
-            var newCtgrAtb = new CategoryAttributes
-            {
-                CategoryId = addDto.CategoryId,
-                AttributeId = addDto.AttributesId,
-                UpdatedAt = DateTime.Now,
-                UpdatedBy = userId,
-                CreatedBy = userId,
-            };
-
-            var rs = _categoryAttRepo.AddAttributesToCategory(newCtgrAtb, cancellationToken);
-
-            return new AddAttributeToCategoryDTO
-            {
-                CategoryId = newCtgrAtb.CategoryId,
-                AttributesId = newCtgrAtb.AttributeId
-            };
+            if (toRemove.Any()) 
+            { 
+                await _categoryAttRepo.RemoveAsync(dto.CategoryId, toRemove, cancellationToken);
+            }
         }
-
-        public Task RemoveAttributesToCategory(int categoryId, int attributeId)
+        public async Task<List<int>> GetSelectedAttributeIds(int categoryId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _categoryAttRepo.GetAttributeIdsByCategory(categoryId, cancellationToken);
         }
     }
 }
