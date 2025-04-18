@@ -131,14 +131,6 @@ namespace APISell.Controllers.Admin_Dashboard
             }
         }
 
-        [HttpPost("set-attributes")]
-        public async Task<IActionResult> SetAttributesForCategory([FromBody] SetAttributesForCategoryDTO dto, CancellationToken cancellationToken)
-        {
-            var user = HttpContext.User;
-            await _categoryAttSv.SetAttributesForCategory(dto, user, cancellationToken);
-            return Ok(new { success = true });
-        }
-
         [HttpPost("get-by-id")]
         public async Task<IActionResult> GetCategoryById([FromBody] CategoryIdRequest2 rq, CancellationToken cancellationToken = default)
         {
@@ -151,14 +143,20 @@ namespace APISell.Controllers.Admin_Dashboard
             return Ok(result);
         }
 
-        [HttpGet("{categoryId}/attributes")]
+        [HttpPost("set-attributes")]
+        public async Task<IActionResult> SetAttributesForCategory([FromBody] SetAttributesForCategoryDTO dto, CancellationToken cancellationToken)
+        {
+            var user = HttpContext.User;
+            await _categoryAttSv.SetAttributesForCategory(dto, user, cancellationToken);
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("{categoryId}/select-attributes")]
         public async Task<IActionResult> GetSelectedAttributes(int categoryId, CancellationToken cancellationToken)
         {
             var selected = await _categoryAttSv.GetSelectedAttributeIds(categoryId, cancellationToken);
             return Ok(selected);
         }
-
-
 
         //[HttpGet("filter-category")]
         //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)
