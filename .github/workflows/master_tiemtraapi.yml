@@ -27,7 +27,7 @@ jobs:
         run: dotnet build ./src/tiemtra-api.sln --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ./tiemtra-api.sln -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish ./src/tiemtra-api.sln -c Release -o "./publish"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
