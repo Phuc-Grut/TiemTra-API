@@ -8,9 +8,22 @@ services:
     container_name: tiemtra-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=host.docker.internal,1433;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=tcp:gstore.database.windows.net,1433;Initial Catalog=TiemTra2023;Persist Security Info=False;
+        User ID=gstore;Password=tiemtra2023@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     ports:
       - "5001:80"
+    networks:
+      - tiemtra-network
+
+  tiemtra-client:
+    build:
+      context: ../tiemtra-client
+      dockerfile: DockerFile
+    container_name: tiemtra-client
+    ports:
+      - "7001:80"
+    depends_on:
+      - tiemtra-api
     networks:
       - tiemtra-network
 
