@@ -35,5 +35,30 @@ namespace Infrastructure.Repositories
         {
             return _context.Attributes.AsNoTracking();
         }
+
+        public async Task DeleteAttribute(List<int> attributeIds, CancellationToken cancellationToken)
+        {
+            var toRemove = await _context.Attributes
+                .Where(a => attributeIds.Contains(a.AttributeId))
+                .ToListAsync(cancellationToken);
+
+            if (toRemove.Any())
+            {
+                _context.Attributes.RemoveRange(toRemove);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task<Attributes> GetAttributeById(int attributeId, CancellationToken cancellationToken)
+        {
+            return  await _context.Attributes.FirstOrDefaultAsync(a => a.AttributeId == attributeId, cancellationToken);
+        }
+
+        public async Task<bool> UpdateAttribute(Attributes attributes, CancellationToken cancellationToken)
+        {
+            _context.Attributes.Update(attributes);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
     }
 }

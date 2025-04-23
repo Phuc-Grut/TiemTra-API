@@ -57,5 +57,51 @@ namespace APISell.Controllers.Admin_Dashboard
 
             return Ok(result);
         }
+        [HttpDelete("delete-attributes")]
+        public async Task<IActionResult> DeleteAttribute([FromBody] List<int> attributeIds, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _attributesServices.DeleteAttribute(attributeIds, cancellationToken);
+
+                if (!result)
+                {
+                    return NotFound(new { message = "Không tìm thấy thuộc tính để xóa." });
+                }
+
+                return Ok(new { message = "Xóa thuộc tính thành công." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("update-attributes/{attributeId}")]
+        public async Task<IActionResult> UpdateAttribute(int attributeId, AddAttributesDTO attributesDTO, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var user = HttpContext.User;
+                var result = await _attributesServices.UpdateAttribute(attributeId, attributesDTO, user, cancellationToken);
+                if (!result)
+                {
+                    return NotFound();
+                }
+                return Ok(new { message = "Cập nhật thuộc tính thành công." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace Application.Services
         private readonly IAttributesRepository _attributesRepository;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly ICategoryAttributesRepository _categoryAttributesRepository;
 
         public AttributesServices(IAttributesRepository attributesRepository, IMapper mapper, IUserRepository userRepository)
         {
@@ -43,7 +44,6 @@ namespace Application.Services
 
         private async Task<int> GenerateUniqueAttributesId(CancellationToken cancellationToken)
         {
-            // Lấy danh sách ID hiện có từ danh sách danh mục
             var existingIds = (await _attributesRepository.GetAllAttributes(cancellationToken))
                                 .Select(c => c.AttributeId)
                                 .ToHashSet();
@@ -53,7 +53,7 @@ namespace Application.Services
             {
                 newId = new Random().Next(100, 999);
             }
-            while (existingIds.Contains(newId)); // check ID trùng
+            while (existingIds.Contains(newId));
 
             return newId;
         }
@@ -106,6 +106,44 @@ namespace Application.Services
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
+        }
+
+        public async Task<bool> DeleteAttribute(List<int> attributeIds, CancellationToken cancellationToken)
+        {
+            if (attributeIds == null || attributeIds.Any())
+            {
+                return false;
+            }
+            foreach(var attibuteId in attributeIds)
+            {
+                await _categoryAttributesRepository.RemoveAttributeFromAllCategories(attibuteId, cancellationToken);
+            }
+            await _attributesRepository.DeleteAttribute(attributeIds, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> UpdateAttribute(int attributeId, AddAttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            var userId = GetUserIdFromClaims.GetUserId(user);
+
+            var attribute = await _attributesRepository.GetAttributeById(attributeId, cancellationToken);
+            if (attribute == null) {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(attributesDTO.AttributeName))
+            {
+                attribute.Name = attributesDTO.AttributeName;
+            }
+            if (!string.IsNullOrEmpty(attributesDTO.Description))
+            {
+                attribute.Description = attributesDTO.Description;
+            }
+
+            attribute.UpdatedBy = userId;
+            attribute.UpdatedAt = DateTime.Now;
+
+            await _attributesRepository.UpdateAttribute(attribute, cancellationToken);
+            return true;
         }
     }
 }
