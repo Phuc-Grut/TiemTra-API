@@ -5,8 +5,6 @@ name: Build and deploy ASP.Net Core app to Azure Web App - TiemTraAPI
 
 on:
   push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
@@ -27,13 +25,13 @@ jobs:
         run: dotnet build ./src/tiemtra-api.sln --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish ./src/tiemtra-api.sln -c Release -o "./publish"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./publish
 
   deploy:
     runs-on: windows-latest
