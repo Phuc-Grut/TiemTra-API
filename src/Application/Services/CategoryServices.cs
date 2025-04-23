@@ -308,7 +308,7 @@ namespace Application.Services
 
                 // Thực hiện xoá
                 await _productRepository.RemoveCategoryFromProducts(id, cancellationToken);
-                await _categoryAttRepo.RemoveAllAttributesFromCategory(id, cancellationToken);
+                await _categoryAttRepo.RemoveAllCategoreyFromAttributes(id, cancellationToken);
                 var deleted = await _categoryRepository.DeleteCategory(id, cancellationToken);
 
                 results.Add(new CategoryDeleteResult

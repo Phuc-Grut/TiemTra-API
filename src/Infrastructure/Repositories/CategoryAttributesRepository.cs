@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories
                 .AnyAsync(ca => ca.CategoryId == categoryId && ca.AttributeId == attributeId);
         }
 
-        public async Task RemoveAllAttributesFromCategory(int categoryId, CancellationToken cancellationToken)
+        public async Task RemoveAllCategoreyFromAttributes(int categoryId, CancellationToken cancellationToken)
         {
             var items = await _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).ToListAsync(cancellationToken);
 
@@ -77,6 +77,15 @@ namespace Infrastructure.Repositories
                 _context.CategoryAttributes.RemoveRange(toRemove);
                 await _context.SaveChangesAsync(cancellationToken);
             }
+        }
+
+        public async Task RemoveAttributeFromAllCategories(int attributeId, CancellationToken cancellationToken)
+        {
+            var toRemove = _context.CategoryAttributes
+                            .Where(ca => ca.AttributeId == attributeId);
+
+            _context.CategoryAttributes.RemoveRange(toRemove);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
