@@ -2,7 +2,7 @@
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
-using Infrastructure.Interface;
+using Domain.Interface;
 using Shared.Common;
 using System.Security.Claims;
 

@@ -1,6 +1,6 @@
 ﻿using Domain.Data.Entities;
 
-namespace Infrastructure.Interface.Authentication
+namespace Domain.Interface.Authentication
 {
     public interface IAuthRepository
     {

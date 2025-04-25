@@ -2,8 +2,8 @@
 using Application.Interface.Authentication;
 using Domain.Data.Entities;
 using Domain.Enum;
-using Infrastructure.Interface;
-using Infrastructure.Interface.Authentication;
+using Domain.Interface;
+using Domain.Interface.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Common;
@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Domain.Interface;
 
 namespace Application.Services.Authentincation
 {

@@ -8,8 +8,7 @@ services:
     container_name: tiemtra-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=tcp:gstore.database.windows.net,1433;Initial Catalog=TiemTra2023;Persist Security Info=False;
-        User ID=gstore;Password=tiemtra2023@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
     ports:
       - "5001:80"
     networks:

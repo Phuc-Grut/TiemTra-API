@@ -10,16 +10,11 @@ namespace Infrastructure.Database.Configurations
         {
             builder.ToTable("ProductVariations");
 
-            builder.HasKey(pv => pv.ProductVariationsId);
+            builder.HasKey(pv => pv.ProductVariationId);
 
             builder.HasOne(pv => pv.Product)
               .WithMany(p => p.ProductVariations)
               .HasForeignKey(pv => pv.ProductId);
-
-            builder.HasMany(pv => pv.ProductImages)
-               .WithOne(pi => pi.ProductVariation)
-               .HasForeignKey(pi => pi.ProductVariationId)
-               .OnDelete(DeleteBehavior.NoAction);
 
             builder.Property(pv => pv.CreatedBy).IsRequired();
             builder.Property(pv => pv.UpdatedBy).IsRequired();
