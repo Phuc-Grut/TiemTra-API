@@ -9,6 +9,6 @@ namespace Domain.Interface
 {
     public interface IProductAttributeRepository
     {
-        Task AddRangeAsync(Guid productId, List<ProductAttribute> attributes);
+        Task AddRangeAsync(List<ProductAttribute> attributes, CancellationToken cancellationToken);
     }
 }
