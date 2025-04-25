@@ -4,7 +4,6 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - TiemTraAPI
 
 on:
-  push:
   workflow_dispatch:
 
 jobs:
