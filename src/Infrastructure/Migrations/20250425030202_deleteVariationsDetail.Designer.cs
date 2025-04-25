@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250425030202_deleteVariationsDetail")]
+    partial class deleteVariationsDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,6 +189,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool?>("HasVariations")
                         .HasColumnType("bit");
 
@@ -290,6 +296,12 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("ProductVariationId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ProductVariationId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -301,6 +313,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("ProductImageId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariationId1");
 
                     b.ToTable("ProductImages", (string)null);
                 });
@@ -382,28 +396,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5018),
+                            CreatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4517),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5021),
+                            UpdatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4520),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5023),
+                            CreatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4522),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5024),
+                            UpdatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4522),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5025),
+                            CreatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4524),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 4, 25, 3, 40, 37, 197, DateTimeKind.Utc).AddTicks(5026),
+                            UpdatedAt = new DateTime(2025, 4, 25, 3, 1, 59, 462, DateTimeKind.Utc).AddTicks(4524),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -564,7 +578,13 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.NoAction);
 
+                    b.HasOne("Domain.Data.Entities.ProductVariations", "ProductVariation")
+                        .WithMany()
+                        .HasForeignKey("ProductVariationId1");
+
                     b.Navigation("Product");
+
+                    b.Navigation("ProductVariation");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.ProductVariations", b =>

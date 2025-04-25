@@ -1,10 +1,9 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Attributes;
-using Application.DTOs.User;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
-using Infrastructure.Interface;
+using Domain.Interface;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
@@ -18,11 +17,12 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICategoryAttributesRepository _categoryAttributesRepository;
 
-        public AttributesServices(IAttributesRepository attributesRepository, IMapper mapper, IUserRepository userRepository)
+        public AttributesServices(IAttributesRepository attributesRepository, IMapper mapper, IUserRepository userRepository, ICategoryAttributesRepository categoryAttributesRepository)
         {
             _attributesRepository = attributesRepository;
             _mapper = mapper;
             _userRepository = userRepository;
+            _categoryAttributesRepository = categoryAttributesRepository;
         }
 
         public async Task<AttributesDTO> AddAttribute(AddAttributesDTO attributesDTO, ClaimsPrincipal user, CancellationToken cancellationToken)
@@ -110,14 +110,16 @@ namespace Application.Services
 
         public async Task<bool> DeleteAttribute(List<int> attributeIds, CancellationToken cancellationToken)
         {
-            if (attributeIds == null || attributeIds.Any())
+            if (attributeIds == null || attributeIds.Count == 0)
             {
                 return false;
             }
-            foreach(var attibuteId in attributeIds)
+
+            foreach (var attributeId in attributeIds)
             {
-                await _categoryAttributesRepository.RemoveAttributeFromAllCategories(attibuteId, cancellationToken);
+                await _categoryAttributesRepository.RemoveAttributeFromAllCategories(attributeId, cancellationToken);
             }
+
             await _attributesRepository.DeleteAttribute(attributeIds, cancellationToken);
             return true;
         }

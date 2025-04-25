@@ -1,6 +1,6 @@
 ﻿using Domain.Data.Entities;
 
-namespace Infrastructure.Interface
+namespace Domain.Interface
 {
     public interface IAttributesRepository
     {

@@ -11,7 +11,6 @@ namespace Domain.Data.Entities
         public decimal? Price { get; set; }
         public int? Stock { get; set; }
         public string? Origin { get; set; }
-        public string? Description { get; set; }
         public bool? HasVariations { get; set; }
         public int? CategoryId { get; set; }
         public int? BrandId { get; set; }

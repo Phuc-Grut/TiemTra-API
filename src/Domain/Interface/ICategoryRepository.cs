@@ -2,7 +2,7 @@
 
 //using Domain.DTOs.Category;
 
-namespace Infrastructure.Interface
+namespace Domain.Interface
 {
     public interface ICategoryRepository
     {

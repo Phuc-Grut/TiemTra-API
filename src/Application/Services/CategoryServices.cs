@@ -6,7 +6,7 @@ using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
 using Domain.DTOs.Category;
-using Infrastructure.Interface;
+using Domain.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;

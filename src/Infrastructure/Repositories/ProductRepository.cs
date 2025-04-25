@@ -1,5 +1,6 @@
-﻿using Infrastructure.Database;
-using Infrastructure.Interface;
+﻿using Domain.Data.Entities;
+using Infrastructure.Database;
+using Domain.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,11 @@ namespace Infrastructure.Repositories
         public ProductRepository(AppDbContext dbContext)
         {
                 _dbContext = dbContext;
+        }
+
+        public Task<Guid> AddAsync(Product product, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<int> CountProductByCategory(int categoryId, CancellationToken cancellationToken)
