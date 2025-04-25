@@ -7,7 +7,7 @@ namespace Domain.Data.Entities
         public Guid ProductVariationId { get; set; }
         public Guid ProductId { get; set; }
 
-        public string PackageSize { get; set; }
+        public string TypeName { get; set; }
         public decimal Price { get; set; }
         public int? Stock { get; set; }
 

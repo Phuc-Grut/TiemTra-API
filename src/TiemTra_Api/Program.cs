@@ -47,6 +47,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryAttributeService, CategoryAttributeService>();
 builder.Services.AddScoped<ICategoryAttributesRepository, CategoryAttributesRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductServices, ProductServices>();
+builder.Services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IProductVariationRepository, ProductVariationRepository>();
 
 // Cấu hình AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

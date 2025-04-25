@@ -15,12 +15,13 @@ namespace Infrastructure.Repositories
         private readonly AppDbContext _dbContext;
         public ProductRepository(AppDbContext dbContext)
         {
-                _dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
-        public Task<Guid> AddAsync(Product product, CancellationToken cancellationToken)
+        public async Task AddAsync(Product product, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await _dbContext.Products.AddAsync(product, cancellationToken);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<int> CountProductByCategory(int categoryId, CancellationToken cancellationToken)

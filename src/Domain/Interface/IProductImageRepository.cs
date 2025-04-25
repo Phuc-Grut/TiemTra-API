@@ -8,6 +8,6 @@ namespace Domain.Interface
 {
     public interface IProductImageRepository
     {
-        Task AddRangeAsync(Guid productId, CancellationToken cancellationToken);
+        Task AddRangeAsync(Guid productId, List<string> imageUrls, CancellationToken cancellationToken);
     }
 }
