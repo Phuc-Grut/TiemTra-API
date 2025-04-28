@@ -91,7 +91,6 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Gợi ý: nên log lỗi ở đây nếu có logger
                 throw;
             }
         }

@@ -132,13 +132,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://host.docker.internal:3000")
+        policy.WithOrigins(
+                "http://localhost:3000", // dev mode yarn start
+                "http://localhost:7001", // production FE server Nginx localhost
+                "https://tiemtraclient-hgaefuceerajerfp.southeastasia-01.azurewebsites.net" // nếu cần cho phép gọi trực tiếp trên domain Azure
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
-
 
 var app = builder.Build();
 
