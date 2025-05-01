@@ -131,13 +131,15 @@ namespace APISell.Controllers.Admin_Dashboard
             }
         }
 
-        [HttpPost("get-by-id")]
-        public async Task<IActionResult> GetCategoryById([FromBody] CategoryIdRequest2 rq, CancellationToken cancellationToken = default)
+        [HttpGet("get-by-id")]
+        public async Task<IActionResult> GetCategoryById( [FromQuery] int categoryId, [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            CancellationToken cancellationToken = default)
         {
             var result = await _categoryServices.GetCategoryById(
-                rq.CategoryId,
-                rq.PageNumber,
-                rq.PageSize,
+                categoryId,
+                pageNumber,
+                pageSize,
                 cancellationToken
             );
             return Ok(result);
@@ -158,22 +160,11 @@ namespace APISell.Controllers.Admin_Dashboard
             return Ok(selected);
         }
 
-        //[HttpGet("filter-category")]
-        //public async Task<IActionResult> FilterCategories([FromQuery] CategoryFilterDto filters, CancellationToken cancellationToken)
-        //{
-        //    try
-        //    {
-        //        var categories = await _categoryServices.FilterCategories(filters, cancellationToken);
-        //        return Ok(new ApiResponse(true, "Lọc anh mục thành công", categories));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new
-        //        {
-        //            success = false,
-        //            error = ex.Message
-        //        });
-        //    }
-        //}
+        [HttpGet("get-leaf-categories")]
+        public async Task<IActionResult> GetLeafCategories(CancellationToken cancellationToken)
+        {
+            var categories = await _categoryServices.GetLeafCategoriesAsync(cancellationToken);
+            return Ok(categories);
+        }
     }
 }

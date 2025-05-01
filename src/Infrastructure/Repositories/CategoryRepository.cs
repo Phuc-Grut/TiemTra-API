@@ -77,27 +77,11 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        //public Task<List<Category>> GetSubCategories(int parentId, CancellationToken cancellationToken)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public async Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken)
-        //{
-        //    var query = _context.Categories.AsQueryable();
-
-        //    if (!string.IsNullOrEmpty(filters.Keyword))
-        //    {
-        //        string keyword = filters.Keyword.ToLower();
-        //        query = query.Where(c => c.CategoryName.ToLower().Contains(keyword));
-        //    }
-
-        //    if (filters.CategoryId.HasValue)
-        //    {
-        //        query = query.Where(c => c.CategoryId == filters.CategoryId);
-        //    }
-
-        //    return await query.ToListAsync(cancellationToken);
-        //}
+        public Task<List<Category>> GetLeafCategoriesAsync(CancellationToken cancellationToken)
+        {
+            return _context.Categories
+                .Where(c => !c.ChildCategories.Any())
+                .ToListAsync(cancellationToken);
+        }
     }
 }

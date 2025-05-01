@@ -14,6 +14,7 @@ namespace Application.Interface
         Task<List<CategoryDeleteResult>> DeleteCategoriesAsync(List<int> categoryIds, CancellationToken cancellationToken);
         Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken);
+        Task<List<CategoryDto>> GetLeafCategoriesAsync(CancellationToken cancellationToken);
 
         //Task DeleteCategory(int categoryId);
         //Task<IEnumerable<CategoryDto>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
