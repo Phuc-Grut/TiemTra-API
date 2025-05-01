@@ -431,6 +431,16 @@ namespace Application.Services
             return newId;
         }
 
+        public async Task<List<CategoryDto>> GetLeafCategoriesAsync(CancellationToken cancellationToken)
+        {
+            var categories = await _categoryRepository.GetLeafCategoriesAsync(cancellationToken);
+            return categories.Select (c => new CategoryDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.CategoryName,
+            }).ToList();
+        }
+
         //public async Task<IEnumerable<Category>> GetAllCategories(CancellationToken cancellationToken)
         //{
         //    return await _categoryRepository.GetAllCategories(cancellationToken);
