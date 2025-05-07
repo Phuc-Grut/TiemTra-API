@@ -137,7 +137,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:3000", // dev mode yarn start
                 "http://localhost:7001", // production FE server Nginx localhost
-                "https://tiemtraclient-hgaefuceerajerfp.southeastasia-01.azurewebsites.net" // nếu cần cho phép gọi trực tiếp trên domain Azure
+                "https://tiemtra2023-fbhyabg0g6cycehw.southeastasia-01.azurewebsites.net" // nếu cần cho phép gọi trực tiếp trên domain Azure
               )
               .AllowAnyHeader()
               .AllowAnyMethod()
