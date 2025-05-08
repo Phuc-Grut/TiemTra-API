@@ -17,7 +17,8 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
         }
 
         [HttpPost("create-product")]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto dto, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Create([FromForm] CreateProductDto dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

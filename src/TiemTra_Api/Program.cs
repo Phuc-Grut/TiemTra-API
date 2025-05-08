@@ -21,6 +21,7 @@ using Shared.Common;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
@@ -35,6 +36,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         sqlOptions => sqlOptions.EnableRetryOnFailure()
     )
 );
+
+builder.Services.AddSingleton<BlobServiceClient>(sp =>
+{
+    var connectionString = builder.Configuration.GetSection("AzureStorage:ConnectionString").Value;
+    return new BlobServiceClient(connectionString);
+});
 
 // Đăng ký các dịch vụ cần thiết
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -135,13 +142,25 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000", // dev mode yarn start
-                "http://localhost:7001", // production FE server Nginx localhost
-                "https://tiemtra2023-fbhyabg0g6cycehw.southeastasia-01.azurewebsites.net" // nếu cần cho phép gọi trực tiếp trên domain Azure
-              )
+            "http://localhost:3000",
+            "http://localhost:7001",
+            "https://tiemtra2023-fbhyabg0g6cycehw.southeastasia-01.azurewebsites.net"
+        )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
+    });
+});
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TiemTra API", Version = "v1" });
+
+    // Cấu hình để hỗ trợ multipart/form-data
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "file",
+        Format = "binary"
     });
 });
 
