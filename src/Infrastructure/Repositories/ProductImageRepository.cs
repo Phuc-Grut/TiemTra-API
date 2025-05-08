@@ -27,6 +27,7 @@ namespace Infrastructure.Repositories
             var images = imageUrls.Select(url => new ProductImage
             {
                 ProductId = productId,
+                ImageName = url.Split('/').Last().Split('?')[0],
                 ImageUrl = url
             }).ToList();
 
