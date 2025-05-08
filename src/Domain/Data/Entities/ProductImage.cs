@@ -6,6 +6,7 @@ namespace Domain.Data.Entities
     {
         public int ProductImageId { get; set; }
         public Guid? ProductId { get; set; }
+        public string? ImageName { get; set; }
         public string ImageUrl { get; set; }
         public Product? Product { get; set; }
     }
