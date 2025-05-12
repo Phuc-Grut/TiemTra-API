@@ -28,6 +28,10 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Products.CountAsync(p => p.CategoryId == categoryId, cancellationToken);
         }
+        public Task<bool> ProductCodeExistsAsync(string productCode)
+        {
+            return _dbContext.Products.AsNoTracking().AnyAsync(p => p.ProductCode == productCode);
+        }
 
         public async Task RemoveCategoryFromProducts(int categoryId, CancellationToken cancellationToken)
         {

@@ -18,7 +18,7 @@ namespace Application.Services
 {
     public class ProductServices : IProductServices
     {
-        private readonly IProductRepository _product;
+        private readonly IProductRepository _productRepo;
         private readonly IProductVariationRepository _productVariation;
         private readonly IProductImageRepository _producImage;
         private readonly IProductAttributeRepository _productAttribute;
@@ -27,7 +27,7 @@ namespace Application.Services
 
         public ProductServices(IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
         {
-            _product = product;
+            _productRepo = product;
             _productVariation = productVariation;
             _producImage = producImage;
             _productAttribute = productAttribute;
@@ -54,6 +54,10 @@ namespace Application.Services
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId,
                 };
+                if(await _productRepo.ProductCodeExistsAsync(dto.ProductCode))
+                {
+                    throw new Exception("Mã sản phẩm đã tồn tại");
+                }
 
                 if (dto.PrivewImage != null && dto.PrivewImage.Length > 0)
                 {
@@ -61,7 +65,7 @@ namespace Application.Services
                     product.PrivewImage = blobUrl;
                 }
 
-                await _product.AddAsync(product, cancellationToken);
+                await _productRepo.AddAsync(product, cancellationToken);
 
                 if (dto.ProductImages?.Any() == true)
                 {
@@ -112,14 +116,29 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to create product", ex);
+                throw new Exception("Tạo sản phẩm mới thất bại", ex);
             }
+        }
+
+        public async Task<string> GenerateUniqueProductCodeAsync()
+        {
+            var random = new Random();
+            string productCode;
+            bool exists;
+            do
+            {
+                int ranDomNumber = random.Next(0, 1000);
+                productCode = $"SP{ranDomNumber:D3}";
+                exists = await _productRepo.ProductCodeExistsAsync(productCode);
+            }
+            while (exists);
+            return productCode;
         }
 
         private async Task<string> UploadImageToAzure(IFormFile file)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob); //truy cập công khai
+            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
             string originalName = Path.GetFileNameWithoutExtension(file.FileName);
             string extension = Path.GetExtension(file.FileName);

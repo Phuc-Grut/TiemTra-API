@@ -13,6 +13,6 @@ namespace Domain.Interface
         Task<int> CountProductByCategory(int categoryId, CancellationToken cancellationToken);
         Task RemoveCategoryFromProducts(int categoryId, CancellationToken cancellationToken);
         Task AddAsync(Product product, CancellationToken cancellationToken);
-        //Task<IDbContextTransaction> BeginTransactionAsync();
+        Task<bool> ProductCodeExistsAsync(string productCode);
     }
 }
