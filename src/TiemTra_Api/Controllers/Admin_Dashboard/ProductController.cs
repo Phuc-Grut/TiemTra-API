@@ -28,5 +28,12 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var result = await _productService.CreateProductAsync(dto, user, cancellationToken);
             return Ok(result);
         }
+
+        [HttpGet("generate-product-code")]
+        public async Task<IActionResult> GenerateProductCode(CancellationToken cancellationToken)
+        {
+            var productCode = await _productService.GenerateUniqueProductCodeAsync();
+            return Ok(productCode);
+        }
     }
 }
