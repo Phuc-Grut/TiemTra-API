@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # Bỏ qua file cấu hình
 appsettings.json
+docker-compose.yml
