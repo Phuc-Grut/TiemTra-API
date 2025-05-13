@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
 {
-    [Route("api/product")]
+    [Route("api/admin/product")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -23,10 +23,10 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = User; // lấy ClaimsPrincipal từ token nếu có
+            var user = User;
 
             var result = await _productService.CreateProductAsync(dto, user, cancellationToken);
-            return Ok(result);
+            return Ok(new { success = true, message = "Tạo sản phẩm thành công" });
         }
 
         [HttpGet("generate-product-code")]
