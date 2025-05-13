@@ -33,12 +33,17 @@ namespace Application.Services
             _productAttribute = productAttribute;
             _blobServiceClient = blobServiceClient;
         }
-        public async Task<CreateProductDto> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        public async Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
 
             try
             {
+                if (await _productRepo.ProductCodeExistsAsync(dto.ProductCode))
+                {
+                    throw new Exception("Mã sản phẩm đã tồn tại");
+                }
+
                 var product = new Product
                 {
                     ProductId = Guid.NewGuid(),
@@ -54,10 +59,6 @@ namespace Application.Services
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId,
                 };
-                if(await _productRepo.ProductCodeExistsAsync(dto.ProductCode))
-                {
-                    throw new Exception("Mã sản phẩm đã tồn tại");
-                }
 
                 if (dto.PrivewImage != null && dto.PrivewImage.Length > 0)
                 {
@@ -69,15 +70,7 @@ namespace Application.Services
 
                 if (dto.ProductImages?.Any() == true)
                 {
-                    var imageUrls = new List<string>();
-                    foreach (var productImage in dto.ProductImages)
-                    {
-                        if (productImage.ImageFile != null && productImage.ImageFile.Length > 0)
-                        {
-                            string blobUrl = await UploadImageToAzure(productImage.ImageFile);
-                            imageUrls.Add(blobUrl);
-                        }
-                    }
+                    var imageUrls = await UploadProductImages(dto.ProductImages);
                     await _producImage.AddRangeAsync(product.ProductId, imageUrls, cancellationToken);
                 }
 
@@ -111,8 +104,7 @@ namespace Application.Services
                     await _productVariation.AddRangeAsync(productVariations, cancellationToken);
                 }
 
-                dto.ProductCode = product.ProductCode;
-                return dto;
+                return true;
             }
             catch (Exception ex)
             {
@@ -160,5 +152,20 @@ namespace Application.Services
 
             return blobClient.Uri.ToString();
         }
+
+        private async Task<List<string>> UploadProductImages(List<ProductImageDto> images)
+        {
+            var imageUrls = new List<string>();
+            foreach (var productImage in images)
+            {
+                if (productImage.ImageFile != null && productImage.ImageFile.Length > 0)
+                {
+                    string blobUrl = await UploadImageToAzure(productImage.ImageFile);
+                    imageUrls.Add(blobUrl);
+                }
+            }
+            return imageUrls;
+        }
+
     }
 }

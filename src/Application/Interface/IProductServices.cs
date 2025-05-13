@@ -11,7 +11,7 @@ namespace Application.Interface
 {
     public interface IProductServices
     {
-        Task<CreateProductDto> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<string> GenerateUniqueProductCodeAsync();
     }
 }
