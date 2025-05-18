@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Product;
+﻿using Application.DTOs;
+using Application.DTOs.Product;
 using Domain.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace Application.Interface
     {
         Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<string> GenerateUniqueProductCodeAsync();
+        Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

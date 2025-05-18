@@ -1,4 +1,5 @@
 ﻿using Domain.Data.Base;
+using Domain.Enum;
 
 namespace Domain.Data.Entities
 {
@@ -14,6 +15,7 @@ namespace Domain.Data.Entities
         public bool? HasVariations { get; set; }
         public int? CategoryId { get; set; }
         public int? BrandId { get; set; }
+        public ProductStatus ProductStatus { get; set; } = ProductStatus.Draft;
 
         //public string?  { get; set; }
         public Category? Category { get; set; }

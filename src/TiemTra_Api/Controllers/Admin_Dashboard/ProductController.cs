@@ -56,5 +56,17 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var productCode = await _productService.GenerateUniqueProductCodeAsync();
             return Ok(productCode);
         }
+
+        [HttpGet("get-paging-products")]
+        public async Task<IActionResult> GetPagingProducts(
+            [FromQuery] ProductFilterDto filterDto,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await _productService.GetPagingAsync(filterDto, pageNumber, pageSize, cancellationToken);
+            return Ok(result);
+        }
+
     }
 }
