@@ -7,7 +7,7 @@ namespace Domain.Data.Entities
     {
         public Guid ProductId { get; set; }
         public string? ProductCode { get; set; }
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
         public string? PrivewImage { get; set; }
         public decimal? Price { get; set; }
         public int? Stock { get; set; }
@@ -15,6 +15,7 @@ namespace Domain.Data.Entities
         public bool? HasVariations { get; set; }
         public int? CategoryId { get; set; }
         public int? BrandId { get; set; }
+        public int TotalSold { get; set; } = 0;
         public ProductStatus ProductStatus { get; set; } = ProductStatus.Draft;
 
         //public string?  { get; set; }
@@ -22,8 +23,8 @@ namespace Domain.Data.Entities
 
         public Brand? Brand { get; set; }
 
-        public ICollection<ProductAttribute> ProductAttributes { get; set; }
-        public ICollection<ProductVariations> ProductVariations { get; set; }
-        public ICollection<ProductImage> ProductImages { get; set; }
+        public ICollection<ProductAttribute>? ProductAttributes { get; set; }
+        public ICollection<ProductVariations>? ProductVariations { get; set; }
+        public ICollection<ProductImage>? ProductImages { get; set; }
     }
 }
