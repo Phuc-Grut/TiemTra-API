@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,8 @@ namespace Application.DTOs.Product
     {
         public string? ProductCode { get; set; }
         public string? Keyword { get; set; }
+        public ProductStatus? Status { get; set; }
+        public string? SortBy { get; set; }
+        public int? CategoryId { get; set; }
     }
 }
