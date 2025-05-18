@@ -43,6 +43,7 @@ builder.Services.AddSingleton<BlobServiceClient>(sp =>
     return new BlobServiceClient(connectionString);
 });
 
+
 // Đăng ký các dịch vụ cần thiết
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddTransient<IEmailService, EmailService>();
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IProductServices, ProductServices>();
 builder.Services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IProductVariationRepository, ProductVariationRepository>();
+builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
 
 // Cấu hình AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
@@ -90,11 +92,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Cấu hình CORS
-
-// Cấu hình Swagger
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "TiemTra API",
+        Version = "v1",
+        Description = "API for managing TiemTra app"
+    });
+
+    // Chỉ định phiên bản OpenAPI (nếu cần)
+    c.UseInlineDefinitionsForEnums();
+
+    // Các cấu hình bảo mật
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Bearer {your token}",
@@ -118,6 +128,8 @@ builder.Services.AddSwaggerGen(c =>
             new string[] {}
         }
     });
+
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
 // Cấu hình JSON để tránh vòng lặp dữ liệu
@@ -134,7 +146,6 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterDTOValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Cấu hình CORS
 builder.Services.AddCors(options =>
@@ -152,17 +163,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TiemTra API", Version = "v1" });
 
-    // Cấu hình để hỗ trợ multipart/form-data
-    c.MapType<IFormFile>(() => new OpenApiSchema
-    {
-        Type = "file",
-        Format = "binary"
-    });
-});
 
 var app = builder.Build();
 

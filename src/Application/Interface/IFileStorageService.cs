@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Product
+namespace Application.Interface
 {
-    public class ProductImageDto
+    public interface IFileStorageService
     {
-        public string ImageUrl { get; set; }
+        Task<string> UploadFileAsync(IFormFile file, string folder);
     }
 }
