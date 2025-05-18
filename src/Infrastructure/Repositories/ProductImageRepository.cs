@@ -19,7 +19,7 @@ namespace Infrastructure.Repositories
         }
         public async Task AddRangeAsync(Guid productId, List<string> imageUrls, CancellationToken cancellationToken)
         {
-            if (imageUrls == null || imageUrls.Any())
+            if (imageUrls == null || !imageUrls.Any())
             {
                 return;
             }
@@ -34,5 +34,6 @@ namespace Infrastructure.Repositories
             await _dbContext.ProductImages.AddRangeAsync(images, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+
     }
 }
