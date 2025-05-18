@@ -9,18 +9,21 @@ namespace Application.DTOs.Product
 {
     public class CreateProductDto
     {
-        public string ProductCode { get; set; }
-        public string ProductName { get; set; }
-        public IFormFile PrivewImage { get; set; }
+        public string ProductCode { get; set; } = default!;
+        public string ProductName { get; set; } = default!;
+        public string PrivewImageUrl { get; set; } = default!;
         public decimal? Price { get; set; }
         public int? Stock { get; set; }
-        public string Origin { get; set; }
+        public string Origin { get; set; } = string.Empty;
         public bool HasVariations { get; set; }
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
-        public List<ProductImageDto> ProductImages { get; set; } = new List<ProductImageDto>();
-        public List<ProductAttributeDto> ProductAttributes { get; set; } = new List<ProductAttributeDto>();
-        public List<ProductVariationDto> ProductVariations { get; set; } = new List<ProductVariationDto>();
+
+        public List<string> ProductImageUrls { get; set; } = new();
+
+        public List<ProductAttributeDto> ProductAttributes { get; set; } = new();
+        public List<ProductVariationDto> ProductVariations { get; set; } = new();
     }
+
 }
 
