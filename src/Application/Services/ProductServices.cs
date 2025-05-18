@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Product;
+﻿using Application.DTOs;
+using Application.DTOs.Product;
 using Application.Interface;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -119,7 +120,9 @@ namespace Application.Services
             return productCode;
         }
 
-        
-
+        public Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
