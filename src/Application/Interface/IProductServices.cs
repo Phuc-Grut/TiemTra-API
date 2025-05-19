@@ -14,6 +14,6 @@ namespace Application.Interface
     {
         Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<string> GenerateUniqueProductCodeAsync();
-        Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
+        Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Product
+namespace Domain.DTOs.Product
 {
     public class ProductFilterDto
     {
@@ -14,5 +14,6 @@ namespace Application.DTOs.Product
         public ProductStatus? Status { get; set; }
         public string? SortBy { get; set; }
         public int? CategoryId { get; set; }
+        public int? BrandId { get; set; }
     }
 }

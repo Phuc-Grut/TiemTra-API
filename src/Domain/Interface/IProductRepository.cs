@@ -1,4 +1,5 @@
 ﻿using Domain.Data.Entities;
+using Domain.DTOs.Product;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,7 @@ namespace Domain.Interface
         Task RemoveCategoryFromProducts(int categoryId, CancellationToken cancellationToken);
         Task AddAsync(Product product, CancellationToken cancellationToken);
         Task<bool> ProductCodeExistsAsync(string productCode);
+        IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken);
+
     }
 }

@@ -59,7 +59,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
         [HttpGet("get-paging-products")]
         public async Task<IActionResult> GetPagingProducts(
-            [FromQuery] ProductFilterDto filterDto,
+            [FromQuery] ProductFilterRequest filterDto,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 5,
             CancellationToken cancellationToken = default)
