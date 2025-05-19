@@ -60,6 +60,7 @@ namespace Infrastructure.Repositories
             {
                 query = query.Where(p => p.ProductStatus == filters.Status.Value);
             }
+
             var sortFields = (filters.SortBy ?? "")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim().ToLower())
@@ -78,6 +79,11 @@ namespace Infrastructure.Repositories
                 else if (sort == "sold-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.TotalSold) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.TotalSold);
 
+                else if (sort == "createAt-desc")
+                    query = isFirstSort ? query.OrderByDescending(p => p.CreatedAt) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.CreatedAt);
+
+                else if (sort == "createAt-asc")
+                    query = isFirstSort ? query.OrderBy(p => p.CreatedAt) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.CreatedAt);
                 isFirstSort = false;
             }
 
