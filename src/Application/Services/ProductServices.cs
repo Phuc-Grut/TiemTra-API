@@ -5,8 +5,10 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Domain.Data.Entities;
+using Domain.DTOs.Product;
 using Domain.Interface;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System;
 using System.Collections.Generic;
@@ -23,14 +25,16 @@ namespace Application.Services
         private readonly IProductVariationRepository _productVariation;
         private readonly IProductImageRepository _producImage;
         private readonly IProductAttributeRepository _productAttribute;
-        
-        
-        public ProductServices(IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
+        private readonly IUserRepository _userRepository;
+
+
+        public ProductServices(IUserRepository userRepository ,IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
         {
             _productRepo = product;
             _productVariation = productVariation;
             _producImage = producImage;
-            _productAttribute = productAttribute;        
+            _productAttribute = productAttribute;
+            _userRepository = userRepository;
         }
         public async Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
@@ -120,9 +124,61 @@ namespace Application.Services
             return productCode;
         }
 
-        public Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        public async Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var domainFilter = new ProductFilterDto
+            {
+                ProductCode = filters.ProductCode,
+                Keyword = filters.Keyword,
+                SortBy = filters.SortBy,
+                CategoryId = filters.CategoryId,
+                BrandId = filters.BrandId,
+                Status = filters.Status
+            };
+
+            var products = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);
+
+            var userIds = products.Select(p => p.CreatedBy).Union(products.Select(p => p.UpdatedBy)).Distinct().ToList();
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+            var userDict = users.ToDictionary(u => u.UserId, u => u.FullName); // hoặc Username
+
+
+            var totalItems = await products.CountAsync(cancellationToken);
+
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var productDto = await products.OrderBy(p => p.ProductName).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+
+            var items = productDto.Select(p =>
+            {
+                var creator = users.FirstOrDefault(u => u.UserId == p.CreatedBy);
+                var updater = users.FirstOrDefault(u => u.UserId == p.UpdatedBy);
+
+                return new ProductDTO
+                {
+                    ProductCode = p.ProductCode,
+                    PrivewImageUrl = p.PrivewImage,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    Origin = p.Origin,
+                    TotalSold = p.TotalSold,
+                    Brand = p.Brand?.BrandName,
+                    CreatorName = creator?.FullName,
+                    UpdaterName = updater?.FullName,
+                };
+            }).ToList();
+
+            return new PagedResult<ProductDTO>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+            };
         }
     }
 }
