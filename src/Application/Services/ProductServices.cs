@@ -158,6 +158,7 @@ namespace Application.Services
 
                 return new ProductDTO
                 {
+                    ProductId = p.ProductId,
                     ProductCode = p.ProductCode,
                     PrivewImageUrl = p.PrivewImage,
                     ProductName = p.ProductName,
