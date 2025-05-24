@@ -74,10 +74,16 @@ namespace Infrastructure.Repositories
                     query = isFirstSort ? query.OrderBy(p => p.Price) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.Price);
                 else if (sort == "price-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.Price) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.Price);
+
                 else if (sort == "sold-asc")
                     query = isFirstSort ? query.OrderBy(p => p.TotalSold) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.TotalSold);
                 else if (sort == "sold-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.TotalSold) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.TotalSold);
+
+                else if (sort == "stock-asc")
+                    query = isFirstSort ? query.OrderBy(p => p.Stock) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.Stock);
+                else if (sort == "stock-desc")
+                    query = isFirstSort ? query.OrderByDescending(p => p.Stock) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.Stock);
 
                 else if (sort == "createAt-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.CreatedAt) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.CreatedAt);

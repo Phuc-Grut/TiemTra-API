@@ -59,6 +59,8 @@ namespace Application.Services
                     HasVariations = dto.HasVariations,
                     CategoryId = dto.CategoryId,
                     BrandId = dto.BrandId,
+                    ProductStatus = dto.ProductStatus,
+                    Note = dto.Note,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId,
                 };
@@ -149,7 +151,7 @@ namespace Application.Services
 
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-            var productDto = await products.OrderBy(p => p.ProductName).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+            var productDto = await products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
 
             var items = productDto.Select(p =>
             {

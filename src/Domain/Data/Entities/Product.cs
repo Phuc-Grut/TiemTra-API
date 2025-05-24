@@ -16,7 +16,7 @@ namespace Domain.Data.Entities
         public bool? HasVariations { get; set; }
         public int? CategoryId { get; set; }
         public int? BrandId { get; set; }
-        public int TotalSold { get; set; } = 0;
+        public int? TotalSold { get; set; } = 0;
         public ProductStatus ProductStatus { get; set; } = ProductStatus.Draft;
         public string? Note { get; set; }
 
