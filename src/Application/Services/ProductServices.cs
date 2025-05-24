@@ -138,25 +138,29 @@ namespace Application.Services
                 Status = filters.Status
             };
 
-            var products = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);
+            var query = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);
 
-            var userIds = products.Select(p => p.CreatedBy).Union(products.Select(p => p.UpdatedBy)).Distinct().ToList();
-
-            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
-
-            var userDict = users.ToDictionary(u => u.UserId, u => u.FullName); // hoặc Username
-
-
-            var totalItems = await products.CountAsync(cancellationToken);
-
+            var totalItems = await query.CountAsync(cancellationToken);
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-            var productDto = await products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+            var productsPage = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
 
-            var items = productDto.Select(p =>
+            var userIds = productsPage
+                .Select(p => p.CreatedBy)
+                .Union(productsPage.Select(p => p.UpdatedBy))
+                .Distinct()
+                .ToList();
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+            var userDict = users.ToDictionary(u => u.UserId, u => u.FullName);
+
+            var items = productsPage.Select(p =>
             {
-                var creator = users.FirstOrDefault(u => u.UserId == p.CreatedBy);
-                var updater = users.FirstOrDefault(u => u.UserId == p.UpdatedBy);
+                userDict.TryGetValue(p.CreatedBy, out var creatorName);
+                userDict.TryGetValue(p.UpdatedBy, out var updaterName);
 
                 return new ProductDTO
                 {
@@ -172,10 +176,24 @@ namespace Application.Services
                     Brand = p.Brand?.BrandName,
                     Note = p.Note,
                     ProductStatus = p.ProductStatus,
+
+                    ProductImageUrls = p.ProductImages != null
+                        ? p.ProductImages.Select(pi => pi.ImageUrl).ToList()
+                        : new List<string>(),
+
+                    ProductVariations = p.ProductVariations != null
+                        ? p.ProductVariations.Select(v => new ProductVariationDto
+                        {
+                            TypeName = v.TypeName,
+                            Price = v.Price,
+                            Stock = v.Stock
+                        }).ToList()
+                        : new List<ProductVariationDto>(),
+
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
-                    CreatorName = creator?.FullName,
-                    UpdaterName = updater?.FullName,
+                    CreatorName = creatorName,
+                    UpdaterName = updaterName,
                 };
             }).ToList();
 

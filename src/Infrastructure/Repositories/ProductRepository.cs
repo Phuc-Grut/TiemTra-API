@@ -32,7 +32,11 @@ namespace Infrastructure.Repositories
 
         public  IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Products.AsNoTracking();
+            var query = _dbContext.Products
+                .AsNoTracking()
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariations)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filters.ProductCode))
             {
