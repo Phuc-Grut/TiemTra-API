@@ -18,6 +18,7 @@ namespace Domain.Data.Entities
         public int? BrandId { get; set; }
         public int TotalSold { get; set; } = 0;
         public ProductStatus ProductStatus { get; set; } = ProductStatus.Draft;
+        public string? Note { get; set; }
 
         //public string?  { get; set; }
         public Category? Category { get; set; }

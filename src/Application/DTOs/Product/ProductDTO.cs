@@ -1,4 +1,5 @@
 ﻿using Domain.Data.Base;
+using Domain.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Application.DTOs.Product
         public int? TotalSold { get; set; }
         public string? Origin { get; set; }
         public string? Brand { get; set; }
+        public string? Note { get; set; }
+        public ProductStatus ProductStatus { get; set; }
         public List<string>? ProductImageUrls { get; set; }
         public string? UpdaterName { get; set; }
         public string? CreatorName { get; set; }
