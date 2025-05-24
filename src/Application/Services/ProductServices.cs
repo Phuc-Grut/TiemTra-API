@@ -168,6 +168,8 @@ namespace Application.Services
                     Origin = p.Origin,
                     TotalSold = p.TotalSold,
                     Brand = p.Brand?.BrandName,
+                    Note = p.Note,
+                    ProductStatus = p.ProductStatus,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
                     CreatorName = creator?.FullName,
