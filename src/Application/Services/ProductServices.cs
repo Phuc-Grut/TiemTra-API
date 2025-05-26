@@ -206,5 +206,59 @@ namespace Application.Services
                 PageSize = pageSize,
             };
         }
+
+        public async Task<ProductDTO> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            if (productId == Guid.Empty)
+            {
+                throw new Exception("Đã có lỗi khi lấy dữ liệu");
+            }
+
+            var product = await _productRepo.GetProductByIdAsync(productId, cancellationToken);
+
+            var userIds = new List<Guid>();
+
+            if (product?.CreatedBy != null && product.CreatedBy != Guid.Empty)
+                userIds.Add(product.CreatedBy);
+
+            if (product?.UpdatedBy != null && product.UpdatedBy != Guid.Empty)
+                userIds.Add(product.UpdatedBy);
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+            var creater = users.FirstOrDefault(u => u.UserId == product?.CreatedBy);
+            var updater = users.FirstOrDefault(u => u.UserId == product?.UpdatedBy);
+
+
+            var productDto = new ProductDTO
+            {
+                ProductCode = product.ProductCode,
+                PrivewImageUrl = product.PrivewImage,
+                ProductName = product.ProductName,
+                CategoryId = product.CategoryId,
+                Description = product.Description,
+                Price = product.Price,
+                Stock = product.Stock,
+                Origin = product.Origin,
+                Brand = product.Brand?.BrandName,
+                Note = product.Note,
+                ProductStatus = product.ProductStatus,
+
+                ProductImageUrls = product.ProductImages?.Select(pi => pi.ImageUrl).ToList() ?? new List<string>(),
+
+                ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
+                {
+                    TypeName = v.TypeName,
+                    Price = v.Price,
+                    Stock = v.Stock
+                }).ToList() ?? new List<ProductVariationDto>(),
+
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt,
+                CreatorName = creater?.FullName,
+                UpdaterName = updater?.FullName
+            };
+            return productDto;
+        }
     }
 }

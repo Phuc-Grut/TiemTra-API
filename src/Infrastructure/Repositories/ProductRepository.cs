@@ -108,10 +108,22 @@ namespace Infrastructure.Repositories
 
         }
 
-
-        public Task<bool> ProductCodeExistsAsync(string productCode)
+        public async Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
         {
-            return _dbContext.Products.AsNoTracking().AnyAsync(p => p.ProductCode == productCode);
+            var product = await _dbContext.Products
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariations)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
+
+            return product;
+        }
+
+        public async Task<bool> ProductCodeExistsAsync(string productCode)
+        {
+            return await _dbContext.Products.AsNoTracking().AnyAsync(p => p.ProductCode == productCode);
         }
 
         public async Task RemoveCategoryFromProducts(int categoryId, CancellationToken cancellationToken)

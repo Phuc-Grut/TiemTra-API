@@ -68,5 +68,17 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             return Ok(result);
         }
 
+        [HttpGet("get-by-id")]
+        public async Task<IActionResult> GetProductById( [FromQuery] Guid productId, CancellationToken cancellationToken)
+        {
+            if (productId == Guid.Empty)
+                return BadRequest("Có lỗi khi lấy dữ liệu");
+
+            var product = await _productService.GetProductByIdAsync(productId, cancellationToken);
+            if (product == null)
+                return NotFound("Sản phẩm không tồn tại");
+
+            return Ok(product);
+        }
     }
 }
