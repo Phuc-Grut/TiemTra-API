@@ -21,6 +21,7 @@ namespace Application.DTOs.Product
         public string? Origin { get; set; }
         public string? Brand { get; set; }
         public string? Note { get; set; }
+        public int? CategoryId { get; set; }
         public ProductStatus ProductStatus { get; set; }
         public List<ProductVariationDto> ProductVariations { get; set; }
         public List<string>? ProductImageUrls { get; set; }
