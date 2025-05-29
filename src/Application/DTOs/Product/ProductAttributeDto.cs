@@ -8,7 +8,7 @@ namespace Application.DTOs.Product
 {
     public class ProductAttributeDto
     {
-        public int AttributeId { get; set; }
-        public string Value { get; set; }
+        public int? AttributeId { get; set; }
+        public string? Value { get; set; }
     }
 }

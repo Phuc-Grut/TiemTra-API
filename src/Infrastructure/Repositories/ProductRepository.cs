@@ -115,6 +115,7 @@ namespace Infrastructure.Repositories
                 .AsSplitQuery()
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariations)
+                .Include(p => p.ProductAttributes)
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
 
