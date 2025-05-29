@@ -207,7 +207,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<ProductDTO> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
+        public async Task<CreateProductDto> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
         {
             if (productId == Guid.Empty)
             {
@@ -230,13 +230,14 @@ namespace Application.Services
             var updater = users.FirstOrDefault(u => u.UserId == product?.UpdatedBy);
 
 
-            var productDto = new ProductDTO
+            var productDto = new CreateProductDto
             {
-                ProductCode = product.ProductCode,
-                PrivewImageUrl = product.PrivewImage,
-                ProductName = product.ProductName,
-                CategoryId = product.CategoryId,
-                Description = product.Description,
+                ProductCode = product?.ProductCode,
+                PrivewImageUrl = product?.PrivewImage,
+                ProductName = product?.ProductName,
+                CategoryId = product?.CategoryId,
+                CategoryName = product?.Category?.CategoryName,
+                Description = product?.Description,
                 Price = product.Price,
                 Stock = product.Stock,
                 Origin = product.Origin,
@@ -245,6 +246,12 @@ namespace Application.Services
                 ProductStatus = product.ProductStatus,
 
                 ProductImageUrls = product.ProductImages?.Select(pi => pi.ImageUrl).ToList() ?? new List<string>(),
+
+                ProductAttributes = product.ProductAttributes?.Select(attr => new ProductAttributeDto
+                {
+                    AttributeId = attr?.AttributeId,
+                    Value = attr?.Value
+                }).ToList() ?? new List<ProductAttributeDto>(),
 
                 ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
                 {
