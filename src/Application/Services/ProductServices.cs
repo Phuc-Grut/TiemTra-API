@@ -268,44 +268,78 @@ namespace Application.Services
             return productDto;
         }
 
-        public Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken)
+        public async Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var product = await _productRepo.GetProductByIdAsync(productId, cancellationToken);
+            var userId = GetUserIdFromClaims.GetUserId(user);
+
+            if (product == null)
+            {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+
+            try
+            {
+                product.ProductName = dto.ProductName;
+                product.PrivewImage = dto.PrivewImageUrl;
+                product.Price = dto.Price;
+                product.Stock = dto.Stock;
+                product.Origin = dto.Origin;
+                product.HasVariations = dto.HasVariations;
+                product.CategoryId = dto.CategoryId;
+                product.BrandId = dto.BrandId;
+                product.ProductStatus = dto.ProductStatus;
+                product.Note = dto.Note;
+                product.UpdatedAt = DateTime.UtcNow;
+                product.UpdatedBy = userId;
+
+                await _productRepo.UpdateProduct(product, cancellationToken);
+
+                await _producImage.DeleteByProductIdAsync(productId, cancellationToken);
+                if (dto.ProductImageUrls?.Any() == true)
+                {
+                    await _producImage.AddRangeAsync(productId, dto.ProductImageUrls, cancellationToken);
+                }
+
+                await _productAttribute.DeleteByProductIdAsync(productId, cancellationToken);
+
+                if (dto.ProductAttributes?.Any() == true)
+                {
+                    var productAttributes = dto.ProductAttributes.Select(attrDto => new ProductAttribute
+                    {
+                        ProductId = productId,
+                        AttributeId = attrDto.AttributeId,
+                        Value = attrDto.Value,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = userId
+                    }).ToList();
+
+                    await _productAttribute.AddRangeAsync(productAttributes, cancellationToken);
+                }
+
+                await _productVariation.DeleteByProductIdAsync(productId, cancellationToken);
+                if (dto.HasVariations && dto.ProductVariations?.Any() == true)
+                {
+                    var productVariations = dto.ProductVariations.Select(variationDto => new ProductVariations
+                    {
+                        ProductVariationId = Guid.NewGuid(),
+                        ProductId = productId,
+                        TypeName = variationDto.TypeName,
+                        Price = variationDto.Price,
+                        Stock = variationDto.Stock,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = userId
+                    }).ToList();
+
+                    await _productVariation.AddRangeAsync(productVariations, cancellationToken);
+                }
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Cập nhật sản phẩm thất bại", ex);
+            }
         }
-
-        //public async Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user,CreateProductDto dto, CancellationToken cancellationToken)
-        //{
-        //    var product = await _productRepo.GetProductByIdAsync(productId, cancellationToken);
-        //    var userId = GetUserIdFromClaims.GetUserId(user);
-
-        //    if(product == null)
-        //    {
-        //        throw new Exception("Sản phẩm không tồn tại");
-        //    }
-
-        //    try
-        //    {
-        //        product.ProductName = dto.ProductName;
-        //        product.PrivewImage = dto.PrivewImageUrl;
-        //        product.Price = dto.Price;
-        //        product.Stock = dto.Stock;
-        //        product.Origin = dto.Origin;
-        //        product.HasVariations = dto.HasVariations;
-        //        product.CategoryId = dto.CategoryId;
-        //        product.BrandId = dto.BrandId;
-        //        product.ProductStatus = dto.ProductStatus;
-        //        product.Note = dto.Note;
-        //        product.UpdatedAt = DateTime.UtcNow;
-        //        product.UpdatedBy = userId;
-
-        //        await _productRepo.UpdateProduct(product, cancellationToken);
-
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
     }
 }

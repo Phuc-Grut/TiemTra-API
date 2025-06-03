@@ -27,5 +27,17 @@ namespace Infrastructure.Repositories
             await _context.ProductVariations.AddRangeAsync(productVariations, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            var variations = await _context.ProductVariations
+                .Where(v => v.ProductId == productId).ToListAsync(cancellationToken);
+
+            if (variations.Any())
+            {
+                _context.ProductVariations.RemoveRange(variations);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
     }
 }
