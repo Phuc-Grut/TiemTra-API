@@ -17,6 +17,6 @@ namespace Domain.Interface
         Task<bool> ProductCodeExistsAsync(string productCode);
         IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken);
         Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
-
+        Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken);
     }
 }

@@ -267,5 +267,45 @@ namespace Application.Services
             };
             return productDto;
         }
+
+        public Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user,CreateProductDto dto, CancellationToken cancellationToken)
+        //{
+        //    var product = await _productRepo.GetProductByIdAsync(productId, cancellationToken);
+        //    var userId = GetUserIdFromClaims.GetUserId(user);
+
+        //    if(product == null)
+        //    {
+        //        throw new Exception("Sản phẩm không tồn tại");
+        //    }
+
+        //    try
+        //    {
+        //        product.ProductName = dto.ProductName;
+        //        product.PrivewImage = dto.PrivewImageUrl;
+        //        product.Price = dto.Price;
+        //        product.Stock = dto.Stock;
+        //        product.Origin = dto.Origin;
+        //        product.HasVariations = dto.HasVariations;
+        //        product.CategoryId = dto.CategoryId;
+        //        product.BrandId = dto.BrandId;
+        //        product.ProductStatus = dto.ProductStatus;
+        //        product.Note = dto.Note;
+        //        product.UpdatedAt = DateTime.UtcNow;
+        //        product.UpdatedBy = userId;
+
+        //        await _productRepo.UpdateProduct(product, cancellationToken);
+
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
     }
 }
