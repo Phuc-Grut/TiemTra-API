@@ -137,5 +137,12 @@ namespace Infrastructure.Repositories
             }
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken)
+        {
+            _dbContext.Products.Update(product);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return true;
+        }
     }
 }
