@@ -10,5 +10,6 @@ namespace Domain.Interface
     public interface IProductVariationRepository
     {
         Task AddRangeAsync(List<ProductVariations> productVariations, CancellationToken cancellationToken);
+        Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken);
     }
 }

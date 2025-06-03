@@ -35,5 +35,17 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            var images = await _dbContext.ProductImages
+                .Where(img => img.ProductId == productId)
+                .ToListAsync(cancellationToken);
+
+            if (images.Any())
+            {
+                _dbContext.ProductImages.RemoveRange(images);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
     }
 }
