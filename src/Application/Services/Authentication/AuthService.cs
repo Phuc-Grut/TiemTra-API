@@ -123,34 +123,47 @@ namespace Application.Services.Authentincation
 
         public async Task<ApiResponse> Login(LoginDTO model)
         {
-            var user = await _authRepository.GetUserByEmail(model.Email);
-            if (user == null)
+            var data = await _authRepository.GetUserByEmail(model.Email);
+            if (data == null)
                 return new ApiResponse(false, "Email không tồn tại");
 
-            if (user.HashPassword != HashPassword(model.Password))
+            if (data.HashPassword != HashPassword(model.Password))
                 return new ApiResponse(false, "Mật khẩu không chính xác");
 
-            if (!user.EmailConfirmed)
+            if (!data.EmailConfirmed)
                 return new ApiResponse(false, "Vui lòng xác thực email trước khi đăng nhập");
 
-            if (!string.IsNullOrEmpty(user.RefreshToken))
+            if (!string.IsNullOrEmpty(data.RefreshToken))
             {
-                user.RefreshToken = null;
-                user.RefreshTokenExpiryTime = null;
-                await _userRepository.UpdateUser(user, CancellationToken.None);
+                data.RefreshToken = null;
+                data.RefreshTokenExpiryTime = null;
+                await _userRepository.UpdateUser(data, CancellationToken.None);
             }
 
             string refreshToken;
-            var token = GenerateJwtToken(user, out refreshToken);
+            var token = GenerateJwtToken(data, out refreshToken);
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(3);
+            data.RefreshToken = refreshToken;
+            data.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(3);
 
-            var updateResult = await _userRepository.UpdateUser(user, CancellationToken.None);
+            var updateResult = await _userRepository.UpdateUser(data, CancellationToken.None);
+
             if (!updateResult)
             {
                 return new ApiResponse(false, "Đăng nhập thất bại");
             }
+
+            var user = new UserResponseDTO
+            {
+                //UserId = data.UserId,
+                FullName = data.FullName,
+                Email = data.Email,
+                PhoneNumber = data.PhoneNumber,
+                Avatar = data.Avatar,
+                Status = data.Status,
+                Roles = data.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>()
+            };
+
 
             return new ApiResponse(true, "Đăng nhập thành công", user, token, refreshToken);
         }

@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace APISell.Controllers.Admin_Dashboard
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/admin/category")]
     [ApiController]
     public class CategoryController : ControllerBase
