@@ -26,7 +26,11 @@ namespace Infrastructure.Repositories.Authentication
 
         public async Task<User> GetUserByEmail(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(us => us.Email == email);
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(us => us.Email == email);
+
         }
 
         public async Task SaveChanges()

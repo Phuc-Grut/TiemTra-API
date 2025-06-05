@@ -88,7 +88,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
 
-        RoleClaimType = "role"
+        RoleClaimType = ClaimTypes.Role
     };
 });
 
