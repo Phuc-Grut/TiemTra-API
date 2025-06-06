@@ -2,12 +2,14 @@
 using Application.DTOs.Admin.Product;
 using Application.Interface;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
 {
     [Route("api/admin/product")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class ProductController : ControllerBase
     {

@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Product;
+using Application.DTOs.Store.Response;
 using Domain.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,10 @@ namespace Application.Interface
         Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<CreateProductDto> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken);
+
+        /// Store Product
+        /// 
+
+        Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Product;
+using Application.DTOs.Store.Response;
 using Application.Interface;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -339,6 +340,72 @@ namespace Application.Services.Admin
             {
                 throw new Exception("Cập nhật sản phẩm thất bại", ex);
             }
+        }
+
+
+        /// <summary> 
+        /// Store 
+        /// </summary>>
+        /// 
+
+        public async Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            var domainFilter = new ProductFilterDto
+            {
+                ProductCode = filters.ProductCode,
+                Keyword = filters.Keyword,
+                SortBy = filters.SortBy,
+                CategoryId = filters.CategoryId,
+                BrandId = filters.BrandId,
+                Status = filters.Status
+            };
+
+            var query = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);
+
+            var totalItems = await query.CountAsync(cancellationToken);
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var productsPage = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+            
+
+            var items = productsPage.Select(p =>
+            {
+
+                return new StoreProducts
+                {
+                    ProductId = p.ProductId,
+                    ProductCode = p.ProductCode,
+                    PrivewImageUrl = p.PrivewImage,
+                    ProductName = p.ProductName,
+                    Description = p.Description,
+                    Price = p.Price,
+                    Stock = p.Stock,
+
+                    ProductImageUrls = p.ProductImages != null
+                        ? p.ProductImages.Select(pi => pi.ImageUrl).ToList()
+                        : new List<string>(),
+
+                    ProductVariations = p.ProductVariations != null
+                        ? p.ProductVariations.Select(v => new ProductVariationDto
+                        {
+                            TypeName = v.TypeName,
+                            Price = v.Price,
+                        }).ToList()
+                        : new List<ProductVariationDto>(),
+                };
+            }).ToList();
+
+            return new PagedResult<StoreProducts>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+            };
         }
     }
 }

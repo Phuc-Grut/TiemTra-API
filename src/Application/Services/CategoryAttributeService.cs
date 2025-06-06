@@ -6,7 +6,7 @@ using Domain.Interface;
 using Shared.Common;
 using System.Security.Claims;
 
-namespace Application.Services.Admin
+namespace Application.Services
 {
     public class CategoryAttributeService : ICategoryAttributeService
     {
