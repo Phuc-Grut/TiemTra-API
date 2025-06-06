@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Attributes;
+﻿using Application.DTOs.Admin.Attributes;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
@@ -6,7 +6,7 @@ using Domain.Interface;
 using Shared.Common;
 using System.Security.Claims;
 
-namespace Application.Services
+namespace Application.Services.Admin
 {
     public class CategoryAttributeService : ICategoryAttributeService
     {

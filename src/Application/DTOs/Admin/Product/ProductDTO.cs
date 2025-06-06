@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Product
+namespace Application.DTOs.Admin.Product
 {
     public class ProductDTO : BaseEntity
     {

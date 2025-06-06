@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.User;
 using Domain.Data.Base;
 
-namespace Application.DTOs.Category
+namespace Application.DTOs.Admin.Category
 {
     public class CategoryDto : BaseEntity
     {

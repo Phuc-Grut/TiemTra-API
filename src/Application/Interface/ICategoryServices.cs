@@ -1,6 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Category;
-using Domain.DTOs.Category;
+using Application.DTOs.Admin.Category;
 using System.Security.Claims;
 
 namespace Application.Interface

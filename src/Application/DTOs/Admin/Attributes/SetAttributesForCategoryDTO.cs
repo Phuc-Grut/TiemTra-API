@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Attributes
+namespace Application.DTOs.Admin.Attributes
 {
     public class SetAttributesForCategoryDTO
     {

@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Attributes;
+using Application.DTOs.Admin.Attributes;
 using System.Security.Claims;
 
 namespace Application.Interface

@@ -25,4 +25,9 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\Store\Request\" />
+    <Folder Include="Services\Store\" />
+  </ItemGroup>
+
 </Project>
