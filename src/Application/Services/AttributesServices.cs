@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
 
-namespace Application.Services.Admin
+namespace Application.Services
 {
     public class AttributesServices : IAttributesServices
     {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APISell.Controllers.Admin_Dashboard
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/admin/attributes")]
     [ApiController]
     public class AttributesController : ControllerBase

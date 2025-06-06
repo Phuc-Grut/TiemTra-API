@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 namespace Domain.Interface
 {
     public interface IProductRepository
-    {
+    { 
+        ///Admin
         Task<int> CountProductByCategory(int categoryId, CancellationToken cancellationToken);
         Task RemoveCategoryFromProducts(int categoryId, CancellationToken cancellationToken);
         Task AddAsync(Product product, CancellationToken cancellationToken);
@@ -18,5 +19,10 @@ namespace Domain.Interface
         IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken);
         Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken);
+
+
+        /// <summary> Store 
+        //Task<Product> StoreGetAllProduct(ProductFilterDto filters, CancellationToken cancellationToken);
+        //Task<Product> StoreGetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
     }
 }

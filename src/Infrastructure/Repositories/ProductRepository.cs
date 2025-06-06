@@ -40,13 +40,13 @@ namespace Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(filters.ProductCode))
             {
-                var code = filters.ProductCode.Trim();
+                var code = filters?.ProductCode.Trim();
                 query = query.Where(p => p.ProductCode.Contains(code));
             }
 
             if (!string.IsNullOrWhiteSpace(filters.Keyword))
             {
-                var keyword = filters.Keyword.Trim();
+                var keyword = filters?.Keyword.Trim();
                 query = query.Where(p => p.ProductName.Contains(keyword) || p.ProductCode.Contains(keyword));
             }
 
@@ -137,12 +137,32 @@ namespace Infrastructure.Repositories
             }
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
-
         public async Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken)
         {
             _dbContext.Products.Update(product);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return true;
         }
+
+        /// <summary>
+        /// Store Product
+        /// </summary>
+
+        //public Task<Product> StoreGetAllProduct(ProductFilterDto filters, CancellationToken cancellationToken)
+        //{
+        //    var query = _dbContext.Products
+        //        .AsNoTracking()
+        //        .Include(p => p.ProductImages)
+        //        .Include(p => p.ProductVariations)
+        //        .Include(p => p.Category)
+        //        .AsQueryable();
+        //}
+
+        //public Task<Product> StoreGetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        
     }
 }
