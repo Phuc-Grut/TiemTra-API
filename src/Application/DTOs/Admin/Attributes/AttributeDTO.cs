@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.User;
 using Domain.Data.Base;
 
-namespace Application.DTOs.Attributes
+namespace Application.DTOs.Admin.Attributes
 {
     public class AttributesDTO : BaseEntity
     {

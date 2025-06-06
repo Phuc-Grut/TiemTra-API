@@ -1,5 +1,5 @@
-﻿using Application.DTOs.Attributes;
-using Application.DTOs.Category;
+﻿using Application.DTOs.Admin.Attributes;
+using Application.DTOs.Admin.Category;
 using AutoMapper;
 using Domain.Data.Entities;
 

@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Attributes;
+using Application.DTOs.Admin.Attributes;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
 
-namespace Application.Services
+namespace Application.Services.Admin
 {
     public class AttributesServices : IAttributesServices
     {
@@ -129,7 +129,8 @@ namespace Application.Services
             var userId = GetUserIdFromClaims.GetUserId(user);
 
             var attribute = await _attributesRepository.GetAttributeById(attributeId, cancellationToken);
-            if (attribute == null) {
+            if (attribute == null)
+            {
                 return false;
             }
             if (!string.IsNullOrEmpty(attributesDTO.AttributeName))

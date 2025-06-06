@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Product;
+using Application.DTOs.Admin.Product;
 using Application.Interface;
 using Application.Services;
 using Microsoft.AspNetCore.Http;

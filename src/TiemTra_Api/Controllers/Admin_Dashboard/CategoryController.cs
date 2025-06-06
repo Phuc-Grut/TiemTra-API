@@ -1,8 +1,7 @@
-﻿using Application.DTOs.Attributes;
-using Application.DTOs.Category;
+﻿using Application.DTOs.Admin.Attributes;
+using Application.DTOs.Admin.Category;
 using Application.Interface;
 using Application.Services;
-using Domain.DTOs.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

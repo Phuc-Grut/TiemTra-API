@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Attributes;
+﻿using Application.DTOs.Admin.Attributes;
 using Application.Interface;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;

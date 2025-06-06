@@ -1,18 +1,17 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Attributes;
-using Application.DTOs.Category;
+using Application.DTOs.Admin.Attributes;
+using Application.DTOs.Admin.Category;
 using Application.DTOs.User;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
-using Domain.DTOs.Category;
 using Domain.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;
 
-namespace Application.Services
+namespace Application.Services.Admin
 {
     public class CategoryServices : ICategoryServices
     {
@@ -24,7 +23,7 @@ namespace Application.Services
         private readonly IAttributesRepository _attributesRepository;
         private readonly IProductRepository _productRepository;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository, 
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository,
             IAttributesRepository attributesRepository, ICategoryAttributesRepository categoryAttributesRepository, IProductRepository productRepository)
         {
             _categoryRepository = categoryRepository;
@@ -41,7 +40,7 @@ namespace Application.Services
             {
                 var userId = GetUserIdFromClaims.GetUserId(user);
 
-                int? parentId = (categoryDto.ParentId.HasValue && categoryDto.ParentId > 0) ? categoryDto.ParentId : null;
+                int? parentId = categoryDto.ParentId.HasValue && categoryDto.ParentId > 0 ? categoryDto.ParentId : null;
 
                 var newCategory = new Category
                 {
@@ -116,8 +115,8 @@ namespace Application.Services
                     Type = "Categories",
                     CurrentCategory = new
                     {
-                        CategoryId = currentCategory.CategoryId,
-                        CategoryName = currentCategory.CategoryName,
+                        currentCategory.CategoryId,
+                        currentCategory.CategoryName,
                         Breadcrumbs = breadcrumbs.ToArray()
                     },
                     Data = new PagedResult<CategoryDto>
@@ -146,7 +145,7 @@ namespace Application.Services
 
                 var totalItems = attributes.Count;
 
-                var attributesDtoList = attributes.Select(atb => 
+                var attributesDtoList = attributes.Select(atb =>
                 {
                     var creator = users.FirstOrDefault(u => u.UserId == atb.CreatedBy);
                     var updater = users.FirstOrDefault(u => u.UserId == atb.UpdatedBy);
@@ -166,8 +165,8 @@ namespace Application.Services
                     Type = "Attributes",
                     CurrentCategory = new
                     {
-                        CategoryId = currentCategory.CategoryId,
-                        CategoryName = currentCategory.CategoryName,
+                        currentCategory.CategoryId,
+                        currentCategory.CategoryName,
                         Breadcrumbs = breadcrumbs.ToArray()
                     },
                     Data = new PagedResult<AttributesDTO>
@@ -185,8 +184,8 @@ namespace Application.Services
             {
                 CurrentCategory = new
                 {
-                    CategoryId = currentCategory.CategoryId,
-                    CategoryName = currentCategory.CategoryName,
+                    currentCategory.CategoryId,
+                    currentCategory.CategoryName,
                     Breadcrumbs = breadcrumbs.ToArray()
                 },
                 Type = "Empty",
@@ -222,7 +221,7 @@ namespace Application.Services
             if (category == null)
                 return (false, "Danh mục không tồn tại.");
 
-             //check con
+            //check con
             var hasChildren = await _categoryRepository.HasChildCategories(categoryId, cancellationToken);
             if (hasChildren)
                 return (false, $"Danh mục \"{category.CategoryName}\" vẫn còn danh mục con. Vui lòng xoá danh mục con trước.");
@@ -434,7 +433,7 @@ namespace Application.Services
         public async Task<List<CategoryDto>> GetLeafCategoriesAsync(CancellationToken cancellationToken)
         {
             var categories = await _categoryRepository.GetLeafCategoriesAsync(cancellationToken);
-            return categories.Select (c => new CategoryDto
+            return categories.Select(c => new CategoryDto
             {
                 CategoryId = c.CategoryId,
                 CategoryName = c.CategoryName,

@@ -1,4 +1,4 @@
-﻿namespace Domain.DTOs.Category
+﻿namespace Application.DTOs.Admin.Category
 {
     public class CategoryFilterDto
     {

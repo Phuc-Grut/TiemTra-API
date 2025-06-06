@@ -22,6 +22,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Blobs;
+using Application.Services.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")

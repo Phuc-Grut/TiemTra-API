@@ -1,4 +1,4 @@
-﻿namespace Application.DTOs.Category
+﻿namespace Application.DTOs.Admin.Category
 {
     public class AddAttributeToCategoryDTO
     {

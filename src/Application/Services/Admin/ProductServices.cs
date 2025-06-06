@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Product;
+using Application.DTOs.Admin.Product;
 using Application.Interface;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -17,7 +17,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Services
+namespace Application.Services.Admin
 {
     public class ProductServices : IProductServices
     {
@@ -27,8 +27,7 @@ namespace Application.Services
         private readonly IProductAttributeRepository _productAttribute;
         private readonly IUserRepository _userRepository;
 
-
-        public ProductServices(IUserRepository userRepository ,IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
+        public ProductServices(IUserRepository userRepository, IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
         {
             _productRepo = product;
             _productVariation = productVariation;

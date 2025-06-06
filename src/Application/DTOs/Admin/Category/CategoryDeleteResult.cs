@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Attributes
+namespace Application.DTOs.Admin.Category
 {
-    public class AttributeDeleteResult
+    public class CategoryDeleteResult
     {
-        public int AttributeId { get; set; }
-        public string AttributeName { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public string Message { get; set; } = string.Empty;
     }
