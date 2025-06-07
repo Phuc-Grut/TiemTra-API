@@ -376,7 +376,6 @@ namespace Application.Services.Admin
 
                 return new StoreProducts
                 {
-                    ProductId = p.ProductId,
                     ProductCode = p.ProductCode,
                     PrivewImageUrl = p.PrivewImage,
                     ProductName = p.ProductName,
@@ -406,6 +405,45 @@ namespace Application.Services.Admin
                 CurrentPage = pageNumber,
                 PageSize = pageSize,
             };
+        }
+
+        public async Task<StoreProducts> StoreGetProductByCodeAsync(string productCode, CancellationToken cancellationToken)
+        {
+            if (productCode == null)
+            {
+                throw new Exception("Đã có lỗi khi lấy dữ liệu");
+            }
+
+            var product = await _productRepo.GetProductByCodeAsync(productCode, cancellationToken);
+
+            var productDto = new StoreProducts
+            {
+                ProductCode = product?.ProductCode,
+                PrivewImageUrl = product?.PrivewImage,
+                ProductName = product?.ProductName,
+                CategoryId = product?.CategoryId,
+                CategoryName = product?.Category?.CategoryName,
+                Description = product?.Description,
+                Price = product.Price,
+                ProductStatus = product.ProductStatus,
+
+                ProductImageUrls = product.ProductImages?.Select(pi => pi.ImageUrl).ToList() ?? new List<string>(),
+
+                ProductAttributes = product.ProductAttributes?.Select(attr => new ProductAttributeDto
+                {
+                    AttributeId = attr?.AttributeId,
+                    Value = attr?.Value
+                }).ToList() ?? new List<ProductAttributeDto>(),
+
+                ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
+                {
+                    TypeName = v.TypeName,
+                    Price = v.Price,
+                    Stock = v.Stock
+                }).ToList() ?? new List<ProductVariationDto>(),
+
+            };
+            return productDto;
         }
     }
 }

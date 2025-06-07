@@ -21,8 +21,9 @@ namespace Domain.Interface
         Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken);
 
 
+
         /// <summary> Store 
-        //Task<Product> StoreGetAllProduct(ProductFilterDto filters, CancellationToken cancellationToken);
-        //Task<Product> StoreGetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
+        /// 
+        Task<Product> GetProductByCodeAsync(string productCode, CancellationToken cancellationToken);
     }
 }
