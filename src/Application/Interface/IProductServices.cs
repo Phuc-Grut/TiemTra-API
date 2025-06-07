@@ -23,5 +23,6 @@ namespace Application.Interface
         /// 
 
         Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
+        Task<StoreProducts> StoreGetProductByCodeAsync(string productCode, CancellationToken cancellationToken);
     }
 }

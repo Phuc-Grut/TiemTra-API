@@ -27,5 +27,16 @@ namespace TiemTra_Api.Controllers.StoreAPI
             var result = await _productServices.StoreGetAllProductAsync(filterDto, pageNumber, pageSize, cancellationToken);
             return Ok(result);
         }
+
+        [HttpGet("get-product-by-code/{productCode}")]
+        public async Task<IActionResult> StoreGetProductByCode( string productCode, CancellationToken cancellationToken = default)
+        {
+            var result = await _productServices.StoreGetProductByCodeAsync(productCode, cancellationToken);
+            if (result == null)
+            {
+                return NotFound("Có lỗ khi lấy dữ liệu");
+            }
+            return Ok(result);
+        }
     }
 }

@@ -148,21 +148,18 @@ namespace Infrastructure.Repositories
         /// Store Product
         /// </summary>
 
-        //public Task<Product> StoreGetAllProduct(ProductFilterDto filters, CancellationToken cancellationToken)
-        //{
-        //    var query = _dbContext.Products
-        //        .AsNoTracking()
-        //        .Include(p => p.ProductImages)
-        //        .Include(p => p.ProductVariations)
-        //        .Include(p => p.Category)
-        //        .AsQueryable();
-        //}
+        public async Task<Product> GetProductByCodeAsync(string productCode, CancellationToken cancellationToken)
+        {
+            var product = await _dbContext.Products
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariations)
+                .Include(p => p.ProductAttributes)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProductCode == productCode, cancellationToken);
 
-        //public Task<Product> StoreGetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        
+            return product;
+        }
     }
 }
