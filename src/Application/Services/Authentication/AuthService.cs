@@ -63,11 +63,18 @@ namespace Application.Services.Authentincation
 
             var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong><br> <br>Mã sẽ hết hạn sau 2 phút.";
 
-            Console.WriteLine($"otp dã tạo ra: {otp}");
 
             await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
 
-            return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", user);
+            var resultUser = new UserBasicDTO
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
+
+
+            return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", resultUser);
         }
 
         //băm password

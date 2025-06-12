@@ -292,6 +292,7 @@ namespace Application.Services.Admin
                 product.Note = dto.Note;
                 product.UpdatedAt = DateTime.UtcNow;
                 product.UpdatedBy = userId;
+                product.Description = dto.Description;
 
                 await _productRepo.UpdateProduct(product, cancellationToken);
 
@@ -437,6 +438,7 @@ namespace Application.Services.Admin
 
                 ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
                 {
+                    ProductVariationId = v.ProductVariationId,
                     TypeName = v.TypeName,
                     Price = v.Price,
                     Stock = v.Stock

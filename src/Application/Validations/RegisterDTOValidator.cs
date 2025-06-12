@@ -21,9 +21,9 @@ namespace Application.Validations
                 .Matches(@"^[0-9]{10,11}").WithMessage("Số điện thoại không hợp lệ.");
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Vui lòng nhập mật khẩu và nhớ nó.")
+                .NotEmpty().WithMessage("Vui lòng nhập mật khẩu.")
                 .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
-                .MaximumLength(20).WithMessage("Mật khẩu không được quá 20 ký tự để dễ nhớ.");
+                .MaximumLength(20).WithMessage("Mật khẩu không được quá 20 ký tự");
         }
     }
 }
