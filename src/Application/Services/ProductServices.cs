@@ -3,20 +3,12 @@ using Application.DTOs.Admin.Product;
 using Application.DTOs.Store.Response;
 using Application.Interface;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Sas;
 using Domain.Data.Entities;
 using Domain.DTOs.Product;
 using Domain.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services.Admin
 {
@@ -430,11 +422,15 @@ namespace Application.Services.Admin
 
                 ProductImageUrls = product.ProductImages?.Select(pi => pi.ImageUrl).ToList() ?? new List<string>(),
 
-                ProductAttributes = product.ProductAttributes?.Select(attr => new ProductAttributeDto
-                {
-                    AttributeId = attr?.AttributeId,
-                    Value = attr?.Value
-                }).ToList() ?? new List<ProductAttributeDto>(),
+                ProductAttributes = product.ProductAttributes?
+                    .Where(attr => attr != null && attr.Attribute != null)
+                    .Select(attr => new ProductAttributeDto
+                    {
+                        AttributeId = attr.AttributeId ?? 0,
+                        AttributeName = attr.Attribute.Name,
+                        Value = attr.Value
+                    })
+                    .ToList() ?? new List<ProductAttributeDto>(),
 
                 ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
                 {
