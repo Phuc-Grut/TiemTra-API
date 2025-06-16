@@ -19,7 +19,7 @@ COPY ["src/Shared/Shared.csproj", "Shared/"]
 WORKDIR /src/TiemTra_Api
 RUN dotnet restore "TiemTra_Api.csproj"
 
-# Copy toàn bộ src (sau restore)
+# Copy src
 WORKDIR /src
 COPY src/ ./
 

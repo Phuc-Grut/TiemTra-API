@@ -26,7 +26,6 @@ namespace Application.DTOs.Store.Response
         public string? CategoryName { get; set; }
         public ProductStatus ProductStatus { get; set; }
 
-
         public List<ProductAttributeDto> ProductAttributes { get; set; } = new();
     }
 }
