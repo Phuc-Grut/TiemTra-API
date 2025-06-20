@@ -20,5 +20,7 @@ namespace Domain.Data.Entities
         public string? Avatar { get; set; }
         public UserStatus Status { get; set; } = UserStatus.Pending;
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+        public Cart? Cart { get; set; }
     }
 }
