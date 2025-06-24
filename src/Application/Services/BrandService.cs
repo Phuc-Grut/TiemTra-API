@@ -46,8 +46,8 @@ namespace Application.Services
                     BrandName = dto.BrandName,
                     Logo = dto.Logo,
                     Description = dto.Description,
-                    CreatedBy = Guid.NewGuid(), // TODO: Get from current user context
-                    UpdatedBy = Guid.NewGuid(), // TODO: Get from current user context
+                    CreatedBy = Guid.NewGuid(), 
+                    UpdatedBy = Guid.NewGuid(), 
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
