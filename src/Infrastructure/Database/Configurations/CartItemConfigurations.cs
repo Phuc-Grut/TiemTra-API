@@ -31,7 +31,12 @@ namespace Infrastructure.Database.Configurations
                 .HasForeignKey(ci => ci.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(c => c.CreatedAt)
+            builder.HasOne(ci => ci.ProductVariations)
+              .WithMany(pv => pv.CartItems)
+              .HasForeignKey(ci => ci.ProductVariationId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+          builder.Property(c => c.CreatedAt)
                .HasDefaultValueSql("GETUTCDATE()")
                .ValueGeneratedOnAdd();
 
