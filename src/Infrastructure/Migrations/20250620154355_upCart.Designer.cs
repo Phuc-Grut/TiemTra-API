@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250620154355_upCart")]
+    partial class upCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,9 +108,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -120,8 +120,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CartId");
-
-                    b.HasIndex("ProductId");
 
                     b.HasIndex("UserId")
                         .IsUnique()
@@ -153,9 +151,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProductVariationId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -172,8 +167,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductVariationId");
 
                     b.ToTable("CartItems", (string)null);
                 });
@@ -483,28 +476,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(456),
+                            CreatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8352),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(461),
+                            UpdatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8356),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(463),
+                            CreatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8359),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(463),
+                            UpdatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8359),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(464),
+                            CreatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8360),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 6, 24, 16, 31, 9, 224, DateTimeKind.Utc).AddTicks(464),
+                            UpdatedAt = new DateTime(2025, 6, 20, 15, 43, 53, 272, DateTimeKind.Utc).AddTicks(8360),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -597,16 +590,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Data.Entities.Cart", b =>
                 {
-                    b.HasOne("Domain.Data.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId");
-
                     b.HasOne("Domain.Data.Entities.User", "User")
                         .WithOne("Cart")
                         .HasForeignKey("Domain.Data.Entities.Cart", "UserId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Product");
 
                     b.Navigation("User");
                 });
@@ -624,16 +611,9 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Domain.Data.Entities.ProductVariations", "ProductVariations")
-                        .WithMany("CartItems")
-                        .HasForeignKey("ProductVariationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
-
-                    b.Navigation("ProductVariations");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Category", b =>
@@ -774,11 +754,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProductImages");
 
                     b.Navigation("ProductVariations");
-                });
-
-            modelBuilder.Entity("Domain.Data.Entities.ProductVariations", b =>
-                {
-                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Role", b =>

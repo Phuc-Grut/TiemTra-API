@@ -20,13 +20,15 @@ namespace Application.Services.Authentincation
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
         private readonly IUserRepository _userRepository;
+        private readonly ICartRepository _cartRepository;
 
-        public AuthService(IAuthRepository authRepository, IEmailService emailService, IConfiguration configuration, IUserRepository userRepository)
+        public AuthService(IAuthRepository authRepository, IEmailService emailService, IConfiguration configuration, IUserRepository userRepository, ICartRepository cartRepository)
         {
             _authRepository = authRepository;
             _configuration = configuration;
             _emailService = emailService;
             _userRepository = userRepository;
+            _cartRepository = cartRepository;
         }
 
         // Đăng ký tài khoản
@@ -52,10 +54,19 @@ namespace Application.Services.Authentincation
             await _authRepository.AddUser(user);
             await _authRepository.SaveChanges();
 
+            var cart = new Cart
+            {
+                UserId = user.UserId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _cartRepository.AddCart(cart);
+
+
             var userRole = new UserRole
             {
                 UserId = user.UserId,
-                RoleId = 1
+                RoleId = 3
             };
 
             await _authRepository.AddUserRole(userRole);

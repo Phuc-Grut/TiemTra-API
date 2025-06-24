@@ -28,5 +28,7 @@ namespace Domain.Data.Entities
         public ICollection<ProductAttribute>? ProductAttributes { get; set; }
         public ICollection<ProductVariations>? ProductVariations { get; set; }
         public ICollection<ProductImage>? ProductImages { get; set; }
+
+        public ICollection<CartItem>? CartItems { get; set; } = new List<CartItem>();
     }
 }
