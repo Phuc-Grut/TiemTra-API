@@ -14,12 +14,14 @@ namespace Domain.Data.Entities
 
         public User? User { get; set; }
 
-        public virtual ICollection<CartItem>? CartItem { get; set; } = new List<CartItem>();
+        public virtual ICollection<CartItem> CartItem { get; set; } = new List<CartItem>();
 
         public int TotalItems => CartItem?.Sum(item => item.Quantity) ?? 0;
 
         public decimal TotalPrice => CartItem?.Sum(item => item.Price * item.Quantity) ?? 0;
 
+
+        public Product? Product { get; set; }
 
     }
 }

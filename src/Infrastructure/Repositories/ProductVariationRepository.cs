@@ -39,5 +39,12 @@ namespace Infrastructure.Repositories
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
+
+        public async Task<ProductVariations?> GetByIdAsync(Guid? productVariationId, CancellationToken cancellationToken)
+        {
+            return await _context.ProductVariations
+                .Include(v => v.Product)
+                .FirstOrDefaultAsync(v => v.ProductVariationId == productVariationId, cancellationToken);
+        }
     }
 }

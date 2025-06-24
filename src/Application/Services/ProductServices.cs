@@ -56,7 +56,7 @@ namespace Application.Services.Admin
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId,
                 };
-
+               
 
                 await _productRepo.AddAsync(product, cancellationToken);
 
@@ -79,7 +79,9 @@ namespace Application.Services.Admin
                     await _productAttribute.AddRangeAsync(productAttributes, cancellationToken);
                 }
 
-                if (dto.HasVariations && dto.ProductVariations?.Any() == true)
+                var hasVariations = dto.ProductVariations?.Any() == true;
+
+                if (hasVariations)
                 {
                     var productVariations = dto.ProductVariations.Select(variationDto => new ProductVariations
                     {
