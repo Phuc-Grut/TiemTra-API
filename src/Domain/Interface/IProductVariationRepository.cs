@@ -11,5 +11,6 @@ namespace Domain.Interface
     {
         Task AddRangeAsync(List<ProductVariations> productVariations, CancellationToken cancellationToken);
         Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken);
+        Task<ProductVariations?> GetByIdAsync(Guid? productVariationId, CancellationToken cancellationToken);
     }
 }

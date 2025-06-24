@@ -12,5 +12,7 @@ namespace Domain.Data.Entities
         public int? Stock { get; set; }
 
         public Product Product { get; set; }
+
+        public ICollection<CartItem>? CartItems { get; set; } = new List<CartItem>();
     }
 }
