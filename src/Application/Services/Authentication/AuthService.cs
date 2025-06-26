@@ -250,5 +250,52 @@ namespace Application.Services.Authentincation
 
             return new ApiResponse(true, "Cấp lại token thành công", user, newAccessToken, newRefreshToken);
         }
+
+        public async Task<ApiResponse> ForgotPassword(ForgotPasswordDto dto)
+        {
+            var user = await _authRepository.GetUserByEmail(dto.Email);
+            if (user == null)
+                return new ApiResponse(false, "Email không tồn tại");
+
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            user.VerificationCode = otp;
+            user.VerificationExpiry = DateTime.UtcNow.AddMinutes(2);
+
+            await _authRepository.SaveChanges();
+
+            var emailMessage = $@"
+                <p>Xin chào {user.FullName},</p>
+                <p>Bạn vừa yêu cầu đặt lại mật khẩu.</p>
+                <p><strong>Mã OTP của bạn là: <span style='color:blue;font-size:18px'>{otp}</span></strong></p>
+                <p>Mã sẽ hết hạn sau 2 phút.</p>
+                <p>Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.</p>
+            ";
+
+            await _emailService.SendEmailAsync(user.Email, "Mã OTP đặt lại mật khẩu", emailMessage);
+
+            return new ApiResponse(true, "Mã OTP đã được gửi đến email của bạn.");
+        }
+
+        public async Task<ApiResponse> ResetPassword(ResetPasswordDTO dto)
+        {
+            var user = await _authRepository.GetUserByEmail(dto.Email);
+            if (user == null)
+                return new ApiResponse(false, "Email không hợp lệ");
+
+            if (user.VerificationCode != dto.Otp)
+                return new ApiResponse(false, "Mã OTP không hợp lệ");
+
+            if (user.VerificationExpiry < DateTime.UtcNow)
+                return new ApiResponse(false, "Mã OTP đã hết hạn");
+
+            user.HashPassword = HashPassword(dto.NewPassword);
+            user.VerificationCode = null;
+            user.VerificationExpiry = null;
+
+            await _authRepository.SaveChanges();
+
+            return new ApiResponse(true, "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.");
+        }
     }
 }

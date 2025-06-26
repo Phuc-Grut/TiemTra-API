@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Brand\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
