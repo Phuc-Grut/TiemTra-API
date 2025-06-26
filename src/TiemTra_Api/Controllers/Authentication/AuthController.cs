@@ -79,5 +79,20 @@ namespace APISell.Controllers.Authentication
 
             return Ok(result);
         }
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var result = await _authServices.ForgotPassword(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            var result = await _authServices.ResetPassword(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }
