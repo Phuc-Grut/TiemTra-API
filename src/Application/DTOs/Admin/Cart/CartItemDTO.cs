@@ -9,6 +9,7 @@ namespace Application.DTOs.Admin.Cart
 {
     public class CartItemDTO
     {
+        public Guid CartItemId { get; set; }
         public Guid ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? ProductVariationName { get; set; }
