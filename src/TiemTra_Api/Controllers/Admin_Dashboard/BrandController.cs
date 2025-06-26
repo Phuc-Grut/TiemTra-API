@@ -35,20 +35,13 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateBrandDTO dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddBrand([FromBody] CreateBrandDTO dto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Dữ liệu không hợp lệ.");
+            var response = await _brandService.AddBrandAsync(dto, cancellationToken);
+            if (!response.Success)
+                return StatusCode(500, response.Message);
 
-            try
-            {
-                var brand = await _brandService.CreateAsync(dto, cancellationToken);
-                return CreatedAtAction(nameof(GetById), new { id = brand.BrandId }, brand);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Thêm thất bại: {ex.Message}");
-            }
+            return Ok(response.Message);
         }
 
         [HttpPut("{id}")]
@@ -90,10 +83,14 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             }
 
         }
-        [HttpPost("filter")]
-        public async Task<IActionResult> FilterBrands([FromBody] BrandFilterDto filter, int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default)
+        [HttpGet("get-paging-brands")]
+        public async Task<IActionResult> GetPagingBrands(
+            [FromQuery] BrandFilterDto filters,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+                CancellationToken cancellationToken = default)
         {
-            var result = await _brandService.GetAllPagedAsync(filter, pageNumber, pageSize, cancellationToken);
+            var result = await _brandService.GetPagingAsync(filters, pageNumber, pageSize, cancellationToken);
             return Ok(result);
         }
     }
