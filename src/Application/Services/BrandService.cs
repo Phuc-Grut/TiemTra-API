@@ -33,34 +33,38 @@ namespace Application.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<BrandDTO> CreateAsync(CreateBrandDTO dto, CancellationToken cancellationToken)
+        public async Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, CancellationToken cancellationToken)
         {
             try
             {
-                var lastBrand = await _brandRepository.GetAllBrandsAsync(cancellationToken);
-                var nextId = lastBrand.Any() ? lastBrand.Max(b => b.BrandId) + 1 : 1;
-
-                var newBrand = new Brand
+                // Kiểm tra tên thương hiệu đã tồn tại
+                var existingBrands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+                if (existingBrands.Any(b => b.BrandName.ToLower().Trim() == dto.BrandName.ToLower().Trim()))
                 {
-                    BrandId = nextId,
+                    return new ApiResponse(false, "Tên thương hiệu đã tồn tại.");
+                }
+
+                // Khởi tạo brand mới
+                var brand = new Brand
+                {
                     BrandName = dto.BrandName,
-                    Logo = dto.Logo,
                     Description = dto.Description,
-                    CreatedBy = Guid.NewGuid(), 
-                    UpdatedBy = Guid.NewGuid(), 
+                    Logo = dto.Logo,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                var result = await _brandRepository.AddBrandAsync(newBrand, cancellationToken);
+                var created = await _brandRepository.AddBrandAsync(brand, cancellationToken);
 
-                return _mapper.Map<BrandDTO>(result); 
+                if (created == null)
+                    return new ApiResponse(false, "Thêm thương hiệu thất bại.");
+
+                return new ApiResponse(true, "Thêm thương hiệu thành công.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[CreateAsync] Lỗi: {ex.Message}");
-                Console.WriteLine($"[CreateAsync] Stack Trace: {ex.StackTrace}");
-                throw new Exception($"Thêm thương hiệu thất bại: {ex.Message}");
+                Console.WriteLine($"[BrandService][AddBrandAsync] Error: {ex.Message}");
+                return new ApiResponse(false, $"Lỗi khi thêm thương hiệu: {ex.Message}");
             }
         }
 
@@ -115,41 +119,6 @@ namespace Application.Services
                 return Enumerable.Empty<BrandDTO>();
             }
         }
-        public async Task<PagedResult<BrandDTO>> GetAllPagedAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
-        {
-            var query = (await _brandRepository.GetAllBrandsAsync(cancellationToken)).AsQueryable();
-
-            var keyword = filters.Keyword?.Trim();
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(b => EF.Functions.Like(b.BrandName, $"%{keyword}%"));
-            }
-
-            int totalItems = query.Count();
-
-            var brands = query.OrderBy(b => b.BrandName)
-                              .Skip((pageNumber - 1) * pageSize)
-                              .Take(pageSize)
-                              .ToList();
-
-            var brandDtos = brands.Select(b => new BrandDTO
-            {
-                BrandId = b.BrandId,
-                BrandName = b.BrandName,
-                Logo = b.Logo,
-                Description = b.Description
-            }).ToList();
-
-            return new PagedResult<BrandDTO>
-            {
-                Items = brandDtos,
-                TotalItems = totalItems,
-                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-                CurrentPage = pageNumber,
-                PageSize = pageSize
-            };
-        }
 
         public async Task<BrandDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
@@ -165,7 +134,42 @@ namespace Application.Services
             }
         }
 
-        
+        public async Task<PagedResult<BrandDTO>> GetPagingAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            var allBrands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+            var query = allBrands.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filters.Keyword))
+            {
+                var keyword = filters.Keyword.Trim();
+                query = query.Where(b => EF.Functions.Like(b.BrandName, $"%{keyword}%"));
+            }
+
+            var totalItems = query.Count();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var pagedBrands = query.OrderBy(b => b.BrandName)
+                                   .Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToList();
+
+            var brandDtos = pagedBrands.Select(b => new BrandDTO
+            {
+                BrandId = b.BrandId,
+                BrandName = b.BrandName,
+                Logo = b.Logo,
+                Description = b.Description
+            }).ToList();
+
+            return new PagedResult<BrandDTO>
+            {
+                Items = brandDtos,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = pageNumber,
+                PageSize = pageSize
+            };
+        }
 
         public async Task<bool> UpdateAsync(UpdateBrandDTO dto, CancellationToken cancellationToken)
         {

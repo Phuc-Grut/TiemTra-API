@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs.Admin.Attributes;
+using Shared.Common;
 
 namespace Application.Interface
 {
@@ -14,12 +15,14 @@ namespace Application.Interface
     {
         Task<IEnumerable<BrandDTO>> GetAllAsync(CancellationToken cancellationToken);
         Task<BrandDTO?> GetByIdAsync(int id, CancellationToken cancellationToken);
-        Task<BrandDTO> CreateAsync(CreateBrandDTO dto, CancellationToken cancellationToken);
+        Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, CancellationToken cancellationToken);
+
         Task<bool> UpdateAsync(UpdateBrandDTO dto, CancellationToken cancellationToken);
         Task<List<BrandDeleteResult>> DeleteManyAsync(List<int> brandIds, CancellationToken cancellationToken);
 
         //Task<object> GetPagedBrandsAsync(BrandFilterDto filter, CancellationToken cancellationToken);
-        Task<PagedResult<BrandDTO>> GetAllPagedAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
+        Task<PagedResult<BrandDTO>> GetPagingAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
+
 
 
 
