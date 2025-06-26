@@ -130,6 +130,7 @@ namespace Application.Services
 
             var items = cart.CartItem.Select(ci => new CartItemDTO
             {
+                CartItemId = ci.CartItemId,
                 ProductId = ci.ProductId ?? Guid.Empty,
                 ProductName = ci.Product?.ProductName ?? "",
                 ProductVariationName = ci.ProductVariations?.TypeName ?? "",
