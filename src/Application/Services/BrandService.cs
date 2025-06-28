@@ -5,6 +5,7 @@ using AutoMapper;
 using Azure.Storage.Blobs;
 using Domain.Data.Entities;
 using Domain.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System;
@@ -39,16 +40,17 @@ namespace Application.Services
         {
             try
             {
-                // Kiểm tra tên thương hiệu đã tồn tại
-                var existingBrands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
-                if (existingBrands.Any(b => b.BrandName.ToLower().Trim() == dto.BrandName.ToLower().Trim()))
+                var existing = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+                if (existing.Any(b => b.BrandName.Trim().ToLower() == dto.BrandName.Trim().ToLower()))
                 {
                     return new ApiResponse(false, "Tên thương hiệu đã tồn tại.");
                 }
 
-                // Khởi tạo brand mới
+                var brandId = await GenerateUniqueBrandIdAsync(cancellationToken);
+
                 var brand = new Brand
                 {
+                    BrandId = brandId,
                     BrandName = dto.BrandName,
                     Description = dto.Description,
                     Logo = dto.Logo,
@@ -56,86 +58,84 @@ namespace Application.Services
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                var created = await _brandRepository.AddBrandAsync(brand, cancellationToken);
+                var result = await _brandRepository.AddBrandAsync(brand, cancellationToken);
 
-                if (created == null)
+                if (result == null)
+                {
                     return new ApiResponse(false, "Thêm thương hiệu thất bại.");
+                }
 
-                return new ApiResponse(true, "Thêm thương hiệu thành công.");
+                return new ApiResponse(true, "Thêm thương hiệu thành công.", new
+                {
+                    brandId = result.BrandId,
+                    brandName = result.BrandName,
+                    logo = result.Logo,
+                    description = result.Description
+                });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[BrandService][AddBrandAsync] Error: {ex.Message}");
-                return new ApiResponse(false, $"Lỗi khi thêm thương hiệu: {ex.Message}");
+                Console.WriteLine($"[BrandService][Add] Error: {ex.Message}");
+                return new ApiResponse(false, "Lỗi hệ thống khi thêm thương hiệu.");
             }
         }
 
         public async Task<List<BrandDeleteResult>> DeleteManyAsync(List<int> brandIds, CancellationToken cancellationToken)
         {
+            var results = new List<BrandDeleteResult>();
+
+            foreach (var id in brandIds)
             {
-                var results = new List<BrandDeleteResult>();
-
-                foreach (var id in brandIds)
+                var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
+                if (brand == null)
                 {
-                    var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
-                    if (brand == null)
-                    {
-                        results.Add(new BrandDeleteResult
-                        {
-                            BrandId = id,
-                            IsDeleted = false,
-                            Message = "Thương hiệu không tồn tại."
-                        });
-                        continue;
-                    }
-
-                    //// Xoá liên kết BrandId trong Product
-                    //await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
+                    results.Add(new BrandDeleteResult { BrandId = id, IsDeleted = false, Message = "Thương hiệu không tồn tại." });
+                    continue;
                 }
-
-                // Sau khi đã xoá BrandId khỏi Product, xoá brand
-                var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
-
-                foreach (var id in brandIds)
-                {
-                    results.Add(new BrandDeleteResult
-                    {
-                        BrandId = id,
-                        IsDeleted = deletedIds.Contains(id),
-                        Message = deletedIds.Contains(id) ? "Xoá thành công." : "Xoá thất bại."
-                    });
-                }
-
-                return results;
             }
+
+            var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
+
+            foreach (var id in brandIds)
+            {
+                results.Add(new BrandDeleteResult
+                {
+                    BrandId = id,
+                    IsDeleted = deletedIds.Contains(id),
+                    Message = deletedIds.Contains(id) ? "Xoá thành công." : "Xoá thất bại."
+                });
+            }
+
+            return results;
+        }
+
+        public async Task<int> GenerateUniqueBrandIdAsync(CancellationToken cancellationToken)
+        {
+            var existingIds = (await _brandRepository.GetAllBrandsAsync(cancellationToken))
+                            .Select(b => b.BrandId)
+                            .ToHashSet();
+
+            int newId;
+            var random = new Random();
+
+            do
+            {
+                newId = random.Next(100, 999);
+            } while (existingIds.Contains(newId));
+
+            return newId;
         }
 
         public async Task<IEnumerable<BrandDTO>> GetAllAsync(CancellationToken cancellationToken)
         {
-            try
-            {
-                var brands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
-                return brands.Select(_mapper.Map<BrandDTO>);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandService][GetAll] Error: {ex.Message}");
-                return Enumerable.Empty<BrandDTO>();
-            }
+            var brands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+            return brands.Select(_mapper.Map<BrandDTO>);
         }
 
         public async Task<BrandDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            try
-            {
-                var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
-                return brand == null ? null : _mapper.Map<BrandDTO>(brand);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandService][GetById] Error: {ex.Message}");
-                return null;
-            }
+            var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
+            return brand == null ? null : _mapper.Map<BrandDTO>(brand);
         }
 
         public async Task<PagedResult<BrandDTO>> GetPagingAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
@@ -150,26 +150,18 @@ namespace Application.Services
             }
 
             var totalItems = query.Count();
-            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-
             var pagedBrands = query.OrderBy(b => b.BrandName)
-                                   .Skip((pageNumber - 1) * pageSize)
-                                   .Take(pageSize)
-                                   .ToList();
+                                    .Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
 
-            var brandDtos = pagedBrands.Select(b => new BrandDTO
-            {
-                BrandId = b.BrandId,
-                BrandName = b.BrandName,
-                Logo = b.Logo,
-                Description = b.Description
-            }).ToList();
+            var brandDtos = pagedBrands.Select(_mapper.Map<BrandDTO>).ToList();
 
             return new PagedResult<BrandDTO>
             {
                 Items = brandDtos,
                 TotalItems = totalItems,
-                TotalPages = totalPages,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
@@ -181,17 +173,47 @@ namespace Application.Services
             {
                 var existing = await _brandRepository.GetBrandByIdAsync(dto.BrandId, cancellationToken);
                 if (existing == null)
-                {
                     return false;
-                }
 
                 _mapper.Map(dto, existing);
+                existing.UpdatedAt = DateTime.UtcNow;
+
                 return await _brandRepository.UpdateBrandAsync(existing, cancellationToken);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[BrandService][Update] Error: {ex.Message}");
                 return false;
+            }
+        }
+
+        public async Task<string> UploadBrandImageAsync(IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("File không hợp lệ");
+
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("brands");
+
+                // Tạo container nếu chưa có
+                await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+
+                // Tạo tên file ngẫu nhiên để tránh trùng
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var blobClient = container.GetBlobClient(fileName);
+
+                using (var stream = file.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, overwrite: true, cancellationToken);
+                }
+
+                return blobClient.Uri.ToString(); // Trả về URL ảnh
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UploadBrandImageAsync] Error: {ex.Message}");
+                throw;
             }
         }
     }
