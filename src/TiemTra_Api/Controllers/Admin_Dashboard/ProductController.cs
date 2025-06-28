@@ -40,7 +40,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
         }
 
-        [HttpPost("product-image")]
+        [HttpPost("add-product-image")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadProductImage([FromForm] UploadFileDto dto)
         {
