@@ -72,38 +72,42 @@ namespace Application.Services
 
         public async Task<List<BrandDeleteResult>> DeleteManyAsync(List<int> brandIds, CancellationToken cancellationToken)
         {
-            var results = new List<BrandDeleteResult>();
-
-            foreach (var id in brandIds)
             {
-                var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
-                if (brand == null)
+                var results = new List<BrandDeleteResult>();
+
+                foreach (var id in brandIds)
+                {
+                    var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
+                    if (brand == null)
+                    {
+                        results.Add(new BrandDeleteResult
+                        {
+                            BrandId = id,
+                            IsDeleted = false,
+                            Message = "Thương hiệu không tồn tại."
+                        });
+                        continue;
+                    }
+
+                    //// Xoá liên kết BrandId trong Product
+                    //await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
+                }
+
+                // Sau khi đã xoá BrandId khỏi Product, xoá brand
+                var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
+
+                foreach (var id in brandIds)
                 {
                     results.Add(new BrandDeleteResult
                     {
                         BrandId = id,
-                        IsDeleted = false,
-                        Message = "Thương hiệu không tồn tại."
+                        IsDeleted = deletedIds.Contains(id),
+                        Message = deletedIds.Contains(id) ? "Xoá thành công." : "Xoá thất bại."
                     });
-                    continue;
                 }
 
-                await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
+                return results;
             }
-
-            var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
-
-            foreach (var id in brandIds)
-            {
-                results.Add(new BrandDeleteResult
-                {
-                    BrandId = id,
-                    IsDeleted = deletedIds.Contains(id),
-                    Message = deletedIds.Contains(id) ? "Xoá thành công." : "Xoá thất bại."
-                });
-            }
-
-            return results;
         }
 
         public async Task<IEnumerable<BrandDTO>> GetAllAsync(CancellationToken cancellationToken)
