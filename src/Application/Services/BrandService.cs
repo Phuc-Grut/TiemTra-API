@@ -22,7 +22,9 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly BlobServiceClient _blobServiceClient;
-        
+        private readonly IProductRepository _productRepository;
+
+
 
 
         public BrandService(IBrandRepository brandRepository, IMapper mapper, IUserRepository userRepository, BlobServiceClient blobServiceClient)
@@ -86,11 +88,9 @@ namespace Application.Services
                     continue;
                 }
 
-                //// Xoá liên kết BrandId trong Product
-                //await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
+                await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
             }
 
-            // Sau khi đã xoá BrandId khỏi Product, xoá brand
             var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
 
             foreach (var id in brandIds)
@@ -178,7 +178,6 @@ namespace Application.Services
                 var existing = await _brandRepository.GetBrandByIdAsync(dto.BrandId, cancellationToken);
                 if (existing == null)
                 {
-                    Console.WriteLine($"[BrandService][Update] Brand ID {dto.BrandId} not found.");
                     return false;
                 }
 
@@ -188,7 +187,7 @@ namespace Application.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[BrandService][Update] Error: {ex.Message}");
-                throw new Exception("Cập nhật thương hiệu thất bại.");
+                return false;
             }
         }
     }
