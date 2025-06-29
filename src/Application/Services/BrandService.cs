@@ -150,12 +150,41 @@ namespace Application.Services
             }
 
             var totalItems = query.Count();
-            var pagedBrands = query.OrderBy(b => b.BrandName)
-                                    .Skip((pageNumber - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .ToList();
 
-            var brandDtos = pagedBrands.Select(_mapper.Map<BrandDTO>).ToList();
+            var pagedBrands = query
+                .OrderBy(b => b.BrandName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Lấy danh sách ID người tạo/cập nhật
+            var userIds = pagedBrands
+                .Select(b => b.CreatedBy)
+                .Union(pagedBrands.Select(b => b.UpdatedBy))
+                .Where(id => id != null)
+                .Select(id => id)
+                .Distinct()
+                .ToList();
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+            var brandDtos = pagedBrands.Select(b =>
+            {
+                var creator = users.FirstOrDefault(u => u.UserId == b.CreatedBy);
+                var updater = users.FirstOrDefault(u => u.UserId == b.UpdatedBy);
+
+                return new BrandDTO
+                {
+                    BrandId = b.BrandId,
+                    BrandName = b.BrandName,
+                    Logo = b.Logo,
+                    Description = b.Description,
+                    CreatedAt = b.CreatedAt,
+                    UpdatedAt = b.UpdatedAt,
+                    CreatorName = creator?.FullName,
+                    UpdaterName = updater?.FullName
+                };
+            }).ToList();
 
             return new PagedResult<BrandDTO>
             {
