@@ -15,5 +15,7 @@ namespace Shared.Common
 
             return userId;
         }
+
+        
     }
 }

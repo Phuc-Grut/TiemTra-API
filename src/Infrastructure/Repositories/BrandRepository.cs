@@ -20,93 +20,35 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Brand> AddBrandAsync(Brand brand, CancellationToken cancellationToken)
+        public async Task<Brand?> AddBrandAsync(Brand brand, CancellationToken cancellationToken)
         {
-            try
-            {
-                _dbContext.Brands.Add(brand);
-                await _dbContext.SaveChangesAsync(cancellationToken);
-                return brand;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandRepository][Add] Error: {ex.Message}");
-                throw;
-            }
-        }
-
-        public async Task<bool> DeleteBrandAsync(int brandId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var brand = await _dbContext.Brands.FindAsync(new object[] { brandId }, cancellationToken);
-                if (brand == null)
-                    return false;
-
-                _dbContext.Brands.Remove(brand);
-                return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandRepository][Delete] Error: {ex.Message}");
-                throw;
-            }
+            _dbContext.Brands.Add(brand);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return brand;
         }
 
         public async Task<List<int>> DeleteBrandsAsync(List<int> brandIds, CancellationToken cancellationToken)
         {
-            var deletedIds = new List<int>();
-
-            var brandsToDelete = _dbContext.Brands.Where(b => brandIds.Contains(b.BrandId)).ToList();
-
-            if (!brandsToDelete.Any())
-                return deletedIds;
-
-            _dbContext.Brands.RemoveRange(brandsToDelete);
+            var brands = await _dbContext.Brands.Where(b => brandIds.Contains(b.BrandId)).ToListAsync(cancellationToken);
+            _dbContext.Brands.RemoveRange(brands);
             await _dbContext.SaveChangesAsync(cancellationToken);
-
-            deletedIds.AddRange(brandsToDelete.Select(b => b.BrandId));
-            return deletedIds;
+            return brands.Select(b => b.BrandId).ToList();
         }
 
-        public async Task<IEnumerable<Brand>> GetAllBrandsAsync(CancellationToken cancellationToken)
+        public async Task<List<Brand>> GetAllBrandsAsync(CancellationToken cancellationToken)
         {
-            try
-            {
-                return await _dbContext.Brands.ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandRepository][GetAll] Error: {ex.Message}");
-                throw;
-            }
+            return await _dbContext.Brands.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<Brand?> GetBrandByIdAsync(int brandId, CancellationToken cancellationToken)
+        public async Task<Brand?> GetBrandByIdAsync(int id, CancellationToken cancellationToken)
         {
-            try
-            {
-                return await _dbContext.Brands.FirstOrDefaultAsync(b => b.BrandId == brandId, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandRepository][GetById] Error: {ex.Message}");
-                throw;
-            }
+            return await _dbContext.Brands.FindAsync(new object[] { id }, cancellationToken);
         }
 
         public async Task<bool> UpdateBrandAsync(Brand brand, CancellationToken cancellationToken)
         {
-            try
-            {
-                _dbContext.Brands.Update(brand);
-                return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandRepository][Update] Error: {ex.Message}");
-                throw;
-            }
+            _dbContext.Brands.Update(brand);
+            return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
         }
     }
 }
