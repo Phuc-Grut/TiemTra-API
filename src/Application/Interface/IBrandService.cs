@@ -14,7 +14,7 @@ namespace Application.Interface
 {
     public interface IBrandService
     {
-        Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, CancellationToken cancellationToken);
+        Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<bool> UpdateAsync(UpdateBrandDTO dto, CancellationToken cancellationToken);
         Task<List<BrandDeleteResult>> DeleteManyAsync(List<int> brandIds, CancellationToken cancellationToken);
         Task<IEnumerable<BrandDTO>> GetAllAsync(CancellationToken cancellationToken);
