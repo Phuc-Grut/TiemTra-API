@@ -40,7 +40,8 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
         [HttpPost("create-brand")]
         public async Task<IActionResult> AddBrand([FromBody] CreateBrandDTO dto, CancellationToken cancellationToken)
         {
-            var response = await _brandService.AddBrandAsync(dto, cancellationToken);
+            var user = HttpContext.User;
+            var response = await _brandService.AddBrandAsync(dto, user, cancellationToken);
 
             if (!response.Success)
                 return StatusCode(500, new { success = false, message = response.Message });
@@ -51,7 +52,8 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
                 message = response.Message,
             });
         }
-          [HttpPut("update-brand")]
+
+        [HttpPut("update-brand")]
         public async Task<IActionResult> Update(int brandId, [FromBody] UpdateBrandDTO dto, CancellationToken cancellationToken)
         {
             if (brandId != dto.BrandId)
@@ -93,6 +95,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var id = await _brandService.GenerateUniqueBrandIdAsync(cancellationToken);
             return Ok(id);
         }
+
         [HttpPost("brand-image")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadBrandImage([FromForm] UploadFileDto dto, CancellationToken cancellationToken)

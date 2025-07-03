@@ -25,9 +25,6 @@ namespace Application.Services
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IProductRepository _productRepository;
 
-
-
-
         public BrandService(IBrandRepository brandRepository, IMapper mapper, IUserRepository userRepository, BlobServiceClient blobServiceClient)
         {
             _brandRepository = brandRepository;
@@ -36,10 +33,11 @@ namespace Application.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, CancellationToken cancellationToken)
+        public async Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             try
             {
+                var userId = GetUserIdFromClaims.GetUserId(user);
                 var existing = await _brandRepository.GetAllBrandsAsync(cancellationToken);
                 if (existing.Any(b => b.BrandName.Trim().ToLower() == dto.BrandName.Trim().ToLower()))
                 {
@@ -54,6 +52,7 @@ namespace Application.Services
                     BrandName = dto.BrandName,
                     Description = dto.Description,
                     Logo = dto.Logo,
+                    CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
