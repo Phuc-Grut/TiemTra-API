@@ -5,6 +5,7 @@ using AutoMapper;
 using Azure.Storage.Blobs;
 using Domain.Data.Entities;
 using Domain.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System;
@@ -22,8 +23,7 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly BlobServiceClient _blobServiceClient;
-        
-
+        private readonly IProductRepository _productRepository;
 
         public BrandService(IBrandRepository brandRepository, IMapper mapper, IUserRepository userRepository, BlobServiceClient blobServiceClient)
         {
@@ -33,34 +33,49 @@ namespace Application.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<BrandDTO> CreateAsync(CreateBrandDTO dto, CancellationToken cancellationToken)
+        public async Task<ApiResponse> AddBrandAsync(CreateBrandDTO dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             try
             {
-                var lastBrand = await _brandRepository.GetAllBrandsAsync(cancellationToken);
-                var nextId = lastBrand.Any() ? lastBrand.Max(b => b.BrandId) + 1 : 1;
-
-                var newBrand = new Brand
+                var userId = GetUserIdFromClaims.GetUserId(user);
+                var existing = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+                if (existing.Any(b => b.BrandName.Trim().ToLower() == dto.BrandName.Trim().ToLower()))
                 {
-                    BrandId = nextId,
+                    return new ApiResponse(false, "Tên thương hiệu đã tồn tại.");
+                }
+
+                var brandId = await GenerateUniqueBrandIdAsync(cancellationToken);
+
+                var brand = new Brand
+                {
+                    BrandId = brandId,
                     BrandName = dto.BrandName,
-                    Logo = dto.Logo,
                     Description = dto.Description,
-                    CreatedBy = Guid.NewGuid(), 
-                    UpdatedBy = Guid.NewGuid(), 
+                    Logo = dto.Logo,
+                    CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                var result = await _brandRepository.AddBrandAsync(newBrand, cancellationToken);
+                var result = await _brandRepository.AddBrandAsync(brand, cancellationToken);
 
-                return _mapper.Map<BrandDTO>(result); 
+                if (result == null)
+                {
+                    return new ApiResponse(false, "Thêm thương hiệu thất bại.");
+                }
+
+                return new ApiResponse(true, "Thêm thương hiệu thành công.", new
+                {
+                    brandId = result.BrandId,
+                    brandName = result.BrandName,
+                    logo = result.Logo,
+                    description = result.Description
+                });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[CreateAsync] Lỗi: {ex.Message}");
-                Console.WriteLine($"[CreateAsync] Stack Trace: {ex.StackTrace}");
-                throw new Exception($"Thêm thương hiệu thất bại: {ex.Message}");
+                Console.WriteLine($"[BrandService][Add] Error: {ex.Message}");
+                return new ApiResponse(false, "Lỗi hệ thống khi thêm thương hiệu.");
             }
         }
 
@@ -73,20 +88,11 @@ namespace Application.Services
                 var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
                 if (brand == null)
                 {
-                    results.Add(new BrandDeleteResult
-                    {
-                        BrandId = id,
-                        IsDeleted = false,
-                        Message = "Thương hiệu không tồn tại."
-                    });
+                    results.Add(new BrandDeleteResult { BrandId = id, IsDeleted = false, Message = "Thương hiệu không tồn tại." });
                     continue;
                 }
-
-                //// Xoá liên kết BrandId trong Product
-                //await _productRepository.RemoveBrandFromProducts(id, cancellationToken);
             }
 
-            // Sau khi đã xoá BrandId khỏi Product, xoá brand
             var deletedIds = await _brandRepository.DeleteBrandsAsync(brandIds, cancellationToken);
 
             foreach (var id in brandIds)
@@ -102,43 +108,81 @@ namespace Application.Services
             return results;
         }
 
+        public async Task<int> GenerateUniqueBrandIdAsync(CancellationToken cancellationToken)
+        {
+            var existingIds = (await _brandRepository.GetAllBrandsAsync(cancellationToken))
+                            .Select(b => b.BrandId)
+                            .ToHashSet();
+
+            int newId;
+            var random = new Random();
+
+            do
+            {
+                newId = random.Next(100, 999);
+            } while (existingIds.Contains(newId));
+
+            return newId;
+        }
+
         public async Task<IEnumerable<BrandDTO>> GetAllAsync(CancellationToken cancellationToken)
         {
-            try
-            {
-                var brands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
-                return brands.Select(_mapper.Map<BrandDTO>);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandService][GetAll] Error: {ex.Message}");
-                return Enumerable.Empty<BrandDTO>();
-            }
+            var brands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+            return brands.Select(_mapper.Map<BrandDTO>);
         }
-        public async Task<PagedResult<BrandDTO>> GetAllPagedAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+
+        public async Task<BrandDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            var query = (await _brandRepository.GetAllBrandsAsync(cancellationToken)).AsQueryable();
+            var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
+            return brand == null ? null : _mapper.Map<BrandDTO>(brand);
+        }
 
-            var keyword = filters.Keyword?.Trim();
+        public async Task<PagedResult<BrandDTO>> GetPagingAsync(BrandFilterDto filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            var allBrands = await _brandRepository.GetAllBrandsAsync(cancellationToken);
+            var query = allBrands.AsQueryable();
 
-            if (!string.IsNullOrEmpty(keyword))
+            if (!string.IsNullOrWhiteSpace(filters.Keyword))
             {
+                var keyword = filters.Keyword.Trim();
                 query = query.Where(b => EF.Functions.Like(b.BrandName, $"%{keyword}%"));
             }
 
-            int totalItems = query.Count();
+            var totalItems = query.Count();
 
-            var brands = query.OrderBy(b => b.BrandName)
-                              .Skip((pageNumber - 1) * pageSize)
-                              .Take(pageSize)
-                              .ToList();
+            var pagedBrands = query
+                .OrderBy(b => b.BrandName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            var brandDtos = brands.Select(b => new BrandDTO
+            // Lấy danh sách ID người tạo/cập nhật
+            var userIds = pagedBrands
+                .Select(b => b.CreatedBy)
+                .Union(pagedBrands.Select(b => b.UpdatedBy))
+                .Where(id => id != null)
+                .Select(id => id)
+                .Distinct()
+                .ToList();
+
+            var users = await _userRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+
+            var brandDtos = pagedBrands.Select(b =>
             {
-                BrandId = b.BrandId,
-                BrandName = b.BrandName,
-                Logo = b.Logo,
-                Description = b.Description
+                var creator = users.FirstOrDefault(u => u.UserId == b.CreatedBy);
+                var updater = users.FirstOrDefault(u => u.UserId == b.UpdatedBy);
+
+                return new BrandDTO
+                {
+                    BrandId = b.BrandId,
+                    BrandName = b.BrandName,
+                    Logo = b.Logo,
+                    Description = b.Description,
+                    CreatedAt = b.CreatedAt,
+                    UpdatedAt = b.UpdatedAt,
+                    CreatorName = creator?.FullName,
+                    UpdaterName = updater?.FullName
+                };
             }).ToList();
 
             return new PagedResult<BrandDTO>
@@ -151,40 +195,53 @@ namespace Application.Services
             };
         }
 
-        public async Task<BrandDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var brand = await _brandRepository.GetBrandByIdAsync(id, cancellationToken);
-                return brand == null ? null : _mapper.Map<BrandDTO>(brand);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[BrandService][GetById] Error: {ex.Message}");
-                return null;
-            }
-        }
-
-        
-
         public async Task<bool> UpdateAsync(UpdateBrandDTO dto, CancellationToken cancellationToken)
         {
             try
             {
                 var existing = await _brandRepository.GetBrandByIdAsync(dto.BrandId, cancellationToken);
                 if (existing == null)
-                {
-                    Console.WriteLine($"[BrandService][Update] Brand ID {dto.BrandId} not found.");
                     return false;
-                }
 
                 _mapper.Map(dto, existing);
+                existing.UpdatedAt = DateTime.UtcNow;
+
                 return await _brandRepository.UpdateBrandAsync(existing, cancellationToken);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[BrandService][Update] Error: {ex.Message}");
-                throw new Exception("Cập nhật thương hiệu thất bại.");
+                return false;
+            }
+        }
+
+        public async Task<string> UploadBrandImageAsync(IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("File không hợp lệ");
+
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("brands");
+
+                // Tạo container nếu chưa có
+                await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+
+                // Tạo tên file ngẫu nhiên để tránh trùng
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var blobClient = container.GetBlobClient(fileName);
+
+                using (var stream = file.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, overwrite: true, cancellationToken);
+                }
+
+                return blobClient.Uri.ToString(); // Trả về URL ảnh
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UploadBrandImageAsync] Error: {ex.Message}");
+                throw;
             }
         }
     }

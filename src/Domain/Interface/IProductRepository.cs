@@ -25,5 +25,6 @@ namespace Domain.Interface
         /// <summary> Store 
         /// 
         Task<Product> GetProductByCodeAsync(string productCode, CancellationToken cancellationToken);
+        
     }
 }
