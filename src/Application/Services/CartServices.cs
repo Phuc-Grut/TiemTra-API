@@ -40,11 +40,6 @@ namespace Application.Services
                 return new ApiResponse(false, "Số lượng sản phẩm phải lớn hơn 0");
             }
 
-            if (product.Stock < quantity)
-            {
-                return new ApiResponse(false, "Số lượng sản phẩm không đủ");
-            }
-
             if (product.HasVariations == true)
             {
                 if (productVariationId == Guid.Empty)
@@ -59,10 +54,6 @@ namespace Application.Services
                     return new ApiResponse(false, "Vui lòng chọn loại sản phẩm");
                 }
 
-                if (variation.Stock < quantity)
-                {
-                    return new ApiResponse(false, "Số lượng sản phẩm không đủ");
-                }
 
                 var existingItem = cart.CartItem.FirstOrDefault(ci => ci.ProductId == productId && ci.ProductVariationId == productVariationId);
 
@@ -90,9 +81,6 @@ namespace Application.Services
 
             else
             {
-                if (product.Stock.HasValue && product.Stock.Value < quantity)
-                    return new ApiResponse(false, "Sản phẩm trong kho không đủ.");
-
                 var existingItem = cart.CartItem
                     .FirstOrDefault(ci => ci.ProductId == productId && ci.ProductVariationId == null);
 
@@ -149,75 +137,73 @@ namespace Application.Services
 
         }
 
-        public async Task<ApiResponse> RemoveCartItemFromCartAsync(Guid userId, Guid productId, Guid? productVariationId, CancellationToken cancellationToken)
+        public async Task<int> GetTotalQuantityAsync(Guid userId, CancellationToken cancellationToken)
         {
             var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
+            if (cart == null || cart.CartItem == null)
+                return 0;
 
+            return cart.CartItem.Sum(item => item.Quantity);
+        }
+
+        public async Task<ApiResponse> RemoveCartItemFromCartAsync(Guid userId, Guid cartItemId, CancellationToken cancellationToken)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
             if (cart == null)
-            {
                 return new ApiResponse(false, "Không tìm thấy giỏ hàng");
-            }
 
-            var itemToRemove = cart.CartItem.FirstOrDefault(ci =>
-                ci.ProductId == productId &&
-                ci.ProductVariationId == (productVariationId.HasValue ? productVariationId : null));
-
+            var itemToRemove = cart.CartItem.FirstOrDefault(ci => ci.CartItemId == cartItemId);
             if (itemToRemove == null)
-            {
                 return new ApiResponse(false, "Không tìm thấy sản phẩm trong giỏ hàng");
-            }
 
             await _cartRepository.RemoveCartItemAsync(itemToRemove, cancellationToken);
 
-            cart.TotalItems = cart.CartItem.Where(i => i.CartItemId != itemToRemove.CartItemId).Sum(i => i.Quantity);
-            cart.TotalPrice = cart.CartItem.Where(i => i.CartItemId != itemToRemove.CartItemId).Sum(i => i.Price * i.Quantity);
+            cart.TotalItems = cart.CartItem.Where(i => i.CartItemId != cartItemId).Sum(i => i.Quantity);
+            cart.TotalPrice = cart.CartItem.Where(i => i.CartItemId != cartItemId).Sum(i => i.Quantity * i.Price);
 
             await _cartRepository.UpdateCartAsync(cart, cancellationToken);
 
-            return new ApiResponse(true, "Đã xóa sản phẩm khỏi giỏ hàng");
+            return new ApiResponse(true, "Xóa sản phẩm thành công");
         }
 
         public async Task<ApiResponse> UpdateCartItemQuantityAsync(Guid userId, Guid productId, Guid? productVariationId, int newQuantity, CancellationToken cancellationToken)
         {
             if (newQuantity <= 0)
-            {
                 return new ApiResponse(false, "Số lượng phải lớn hơn 0");
-            }
 
             var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
             if (cart == null)
-            {
                 return new ApiResponse(false, "Không tìm thấy giỏ hàng");
-            }
 
             var itemToUpdate = cart.CartItem.FirstOrDefault(ci =>
                 ci.ProductId == productId &&
-                ci.ProductVariationId == (productVariationId.HasValue ? productVariationId : null));
+                (
+                    (productVariationId == Guid.Empty && (ci.ProductVariationId == null || ci.ProductVariationId == Guid.Empty)) ||
+                    (ci.ProductVariationId == productVariationId)
+                )
+            );
+
 
             if (itemToUpdate == null)
-            {
                 return new ApiResponse(false, "Không tìm thấy sản phẩm trong giỏ hàng");
-            }
 
-            if (productVariationId.HasValue && productVariationId != Guid.Empty)
+            var product = await _productRepository.GetProductByIdAsync(productId, cancellationToken);
+            if (product == null)
+                return new ApiResponse(false, "Sản phẩm không tồn tại");
+
+            if (product.HasVariations == true)
             {
+                if (productVariationId == null || productVariationId == Guid.Empty)
+                    return new ApiResponse(false, "Vui lòng chọn biến thể sản phẩm");
+
                 var variation = await _productVariationRepo.GetByIdAsync(productVariationId.Value, cancellationToken);
-                if (variation == null || variation.Stock < newQuantity)
-                {
-                    return new ApiResponse(false, "Số lượng biến thể sản phẩm không đủ trong kho");
-                }
+               
 
                 itemToUpdate.Quantity = newQuantity;
                 itemToUpdate.Price = variation.Price;
             }
             else
             {
-                var product = await _productRepository.GetProductByIdAsync(productId, cancellationToken);
-                if (product == null || product.Stock < newQuantity)
-                {
-                    return new ApiResponse(false, "Sản phẩm không đủ trong kho");
-                }
-
                 itemToUpdate.Quantity = newQuantity;
                 itemToUpdate.Price = product.Price ?? 0;
             }
@@ -232,5 +218,6 @@ namespace Application.Services
 
             return new ApiResponse(true, "Cập nhật số lượng sản phẩm thành công");
         }
+
     }
 }
