@@ -37,5 +37,24 @@ namespace Infrastructure.Repositories
                         .ThenInclude(p => p.ProductVariations)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
         }
+
+        public async Task UpdateCartItemAsync(Cart cart, CartItem updatedItem, CancellationToken cancellationToken)
+        {
+            _context.CartItems.Update(updatedItem);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+
+        public async Task UpdateCartAsync(Cart cart, CancellationToken cancellationToken)
+        {
+            _context.Cart.Update(cart);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public Task RemoveCartItemAsync(CartItem cartItem, CancellationToken cancellationToken)
+        {
+            _context.CartItems.Remove(cartItem);
+            return _context.SaveChangesAsync(cancellationToken);
+        }
     }
 }

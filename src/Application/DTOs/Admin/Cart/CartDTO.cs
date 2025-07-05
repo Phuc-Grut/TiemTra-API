@@ -9,7 +9,8 @@ namespace Application.DTOs.Admin.Cart
     public class CartDTO
     {
         public List<CartItemDTO> Items { get; set; } = new();
-        public int TotalQuantity => Items.Sum(x => x.Quantity);
-        public decimal TotalPrice => Items.Sum(x => x.Price);
+        public int TotalQuantity { get; set; }
+        public decimal TotalPrice { get; set; }
+
     }
 }

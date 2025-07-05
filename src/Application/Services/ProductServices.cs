@@ -413,6 +413,7 @@ namespace Application.Services.Admin
 
             var productDto = new StoreProducts
             {
+                ProductId = product.ProductId,
                 ProductCode = product?.ProductCode,
                 PrivewImageUrl = product?.PrivewImage,
                 ProductName = product?.ProductName,

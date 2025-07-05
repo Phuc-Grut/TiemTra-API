@@ -65,5 +65,51 @@ namespace TiemTra_Api.Controllers.StoreAPI
 
             return Ok(cart);
         }
+
+        [HttpDelete("remove-cart-item")]
+        public async Task<IActionResult> RemoveCartItem([FromQuery] Guid productId, [FromQuery] Guid? productVariationId, CancellationToken cancellationToken = default)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized("Không xác định được người dùng");
+            }
+
+            var result = await _cartServices.RemoveCartItemFromCartAsync(userId, productId, productVariationId, cancellationToken);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result);
+        }
+
+
+        [HttpPut("update-cart-item-quantity")]
+        public async Task<IActionResult> UpdateCartItemQuantity([FromBody] AddProductToCartRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null || request.ProductId == Guid.Empty || request.Quantity <= 0)
+            {
+                return BadRequest("Dữ liệu không hợp lệ");
+            }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized("Không xác định được người dùng");
+            }
+
+            var result = await _cartServices.UpdateCartItemQuantityAsync(userId, request.ProductId, request.ProductVariationId, request.Quantity, cancellationToken);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result);
+        }
+
+
     }
 }

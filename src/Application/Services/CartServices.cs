@@ -49,14 +49,14 @@ namespace Application.Services
             {
                 if (productVariationId == Guid.Empty)
                 {
-                    return new ApiResponse(false, "Vui lòng chọn biến thể sản phẩm");
+                    return new ApiResponse(false, "Vui lòng chọn loại sản phẩm");
                 }
 
                 var variation = await _productVariationRepo.GetByIdAsync(productVariationId, cancellationToken);
 
                 if (variation == null)
                 {
-                    return new ApiResponse(false, "Vui lòng chọn biến thể sản phẩm");
+                    return new ApiResponse(false, "Vui lòng chọn loại sản phẩm");
                 }
 
                 if (variation.Stock < quantity)
@@ -117,7 +117,11 @@ namespace Application.Services
                 }
             }
 
-            return new ApiResponse(true, "Thêm sản phẩm vào giỏ hàng thành công");
+            cart.TotalItems = cart.CartItem.Sum(i => i.Quantity);
+            cart.TotalPrice = cart.CartItem.Sum(i => i.Quantity * i.Price);
+            await _cartRepository.UpdateCartAsync(cart, cancellationToken);
+
+            return new ApiResponse(true, "Đã thêm sản phẩm vào giỏ hàng");
         }
 
         public  async Task<CartDTO> GetCartByUserId(Guid userId, CancellationToken cancellationToken)
@@ -132,15 +136,101 @@ namespace Application.Services
             {
                 CartItemId = ci.CartItemId,
                 ProductId = ci.ProductId ?? Guid.Empty,
+                ProductCode = ci.Product.ProductCode,
                 ProductName = ci.Product?.ProductName ?? "",
+                ProductVariationId = ci.ProductVariations?.ProductVariationId ?? Guid.Empty,
                 ProductVariationName = ci.ProductVariations?.TypeName ?? "",
                 PreviewImage = ci.Product?.PrivewImage ?? "",
                 Price = ci.Price,
                 Quantity = ci.Quantity
             }).ToList();
 
-            return new CartDTO { Items = items };
+            return new CartDTO { Items = items, TotalPrice = cart.TotalPrice, TotalQuantity = cart.TotalItems };
 
+        }
+
+        public async Task<ApiResponse> RemoveCartItemFromCartAsync(Guid userId, Guid productId, Guid? productVariationId, CancellationToken cancellationToken)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
+
+            if (cart == null)
+            {
+                return new ApiResponse(false, "Không tìm thấy giỏ hàng");
+            }
+
+            var itemToRemove = cart.CartItem.FirstOrDefault(ci =>
+                ci.ProductId == productId &&
+                ci.ProductVariationId == (productVariationId.HasValue ? productVariationId : null));
+
+            if (itemToRemove == null)
+            {
+                return new ApiResponse(false, "Không tìm thấy sản phẩm trong giỏ hàng");
+            }
+
+            await _cartRepository.RemoveCartItemAsync(itemToRemove, cancellationToken);
+
+            cart.TotalItems = cart.CartItem.Where(i => i.CartItemId != itemToRemove.CartItemId).Sum(i => i.Quantity);
+            cart.TotalPrice = cart.CartItem.Where(i => i.CartItemId != itemToRemove.CartItemId).Sum(i => i.Price * i.Quantity);
+
+            await _cartRepository.UpdateCartAsync(cart, cancellationToken);
+
+            return new ApiResponse(true, "Đã xóa sản phẩm khỏi giỏ hàng");
+        }
+
+        public async Task<ApiResponse> UpdateCartItemQuantityAsync(Guid userId, Guid productId, Guid? productVariationId, int newQuantity, CancellationToken cancellationToken)
+        {
+            if (newQuantity <= 0)
+            {
+                return new ApiResponse(false, "Số lượng phải lớn hơn 0");
+            }
+
+            var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
+            if (cart == null)
+            {
+                return new ApiResponse(false, "Không tìm thấy giỏ hàng");
+            }
+
+            var itemToUpdate = cart.CartItem.FirstOrDefault(ci =>
+                ci.ProductId == productId &&
+                ci.ProductVariationId == (productVariationId.HasValue ? productVariationId : null));
+
+            if (itemToUpdate == null)
+            {
+                return new ApiResponse(false, "Không tìm thấy sản phẩm trong giỏ hàng");
+            }
+
+            if (productVariationId.HasValue && productVariationId != Guid.Empty)
+            {
+                var variation = await _productVariationRepo.GetByIdAsync(productVariationId.Value, cancellationToken);
+                if (variation == null || variation.Stock < newQuantity)
+                {
+                    return new ApiResponse(false, "Số lượng biến thể sản phẩm không đủ trong kho");
+                }
+
+                itemToUpdate.Quantity = newQuantity;
+                itemToUpdate.Price = variation.Price;
+            }
+            else
+            {
+                var product = await _productRepository.GetProductByIdAsync(productId, cancellationToken);
+                if (product == null || product.Stock < newQuantity)
+                {
+                    return new ApiResponse(false, "Sản phẩm không đủ trong kho");
+                }
+
+                itemToUpdate.Quantity = newQuantity;
+                itemToUpdate.Price = product.Price ?? 0;
+            }
+
+            itemToUpdate.UpdatedAt = DateTime.UtcNow;
+
+            cart.TotalItems = cart.CartItem.Sum(i => i.Quantity);
+            cart.TotalPrice = cart.CartItem.Sum(i => i.Quantity * i.Price);
+
+            await _cartRepository.UpdateCartItemAsync(cart, itemToUpdate, cancellationToken);
+            await _cartRepository.UpdateCartAsync(cart, cancellationToken);
+
+            return new ApiResponse(true, "Cập nhật số lượng sản phẩm thành công");
         }
     }
 }
