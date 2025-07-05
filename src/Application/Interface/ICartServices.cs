@@ -14,6 +14,8 @@ namespace Application.Interface
         Task<CartDTO> GetCartByUserId(Guid userId, CancellationToken cancellationToken);
         Task<ApiResponse> UpdateCartItemQuantityAsync(Guid userId, Guid productId, Guid? productVariationId, int newQuantity, CancellationToken cancellationToken);
 
-        Task<ApiResponse> RemoveCartItemFromCartAsync(Guid userId, Guid productId, Guid? productVariationId, CancellationToken cancellationToken);
+        Task<ApiResponse> RemoveCartItemFromCartAsync(Guid userId, Guid cartItemId, CancellationToken cancellationToken);
+
+        Task<int> GetTotalQuantityAsync(Guid userId, CancellationToken cancellationToken);
     }
 }

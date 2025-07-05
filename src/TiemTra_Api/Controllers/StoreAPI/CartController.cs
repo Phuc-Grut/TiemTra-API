@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Admin.Cart;
 using Application.Interface;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +68,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
         }
 
         [HttpDelete("remove-cart-item")]
-        public async Task<IActionResult> RemoveCartItem([FromQuery] Guid productId, [FromQuery] Guid? productVariationId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RemoveCartItem([FromQuery] Guid cartItemId, CancellationToken cancellationToken = default)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
@@ -75,7 +76,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
                 return Unauthorized("Không xác định được người dùng");
             }
 
-            var result = await _cartServices.RemoveCartItemFromCartAsync(userId, productId, productVariationId, cancellationToken);
+            var result = await _cartServices.RemoveCartItemFromCartAsync(userId, cartItemId, cancellationToken);
 
             if (!result.Success)
             {
@@ -84,7 +85,6 @@ namespace TiemTra_Api.Controllers.StoreAPI
 
             return Ok(result);
         }
-
 
         [HttpPut("update-cart-item-quantity")]
         public async Task<IActionResult> UpdateCartItemQuantity([FromBody] AddProductToCartRequest request, CancellationToken cancellationToken = default)
@@ -110,6 +110,18 @@ namespace TiemTra_Api.Controllers.StoreAPI
             return Ok(result);
         }
 
+        [HttpGet("get-total-quantity")]
+        public async Task<IActionResult> GetTotalQuantity(CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized("Không xác định được người dùng.");
 
+            if (!Guid.TryParse(userIdClaim.Value, out var userId))
+                return BadRequest("UserId không hợp lệ.");
+
+            var totalQuantity = await _cartServices.GetTotalQuantityAsync(userId, cancellationToken);
+            return Ok(totalQuantity);
+        }
     }
 }
