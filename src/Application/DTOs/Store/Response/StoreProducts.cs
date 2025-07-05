@@ -10,6 +10,7 @@ namespace Application.DTOs.Store.Response
 {
     public class StoreProducts
     {
+        public Guid ProductId { get; set; }
         public string? ProductCode { get; set; }
         public string? ProductName { get; set; }
         public string? PrivewImageUrl { get; set; }

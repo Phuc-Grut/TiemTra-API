@@ -16,12 +16,9 @@ namespace Domain.Data.Entities
 
         public virtual ICollection<CartItem> CartItem { get; set; } = new List<CartItem>();
 
-        public int TotalItems => CartItem?.Sum(item => item.Quantity) ?? 0;
+        public int TotalItems { get; set; }
 
-        public decimal TotalPrice => CartItem?.Sum(item => item.Price * item.Quantity) ?? 0;
-
-
-        public Product? Product { get; set; }
+        public decimal TotalPrice { get; set; }
 
     }
 }

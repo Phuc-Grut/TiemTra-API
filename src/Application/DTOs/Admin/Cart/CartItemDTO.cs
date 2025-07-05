@@ -11,6 +11,8 @@ namespace Application.DTOs.Admin.Cart
     {
         public Guid CartItemId { get; set; }
         public Guid ProductId { get; set; }
+        public Guid ProductVariationId { get; set; }
+        public string ProductCode { get; set; }
         public string? ProductName { get; set; }
         public string? ProductVariationName { get; set; }
         public string? PreviewImage { get; set; }
