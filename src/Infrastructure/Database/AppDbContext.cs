@@ -19,6 +19,9 @@ namespace Infrastructure.Database
         public DbSet<CategoryAttributes> CategoryAttributes { get; set; }
         public DbSet<Cart> Cart { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Customer> Customer { get; set; }
 
         public AppDbContext()
         { }
