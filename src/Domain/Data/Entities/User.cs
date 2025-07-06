@@ -22,5 +22,6 @@ namespace Domain.Data.Entities
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
         public Cart? Cart { get; set; }
+        public Customer? Customer { get; set; }
     }
 }
