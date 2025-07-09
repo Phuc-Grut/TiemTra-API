@@ -371,12 +371,14 @@ namespace Application.Services.Admin
 
                 return new StoreProducts
                 {
+                    ProductId = p.ProductId,
                     ProductCode = p.ProductCode,
                     PrivewImageUrl = p.PrivewImage,
                     ProductName = p.ProductName,
                     Description = p.Description,
                     Price = p.Price,
                     Stock = p.Stock,
+                    HasVariations = p.HasVariations,
 
                     ProductImageUrls = p.ProductImages != null
                         ? p.ProductImages.Select(pi => pi.ImageUrl).ToList()
@@ -385,6 +387,7 @@ namespace Application.Services.Admin
                     ProductVariations = p.ProductVariations != null
                         ? p.ProductVariations.Select(v => new ProductVariationDto
                         {
+                            ProductVariationId = v.ProductVariationId,
                             TypeName = v.TypeName,
                             Price = v.Price,
                         }).ToList()

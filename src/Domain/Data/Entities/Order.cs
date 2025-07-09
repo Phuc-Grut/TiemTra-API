@@ -12,12 +12,16 @@ namespace Domain.Data.Entities
     {
         public Guid OrderId { get; set; }
         public string OrderCode { get; set; }
-        public Guid CustomerId { get; set; }
+        public string RecipientName { get; set; }
+        public string DeliveryAddress { get; set; }
+        public string ReceiverPhone { get; set; }
+        public Guid? CustomerId { get; set; }
         public int TotalOrderItems { get; set; }
         public decimal TotalAmount { get; set; }
+
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
         public PaymentMethod PaymentMethod { get; set; }
-        public PaymentStatus PaymentStatus { get; set; } 
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
         public string? Note { get; set; }
 
         // Navigation property

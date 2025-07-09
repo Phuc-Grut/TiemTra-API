@@ -9,5 +9,7 @@ namespace Domain.Interface
         Task<bool> UpdateUser(User user, CancellationToken cancellationToken);
 
         Task<User> GetUserByRefreshToken(string refreshToken);
+
+        Task<User> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
     }
 }

@@ -14,9 +14,16 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<User> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        }
+
         public async Task<User> GetUserByRefreshToken(string refreshToken)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
         }
 
         public async Task<List<User>> GetUsersByIdsAsync(List<Guid> userIds, CancellationToken cancellationToken)
