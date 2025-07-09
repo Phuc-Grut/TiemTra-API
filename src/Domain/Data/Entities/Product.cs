@@ -13,7 +13,7 @@ namespace Domain.Data.Entities
         public decimal? Price { get; set; }
         public int? Stock { get; set; }
         public string? Origin { get; set; }
-        public bool? HasVariations { get; set; }
+        public bool HasVariations { get; set; }
         public int? CategoryId { get; set; }
         public int? BrandId { get; set; }
         public int? TotalSold { get; set; } = 0;
