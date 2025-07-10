@@ -1,7 +1,5 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
-using Application.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -21,16 +19,20 @@ namespace TiemTra_Api.Controllers.StoreAPI
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, CancellationToken cancellationToken)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            Guid? userId = null;
 
-            var userId = Guid.Parse(userIdClaim.Value);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedId))
+            {
+                userId = parsedId;
+            }
 
             var result = await _orderServices.CreateOrderAsync(request, userId, cancellationToken);
 
             if (result.Success)
                 return Ok(result);
-            else
-                return BadRequest(result);
+
+            return BadRequest(result);
         }
     }
 }
