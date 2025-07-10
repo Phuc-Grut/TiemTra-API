@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Order;
+﻿using Application.DTOs;
+using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
 using Domain.Enum;
@@ -130,6 +131,10 @@ namespace Application.Services
             await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
             return new ApiResponse(true, "Đặt đơn hàng thành công");
         }
-        
+
+        public Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
