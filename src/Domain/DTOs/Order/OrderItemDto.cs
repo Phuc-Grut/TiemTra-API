@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Order
+namespace Domain.DTOs.Order
 {
-    public class OrderDto
+    public class OrderItemDto
     {
+
     }
 }

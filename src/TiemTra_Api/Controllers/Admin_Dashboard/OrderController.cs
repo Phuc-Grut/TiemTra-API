@@ -1,4 +1,6 @@
-﻿using Application.Interface;
+﻿using Application.DTOs.Order;
+using Application.Interface;
+using Domain.DTOs.Order;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,8 +17,12 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             _orderServices = orderServices;
         }
 
-        //[HttpGet("get-paging-order")]
+        [HttpGet("get-paging-orders")]
 
-        //public
+        public async Task<IActionResult> GetPagingOrder([FromQuery] OrderFillterDto fillterDto , [FromQuery]  int pageNumber = 1, [FromQuery] int pageSize = 5, CancellationToken cancellationToken = default)
+        {
+            var result = await _orderServices.GetPagingOrder(fillterDto, pageNumber, pageSize, cancellationToken);
+            return Ok(result);
+        }
     }
 }

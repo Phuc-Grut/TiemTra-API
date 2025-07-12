@@ -15,9 +15,10 @@ namespace Application.Services
         private readonly ICustomerRepository _customerRepository;
         private readonly IUserRepository _userRepository;
 
-        public CustomerServices(ICustomerRepository customerRepository)
+        public CustomerServices(ICustomerRepository customerRepository, IUserRepository userRepository)
         {
             _customerRepository = customerRepository;
+            _userRepository = userRepository;
         }
 
         private async Task<string> GenerateUniqueCustomerCodeAsync()
@@ -37,49 +38,41 @@ namespace Application.Services
 
         public async Task<Guid> GetOrCreateCustomerAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.RecipientPhone))
+                throw new ArgumentException("Vui lòng nhập số điện thoại nhận hàng");
+
+            var existingCustomer = await _customerRepository.FindByPhoneNumberAsync(request.RecipientPhone, cancellationToken);
+            if (existingCustomer != null)
+                return existingCustomer.CustomerId;
+
             if (userId.HasValue)
             {
-                var customer = await _customerRepository.FindByCustomerIdAsync(userId.Value, cancellationToken);
-                if (customer != null)
-                {
-                    return customer.CustomerId;
-                }
-                else
-                {
-                    var user = await _userRepository.GetUserByIdAsync(userId.Value, cancellationToken);
-
-                    var newCustomer = new Customer
-                    {
-                        CustomerId = userId.Value,
-                        CustomerCode = await GenerateUniqueCustomerCodeAsync(),
-                        CustomerName = user.FullName,
-                        PhoneNumber = user.PhoneNumber,
-                        Address = user.Address,
-                        UserId = userId.Value,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = userId.Value
-                    };
-                    await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
-                    return newCustomer.CustomerId;
-                }
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(request.RecipientPhone)) 
-                    throw new ArgumentException("Vui lòng nhập số điện thoại nhận hàng");
-
-                var existingCustomer = await _customerRepository.FindByPhoneNumberAsync(request.RecipientPhone, cancellationToken);
-
-                if(existingCustomer != null)
-                    return existingCustomer.CustomerId;
+                var user = await _userRepository.GetUserByIdAsync(userId.Value, cancellationToken);
 
                 var newCustomer = new Customer
                 {
                     CustomerId = Guid.NewGuid(),
                     CustomerCode = await GenerateUniqueCustomerCodeAsync(),
-                    CustomerName = request.RecipientName,
+                    CustomerName = user?.FullName ?? request.RecipientName ?? "Chưa cập nhật",
+                    PhoneNumber = user?.PhoneNumber ?? request.RecipientPhone,
+                    Address = user?.Address ?? request.RecipientAddress ?? "Chưa cập nhật",
+                    UserId = userId.Value,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = userId.Value
+                };
+
+                await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
+                return newCustomer.CustomerId;
+            }
+            else
+            {
+                var newCustomer = new Customer
+                {
+                    CustomerId = Guid.NewGuid(),
+                    CustomerCode = await GenerateUniqueCustomerCodeAsync(),
+                    CustomerName = request.RecipientName ?? "Chưa cập nhật",
                     PhoneNumber = request.RecipientPhone,
-                    Address = request.RecipientAddress,
+                    Address = request.RecipientAddress ?? "Chưa cập nhật",
                     CreatedAt = DateTime.UtcNow
                 };
 
