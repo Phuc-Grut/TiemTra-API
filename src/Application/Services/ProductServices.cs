@@ -5,6 +5,7 @@ using Application.Interface;
 using Azure.Storage.Blobs;
 using Domain.Data.Entities;
 using Domain.DTOs.Product;
+using Domain.Enum;
 using Domain.Interface;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
@@ -352,7 +353,7 @@ namespace Application.Services.Admin
                 SortBy = filters.SortBy,
                 CategoryId = filters.CategoryId,
                 BrandId = filters.BrandId,
-                Status = filters.Status
+                Status = ProductStatus.Active
             };
 
             var query = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);

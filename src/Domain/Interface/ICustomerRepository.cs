@@ -12,6 +12,7 @@ namespace Application.Interface
         Task<Customer> FindByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken);
 
         Task<Customer> FindByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken);
+        Task<Customer?> FindByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 
         Task CreateCustomerAsync(Customer customer, CancellationToken cancellationToken);
 

@@ -10,7 +10,7 @@ namespace Domain.Enum
     {
         Draft = 0, // nháp
         Active = 1, // đang bán
-        Inactive = 2, // ẩn
+        Inactive = 2, // ngừng bán
         OutOfStock = 3, // hết hàng
     }
 }
