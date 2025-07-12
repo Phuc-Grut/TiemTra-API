@@ -40,6 +40,11 @@ namespace Infrastructure.Repositories
             return await _dbContext.Customer.AsNoTracking().FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber, cancellationToken);
         }
 
-
+        public async Task<Customer?> FindByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Customer
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.UserId == userId, cancellationToken);
+        }
     }
 }

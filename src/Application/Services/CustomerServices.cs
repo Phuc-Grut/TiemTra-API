@@ -47,15 +47,20 @@ namespace Application.Services
 
             if (userId.HasValue)
             {
+                var existingCustomerByUser = await _customerRepository.FindByUserIdAsync(userId.Value, cancellationToken);
+
+                if (existingCustomerByUser != null)
+                    return existingCustomerByUser.CustomerId;
+
                 var user = await _userRepository.GetUserByIdAsync(userId.Value, cancellationToken);
 
                 var newCustomer = new Customer
                 {
                     CustomerId = Guid.NewGuid(),
                     CustomerCode = await GenerateUniqueCustomerCodeAsync(),
-                    CustomerName = user?.FullName ?? request.RecipientName ?? "Chưa cập nhật",
-                    PhoneNumber = user?.PhoneNumber ?? request.RecipientPhone,
-                    Address = user?.Address ?? request.RecipientAddress ?? "Chưa cập nhật",
+                    CustomerName = request.RecipientName ?? user?.FullName ?? "Chưa cập nhật",
+                    PhoneNumber = request.RecipientPhone,
+                    Address = request.RecipientAddress ?? user?.Address ?? "Chưa cập nhật",
                     UserId = userId.Value,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId.Value
@@ -64,6 +69,7 @@ namespace Application.Services
                 await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
                 return newCustomer.CustomerId;
             }
+
             else
             {
                 var newCustomer = new Customer
