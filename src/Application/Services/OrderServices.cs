@@ -1,8 +1,9 @@
-﻿using Application.DTOs;
+﻿
 using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
-using Domain.Enum;
+using Domain.DTOs;
+using Domain.DTOs.Order;
 using Domain.Interface;
 using Shared.Common;
 using System;
@@ -32,7 +33,7 @@ namespace Application.Services
             _customerService = customerService;
         }
 
-        private async Task<string> GenerateUniqueOrderCodeAsync()
+        public async Task<string> GenerateUniqueOrderCodeAsync()
         {
             var random = new Random();
             string orderCode;
@@ -76,7 +77,8 @@ namespace Application.Services
                 ProductId = itemDto.ProductId,
                 ProductVariationId = itemDto.ProductVariationId,
                 Quantity = itemDto.Quantity,
-                Price = price
+                UnitPrice = price,
+                TotalPrice = price * itemDto.Quantity
             };
         }
 
@@ -86,7 +88,7 @@ namespace Application.Services
             if (request.OrderItems == null || !request.OrderItems.Any())
                 return new ApiResponse(false, "Vui lòng chọn sản phẩm");
 
-            var orderCode = await GenerateUniqueOrderCodeAsync();
+            //var orderCode = await GenerateUniqueOrderCodeAsync();
 
             Guid customerId;
 
@@ -102,7 +104,7 @@ namespace Application.Services
             var newOrder = new Order
             {
                 OrderId = Guid.NewGuid(),
-                OrderCode = orderCode,
+                OrderCode = request.OrderCode,
                 RecipientName = request.RecipientName,
                 ReceiverPhone = request.RecipientPhone,
                 DeliveryAddress = request.RecipientAddress,
@@ -123,7 +125,7 @@ namespace Application.Services
             {
                 var orderItem = await CreateOrderItemAsync(itemDto, newOrder.OrderId, cancellationToken);
                 newOrder.OrderItems.Add(orderItem);
-                totalAmount += orderItem.Price * orderItem.Quantity;
+                totalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
             }
             newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
             newOrder.TotalAmount = totalAmount;
@@ -132,9 +134,9 @@ namespace Application.Services
             return new ApiResponse(true, "Đặt đơn hàng thành công");
         }
 
-        public Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _orderRepository.GetPagedOrdersAsync(filter, pageNumber, pageSize, cancellationToken);
         }
     }
 }

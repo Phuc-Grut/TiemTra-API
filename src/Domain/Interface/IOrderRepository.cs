@@ -1,4 +1,6 @@
 ﻿using Domain.Data.Entities;
+using Domain.DTOs;
+using Domain.DTOs.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +17,7 @@ namespace Domain.Interface
 
         Task<bool> OrderCodeExistsAsync(string orderCode);
 
+
+        Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

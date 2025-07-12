@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
+using Application.Services.Admin;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -33,6 +34,13 @@ namespace TiemTra_Api.Controllers.StoreAPI
                 return Ok(result);
 
             return BadRequest(result);
+        }
+
+        [HttpGet("generate-order-code")]
+        public async Task<IActionResult> GenerateProductCode(CancellationToken cancellationToken)
+        {
+            var orderCode = await _orderServices.GenerateUniqueOrderCodeAsync();
+            return Ok(orderCode);
         }
     }
 }
