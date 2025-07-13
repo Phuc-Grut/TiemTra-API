@@ -79,10 +79,10 @@ namespace Infrastructure.Repositories
                 else if (sort == "price-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.Price) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.Price);
 
-                else if (sort == "sold-asc")
-                    query = isFirstSort ? query.OrderBy(p => p.TotalSold) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.TotalSold);
-                else if (sort == "sold-desc")
-                    query = isFirstSort ? query.OrderByDescending(p => p.TotalSold) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.TotalSold);
+                else if (sort == "totalsold-asc")
+                    query = isFirstSort ? query.OrderBy(p => p.TotalSold ?? 0) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.TotalSold ?? 0);
+                else if (sort == "totalsold-desc")
+                    query = isFirstSort ? query.OrderByDescending(p => p.TotalSold ?? 0) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.TotalSold ?? 0);
 
                 else if (sort == "stock-asc")
                     query = isFirstSort ? query.OrderBy(p => p.Stock) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.Stock);
@@ -163,5 +163,36 @@ namespace Infrastructure.Repositories
 
             return product;
         }
+
+        public async Task UpdateQuantityAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            var totalStock = await _dbContext.ProductVariations
+                .Where(v => v.ProductId == productId)
+                .SumAsync(v => v.Stock ?? 0, cancellationToken);
+
+            var product = new Product
+            {
+                ProductId = productId,
+                Stock = totalStock
+            };
+            _dbContext.Products.Attach(product);
+            _dbContext.Entry(product).Property(p => p.Stock).IsModified = true;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateSoldQuantityAsync(Guid productId, int soldQuantity, CancellationToken cancellationToken)
+        {
+            var product = new Product
+            {
+                ProductId = productId,
+                TotalSold = soldQuantity
+            };
+
+            _dbContext.Products.Attach(product);
+            _dbContext.Entry(product).Property(p => p.TotalSold).IsModified = true;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
     }
 }

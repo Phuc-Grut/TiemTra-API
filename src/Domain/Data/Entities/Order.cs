@@ -27,5 +27,6 @@ namespace Domain.Data.Entities
         // Navigation property
         public Customer? Customer { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public DateTime? ConfirmedAt { get; set;}
     }
 }

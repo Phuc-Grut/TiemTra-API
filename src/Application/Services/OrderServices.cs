@@ -4,6 +4,7 @@ using Application.Interface;
 using Domain.Data.Entities;
 using Domain.DTOs;
 using Domain.DTOs.Order;
+using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
 using System;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace Application.Services
 {
@@ -138,5 +140,64 @@ namespace Application.Services
         {
             return await _orderRepository.GetPagedOrdersAsync(filter, pageNumber, pageSize, cancellationToken);
         }
+
+        public async Task<ApiResponse> ConfirmOrderAsync(Guid orderId, Guid userId, CancellationToken cancellationToken)
+        {
+            if (orderId == Guid.Empty)
+                return new ApiResponse(false, "Đã có lỗi sảy ra");
+
+            var order = await _orderRepository.GetByIdWithItemsAsync(orderId, cancellationToken);
+            if (order == null)
+                return new ApiResponse(false, "Không tìm thấy đơn hàng");
+
+            if (order.OrderStatus != OrderStatus.Pending)
+                return new ApiResponse(false, "Đơn hàng ko ở trạng thái chờ xác nhận");
+
+            // Kiểm tra tồn kho
+            foreach (var item in order.OrderItems)
+            {
+                if (item.ProductVariationId.HasValue)
+                {
+                    var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, cancellationToken);
+                    if (variation == null || variation.Stock < item.Quantity)
+                        return new ApiResponse(false, $"Sản phẩm {variation?.Product?.ProductName} không đủ số lượng");
+                }
+                else
+                {
+                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
+                    if (product == null || product.Stock < item.Quantity)
+                        return new ApiResponse(false, $"Sản phẩm {product.ProductName} không đủ số lượng");
+                }
+            }
+
+            // Trừ tồn kho
+            foreach (var item in order.OrderItems)
+            {
+                if (item.ProductVariationId.HasValue)
+                {
+                    var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, cancellationToken);
+                    variation.Stock -= item.Quantity;
+                    variation.Product.Stock -= item.Quantity;
+                    variation.Product.TotalSold += item.Quantity;
+                }
+                else
+                {
+                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
+                    product.Stock -= item.Quantity;
+                    product.TotalSold += item.Quantity;
+                }
+            }
+
+            // Cập nhật trạng thái đơn
+            order.OrderStatus = OrderStatus.Confirmed;
+            order.ConfirmedAt = DateTime.UtcNow;
+            order.UpdatedBy = userId;
+
+            // Save toàn bộ thay đổi 1 lần
+            await _orderRepository.SaveChangesAsync(cancellationToken);
+
+            return new ApiResponse(true, "Xác nhận thành công");
+        }
+
     }
 }

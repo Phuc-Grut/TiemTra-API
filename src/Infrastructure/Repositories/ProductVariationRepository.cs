@@ -46,5 +46,27 @@ namespace Infrastructure.Repositories
                 .Include(v => v.Product)
                 .FirstOrDefaultAsync(v => v.ProductVariationId == productVariationId, cancellationToken);
         }
+
+        public async Task UpdateQuantityAsync(Guid productVariationId, int newStock, CancellationToken cancellationToken)
+        {
+            var variation = new ProductVariations
+            {
+                ProductVariationId = productVariationId,
+                Stock = newStock
+            };
+
+            _context.ProductVariations.Attach(variation);
+            _context.Entry(variation).Property(v => v.Stock).IsModified = true;
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<List<ProductVariations>> GetAllByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            return await _context.ProductVariations
+                .Where(v => v.ProductId == productId)
+                .ToListAsync(cancellationToken);
+        }
+
     }
 }

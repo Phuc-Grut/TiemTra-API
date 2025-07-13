@@ -9,6 +9,7 @@ namespace Domain.DTOs.Order
 {
     public class OrderDto
     {
+        public Guid OrderId { get; set; }
         public string OrderCode { get; set; }
         public string CustomerName { get; set; }
         public string CustomerCode { get; set; }

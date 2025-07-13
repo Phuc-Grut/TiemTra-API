@@ -34,6 +34,17 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<Order?> GetByIdWithItemsAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariations)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
+        }
+
+
         public async Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
             var query = _dbContext.Orders.Include(o => o.Customer).AsQueryable();
@@ -72,6 +83,7 @@ namespace Infrastructure.Repositories
                 .Take(pageSize)
                 .Select(o => new OrderDto
                 {
+                    OrderId = o.OrderId,
                     OrderCode = o.OrderCode,
                     CustomerName = o.Customer.CustomerName,
                     CustomerCode = o.Customer.CustomerCode,
@@ -105,6 +117,17 @@ namespace Infrastructure.Repositories
             return await _dbContext.Orders
                 .AsNoTracking()
                 .AnyAsync(o => o.OrderCode == orderCode);
+        }
+
+        public async Task UpdateAsync(Order order, CancellationToken cancellationToken)
+        {
+            _dbContext.Orders.Update(order);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            return await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
