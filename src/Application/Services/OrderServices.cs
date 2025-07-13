@@ -188,6 +188,11 @@ namespace Application.Services
                 }
             }
 
+            if(order.PaymentMethod == PaymentMethod.BankTransfer)
+            {
+                order.PaymentStatus = PaymentStatus.Paid;
+            }
+
             // Cập nhật trạng thái đơn
             order.OrderStatus = OrderStatus.Confirmed;
             order.ConfirmedAt = DateTime.UtcNow;
