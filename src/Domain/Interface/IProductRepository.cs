@@ -19,6 +19,8 @@ namespace Domain.Interface
         IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken);
         Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken);
+        Task UpdateQuantityAsync(Guid productId, CancellationToken cancellationToken);
+        Task UpdateSoldQuantityAsync(Guid productId, int soldQuantity, CancellationToken cancellationToken);
 
 
 

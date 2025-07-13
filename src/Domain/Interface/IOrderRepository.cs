@@ -12,12 +12,14 @@ namespace Domain.Interface
     public interface IOrderRepository
     {
         Task AddOrderAsync(Order order, CancellationToken cancellationToken);
+        Task UpdateAsync(Order order, CancellationToken cancellationToken);
 
         Task<IEnumerable<Order>> GetAllOrder(CancellationToken cancellationToken);
 
         Task<bool> OrderCodeExistsAsync(string orderCode);
+        Task<Order?> GetByIdWithItemsAsync(Guid orderId, CancellationToken cancellationToken);
 
-
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
         Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

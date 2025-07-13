@@ -12,9 +12,11 @@ namespace Application.Interface
 {
     public interface IOrderServices
     {
-        Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken);
-
+        Task<ApiResponse> ConfirmOrderAsync(Guid orderId, Guid userId, CancellationToken cancellationToken);
         Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken);
+
+
+        Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken);
         Task<string> GenerateUniqueOrderCodeAsync();
     }
 }
