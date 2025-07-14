@@ -204,5 +204,28 @@ namespace Application.Services
             return new ApiResponse(true, "Xác nhận thành công");
         }
 
+        public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken cancellationToken)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+            if (order == null)
+                return new ApiResponse(false, "Không tìm thấy đơn hàng");
+
+            if (!OrderStatusValidator.CanChange(order.OrderStatus, newStatus))
+            {
+                var from = OrderStatusHelper.GetStatusDisplayName(order.OrderStatus);
+                var to = OrderStatusHelper.GetStatusDisplayName(newStatus);
+
+                return new ApiResponse(false, $"Không thể chuyển trạng thái từ {from} sang {to}");
+            }
+
+            order.OrderStatus = newStatus;
+            order.UpdatedBy = userId;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _orderRepository.UpdateAsync(order, cancellationToken);
+
+            return new ApiResponse(true, "Chuyển trạng thái thành công");
+
+        }
     }
 }
