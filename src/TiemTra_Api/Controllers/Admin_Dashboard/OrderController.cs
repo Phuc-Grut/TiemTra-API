@@ -2,6 +2,7 @@
 using Application.Interface;
 using Application.Services;
 using Domain.DTOs.Order;
+using Domain.Enum;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
@@ -36,6 +37,23 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             }
 
             var result = await _orderServices.ConfirmOrderAsync(orderId, userId, cancellationToken);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut("change-order-status/{orderId}")]
+        public async Task<IActionResult> ChangeOrderStatus(Guid orderId, [FromBody] ChangeOrderStatusRequest request, CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized(new ApiResponse(false, "Không xác định được người dùng"));
+            }
+
+            var result = await _orderServices.ChangeOrderStatus(orderId, request.NewStatus, userId, cancellationToken);
 
             if (!result.Success)
                 return BadRequest(result);
