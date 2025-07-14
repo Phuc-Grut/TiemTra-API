@@ -21,5 +21,7 @@ namespace Domain.Interface
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
         Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken);
+
+        Task<Order> GetByIdAsync(Guid orderId, CancellationToken cancellationToken); // ko include
     }
 }

@@ -129,5 +129,10 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<Order> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
+        }
     }
 }
