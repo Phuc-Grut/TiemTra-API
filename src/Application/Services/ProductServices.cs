@@ -91,6 +91,9 @@ namespace Application.Services.Admin
                         TypeName = variationDto.TypeName,
                         Price = variationDto.Price,
                         Stock = variationDto.Stock,
+                        Status = variationDto.Stock == 0
+                            ? ProductVariationStatus.OutOfStock
+                            : variationDto.Status,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = userId
                     }).ToList();
@@ -181,7 +184,8 @@ namespace Application.Services.Admin
                         {
                             TypeName = v.TypeName,
                             Price = v.Price,
-                            Stock = v.Stock
+                            Stock = v.Stock,
+                            Status = v.Status
                         }).ToList()
                         : new List<ProductVariationDto>(),
 
@@ -250,9 +254,11 @@ namespace Application.Services.Admin
 
                 ProductVariations = product.ProductVariations?.Select(v => new ProductVariationDto
                 {
+                    ProductVariationId = v.ProductVariationId,
                     TypeName = v.TypeName,
                     Price = v.Price,
-                    Stock = v.Stock
+                    Stock = v.Stock,
+                    Status = v.Status,
                 }).ToList() ?? new List<ProductVariationDto>(),
 
                 CreatedAt = product.CreatedAt,
@@ -313,22 +319,69 @@ namespace Application.Services.Admin
                     await _productAttribute.AddRangeAsync(productAttributes, cancellationToken);
                 }
 
-                await _productVariation.DeleteByProductIdAsync(productId, cancellationToken);
+                //await _productVariation.DeleteByProductIdAsync(productId, cancellationToken);
                 if (dto.HasVariations && dto.ProductVariations?.Any() == true)
                 {
-                    var productVariations = dto.ProductVariations.Select(variationDto => new ProductVariations
-                    {
-                        ProductVariationId = Guid.NewGuid(),
-                        ProductId = productId,
-                        TypeName = variationDto.TypeName,
-                        Price = variationDto.Price,
-                        Stock = variationDto.Stock,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = userId
-                    }).ToList();
+                    var existingVariations = await _productVariation.GetAllByProductIdAsync(productId, cancellationToken);
+                    var existingDict = existingVariations.ToDictionary(v => v.ProductVariationId);
 
-                    await _productVariation.AddRangeAsync(productVariations, cancellationToken);
+                    var updateList = new List<ProductVariations>();
+                    var addList = new List<ProductVariations>();
+
+                    // Tập hợp ID biến thể mà client gửi lên
+                    var incomingIds = dto.ProductVariations
+                                        .Where(v => v.ProductVariationId.HasValue)
+                                        .Select(v => v.ProductVariationId!.Value)
+                                        .ToHashSet();
+
+                    foreach (var variationDto in dto.ProductVariations)
+                    {
+                        if (variationDto.ProductVariationId != null &&
+                            existingDict.TryGetValue(variationDto.ProductVariationId.Value, out var existing))
+                        {
+                            // Update
+                            existing.TypeName = variationDto.TypeName;
+                            existing.Price = variationDto.Price;
+                            existing.Stock = variationDto.Stock;
+                            existing.UpdatedAt = DateTime.UtcNow;
+                            existing.UpdatedBy = userId;
+
+                            updateList.Add(existing);
+                        }
+                        else
+                        {
+                            // Add
+                            var newVariation = new ProductVariations
+                            {
+                                ProductVariationId = Guid.NewGuid(),
+                                ProductId = productId,
+                                TypeName = variationDto.TypeName,
+                                Price = variationDto.Price,
+                                Stock = variationDto.Stock,
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = userId
+                            };
+
+                            addList.Add(newVariation);
+                        }
+                    }
+
+                    // Xác định các biến thể cần xóa
+                    var toDelete = existingVariations
+                        .Where(v => !incomingIds.Contains(v.ProductVariationId))
+                        .ToList();
+
+                    if (toDelete.Any())
+                        await _productVariation.DeleteRangeAsync(toDelete, cancellationToken);
+
+                    if (addList.Any())
+                        await _productVariation.AddRangeAsync(addList, cancellationToken);
+
+                    if (updateList.Any())
+                        await _productVariation.UpdateRangeAsync(updateList, cancellationToken);
                 }
+
+
                 return true;
 
             }
