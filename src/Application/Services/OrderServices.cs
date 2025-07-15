@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
@@ -94,10 +95,20 @@ namespace Application.Services
 
         public async Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.RecipientName) ||
+                string.IsNullOrWhiteSpace(request.RecipientPhone) ||
+                string.IsNullOrWhiteSpace(request.RecipientAddress))
+            {
+                return new ApiResponse(false, "Vui lòng nhập đầy đủ địa chỉ nhận hàng");
+            }
+
+            if (!Regex.IsMatch(request.RecipientPhone, @"^(0|\+84)[0-9]{9,10}$"))
+            {
+                return new ApiResponse(false, "Số điện thoại không hợp lệ");
+            }
+
             if (request.OrderItems == null || !request.OrderItems.Any())
                 return new ApiResponse(false, "Vui lòng chọn sản phẩm");
-
-            //var orderCode = await GenerateUniqueOrderCodeAsync();
 
             Guid customerId;
 
