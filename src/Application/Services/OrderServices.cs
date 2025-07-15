@@ -60,6 +60,11 @@ namespace Application.Services
                 var variation = await _productVariationRepository.GetByIdAsync(itemDto.ProductVariationId, cancellationToken);
                 if (variation == null)
                     throw new Exception($"Vui lòng chọn biến thể sản phẩm");
+                if (variation.Stock < itemDto.Quantity)
+                {
+                    throw new Exception($"Sản phẩm {variation.Product.ProductName} không đủ số lượng trong kho");
+                }
+
 
                 price = variation.Price;
             }
@@ -68,6 +73,8 @@ namespace Application.Services
                 var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId, cancellationToken);
                 if (product == null)
                     throw new Exception($"Không tìm thấy sản phẩm {itemDto.ProductId}");
+                if (product.Stock < itemDto.Quantity)
+                    throw new Exception($"Sản phẩm {product.ProductName} không đủ số lượng trong kho");
 
                 price = product.Price ?? 0;
             }
@@ -121,19 +128,36 @@ namespace Application.Services
                 CreatedBy = userId ?? customerId
             };
 
-            decimal totalAmount = 0;
-
-            foreach (var itemDto in request.OrderItems)
+            if (request.PaymentMethod == PaymentMethod.BankTransfer)
             {
-                var orderItem = await CreateOrderItemAsync(itemDto, newOrder.OrderId, cancellationToken);
-                newOrder.OrderItems.Add(orderItem);
-                totalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
+                newOrder.PaymentStatus = PaymentStatus.Paid;
+                newOrder.OrderStatus = OrderStatus.Confirmed;
             }
-            newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
-            newOrder.TotalAmount = totalAmount;
+            else
+            {
+                newOrder.PaymentStatus = PaymentStatus.Unpaid;
+            }
 
-            await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
-            return new ApiResponse(true, "Đặt đơn hàng thành công");
+            decimal totalAmount = 0;
+            try
+            {
+                foreach (var itemDto in request.OrderItems)
+                {
+                    var orderItem = await CreateOrderItemAsync(itemDto, newOrder.OrderId, cancellationToken);
+                    newOrder.OrderItems.Add(orderItem);
+                }
+                totalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
+
+                newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
+                newOrder.TotalAmount = totalAmount;
+
+                await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
+                return new ApiResponse(true, "Đặt đơn hàng thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, ex.Message);
+            }
         }
 
         public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
