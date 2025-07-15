@@ -61,11 +61,11 @@ namespace Application.Services
                 var variation = await _productVariationRepository.GetByIdAsync(itemDto.ProductVariationId, cancellationToken);
                 if (variation == null)
                     throw new Exception($"Vui lòng chọn biến thể sản phẩm");
+
                 if (variation.Stock < itemDto.Quantity)
                 {
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} không đủ số lượng trong kho");
                 }
-
 
                 price = variation.Price;
             }
@@ -74,6 +74,7 @@ namespace Application.Services
                 var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId, cancellationToken);
                 if (product == null)
                     throw new Exception($"Không tìm thấy sản phẩm {itemDto.ProductId}");
+
                 if (product.Stock < itemDto.Quantity)
                     throw new Exception($"Sản phẩm {product.ProductName} không đủ số lượng trong kho");
 
