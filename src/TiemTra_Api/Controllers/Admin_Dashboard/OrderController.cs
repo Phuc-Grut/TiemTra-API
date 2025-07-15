@@ -60,5 +60,23 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
             return Ok(result);
         }
+
+        [HttpGet("get-by-id/{orderId}")]
+        public async Task<IActionResult> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized(new ApiResponse(false, "Không xác định được người dùng"));
+            }
+
+            var result = await _orderServices.GetByIdAsync(orderId, cancellationToken);
+
+            if (result == null)
+            {
+                return NotFound(new ApiResponse(false, "Đơn hàng không tồn tại"));
+            }
+            return Ok(result);
+        }
     }
 }

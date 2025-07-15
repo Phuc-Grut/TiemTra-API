@@ -28,18 +28,6 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken)
-        {
-            var variations = await _context.ProductVariations
-                .Where(v => v.ProductId == productId).ToListAsync(cancellationToken);
-
-            if (variations.Any())
-            {
-                _context.ProductVariations.RemoveRange(variations);
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-        }
-
         public async Task<ProductVariations?> GetByIdAsync(Guid? productVariationId, CancellationToken cancellationToken)
         {
             return await _context.ProductVariations
@@ -66,6 +54,25 @@ namespace Infrastructure.Repositories
             return await _context.ProductVariations
                 .Where(v => v.ProductId == productId)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<ProductVariations> variations, CancellationToken cancellationToken)
+        {
+            if (variations == null || !variations.Any())
+                return;
+
+            foreach (var variation in variations)
+            {
+                _context.ProductVariations.Update(variation);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task DeleteRangeAsync(List<ProductVariations> variations, CancellationToken cancellationToken)
+        {
+            _context.ProductVariations.RemoveRange(variations);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
     }

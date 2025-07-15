@@ -1,4 +1,5 @@
 ﻿using Domain.Data.Base;
+using Domain.Enum;
 
 namespace Domain.Data.Entities
 {
@@ -10,6 +11,7 @@ namespace Domain.Data.Entities
         public string TypeName { get; set; }
         public decimal Price { get; set; }
         public int? Stock { get; set; }
+        public ProductVariationStatus Status { get; set; }
 
         public Product Product { get; set; }
 
