@@ -7,13 +7,7 @@ using Domain.DTOs.Order;
 using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace Application.Services
 {
@@ -131,6 +125,7 @@ namespace Application.Services
                 DeliveryAddress = request.RecipientAddress,
                 CustomerId = customerId,
                 Note = request.Note,
+                ShippingFee = request.ShippingFee,
 
                 PaymentMethod = request.PaymentMethod,
 
@@ -262,6 +257,50 @@ namespace Application.Services
 
             return new ApiResponse(true, "Chuyển trạng thái thành công");
 
+        }
+
+        public async Task<OrderDto> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            if (orderId == Guid.Empty)
+                throw new ArgumentException("Order ID không hợp lệ");
+
+            var order = await _orderRepository.GetByIdWithItemsAsync(orderId, cancellationToken);
+
+            if(order == null)
+            {
+                throw new Exception("Không tìm thấy đơn hàng");
+            }
+
+            var orderDto = new OrderDto
+            {
+                OrderCode = order.OrderCode,
+                OrderStatus = order.OrderStatus,
+                CreateAt = order.CreatedAt,
+                ConfirmedAt = order?.ConfirmedAt,
+                Note = order?.Note,
+                TotalAmount = order.TotalAmount,
+                TotalOrderItems = order.TotalOrderItems,
+
+                CustomerCode = order.Customer.CustomerCode,
+                CustomerName = order.Customer.CustomerName,
+                ReceivertName = order.RecipientName,
+                ReceiverPhone = order.ReceiverPhone,
+                ReceiverAddress = order.DeliveryAddress,
+
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    ProductCode = oi.Product.ProductCode,
+                    ProductName = oi.Product.ProductName,
+                    PreviewImageUrl = oi.Product.PrivewImage,
+                    VariationName = oi.ProductVariations?.TypeName,
+
+                    UnitPrice = oi.UnitPrice,
+                    Quantity = oi.Quantity,
+                    TotalPrice = oi.TotalPrice,
+                }).ToList()
+            };
+
+            return orderDto;
         }
     }
 }

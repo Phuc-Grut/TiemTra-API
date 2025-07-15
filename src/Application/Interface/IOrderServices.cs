@@ -16,6 +16,7 @@ namespace Application.Interface
     {
         Task<ApiResponse> ConfirmOrderAsync(Guid orderId, Guid userId, CancellationToken cancellationToken);
         Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken);
+        Task<OrderDto> GetByIdAsync(Guid orderId, CancellationToken cancellationToken);
         Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken cancellationToken);
 
 

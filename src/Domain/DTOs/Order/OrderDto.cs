@@ -21,9 +21,11 @@ namespace Domain.DTOs.Order
         public OrderStatus OrderStatus { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-
+        public int TotalOrderItems { get; set; }
         public List<OrderItemDto> OrderItems { get; set; } = new();
         public DateTime CreateAt { get; set; }
         public DateTime UpdateAt { get; set; }
+        public DateTime? ConfirmedAt { get; set; }
+        public decimal ShippingFee { get; set; }
     }
 }

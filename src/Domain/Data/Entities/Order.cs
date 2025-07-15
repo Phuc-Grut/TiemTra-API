@@ -12,6 +12,7 @@ namespace Domain.Data.Entities
     {
         public Guid OrderId { get; set; }
         public string OrderCode { get; set; }
+        public decimal ShippingFee { get; set; }
         public string RecipientName { get; set; }
         public string DeliveryAddress { get; set; }
         public string ReceiverPhone { get; set; }

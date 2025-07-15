@@ -37,6 +37,7 @@ namespace Infrastructure.Repositories
         public async Task<Order?> GetByIdWithItemsAsync(Guid orderId, CancellationToken cancellationToken)
         {
             return await _dbContext.Orders
+                .Include(o => o.Customer)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.OrderItems)

@@ -19,5 +19,6 @@ namespace Application.DTOs.Order
         public string RecipientName { get; set; }
         public string RecipientAddress { get; set; }
         public string RecipientPhone { get; set; }
+        public decimal ShippingFee { get; set; }
     }
 }
