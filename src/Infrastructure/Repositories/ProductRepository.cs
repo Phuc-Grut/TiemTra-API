@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.DTOs.Product;
+using Domain.Enum;
 
 namespace Infrastructure.Repositories
 {
@@ -35,7 +36,8 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Products
                 .AsNoTracking()
                 .Include(p => p.ProductImages)
-                .Include(p => p.ProductVariations)
+                .Include(p => p.ProductVariations.Where(v => v.Status != ProductVariationStatus.Deleted))
+                .Where(p => p.ProductStatus != ProductStatus.Deleted)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filters.ProductCode))

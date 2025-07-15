@@ -18,5 +18,6 @@ namespace Domain.Data.Entities
         public ICollection<CartItem>? CartItems { get; set; } = new List<CartItem>();
 
         public ICollection<OrderItem>? OrderItems { get; set; } = new List<OrderItem>();
+        public bool IsDeleted => Status == ProductVariationStatus.Deleted;
     }
 }

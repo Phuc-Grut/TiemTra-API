@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,6 @@ namespace Application.DTOs.Admin.Product
         public string TypeName { get; set; }
         public decimal Price { get; set; }
         public int? Stock { get; set; }
+        public ProductVariationStatus Status { get; set; }
     }
 }
