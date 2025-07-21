@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Admin.Category;
 using Application.DTOs.Admin.Product;
 using Application.DTOs.Store.Response;
 using Application.Interface;
@@ -20,14 +21,16 @@ namespace Application.Services.Admin
         private readonly IProductImageRepository _producImage;
         private readonly IProductAttributeRepository _productAttribute;
         private readonly IUserRepository _userRepository;
+        private readonly ICategoryRepository _category;
 
-        public ProductServices(IUserRepository userRepository, IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
+        public ProductServices(ICategoryRepository category, IUserRepository userRepository, IProductRepository product, IProductVariationRepository productVariation, IProductImageRepository producImage, IProductAttributeRepository productAttribute, BlobServiceClient blobServiceClient)
         {
             _productRepo = product;
             _productVariation = productVariation;
             _producImage = producImage;
             _productAttribute = productAttribute;
             _userRepository = userRepository;
+            _category = category;
         }
         public async Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
@@ -343,6 +346,9 @@ namespace Application.Services.Admin
                             existing.TypeName = variationDto.TypeName;
                             existing.Price = variationDto.Price;
                             existing.Stock = variationDto.Stock;
+                            existing.Status = variationDto.Stock == 0
+                            ? ProductVariationStatus.OutOfStock
+                            : variationDto.Status;
                             existing.UpdatedAt = DateTime.UtcNow;
                             existing.UpdatedBy = userId;
 
@@ -357,6 +363,9 @@ namespace Application.Services.Admin
                                 ProductId = productId,
                                 TypeName = variationDto.TypeName,
                                 Price = variationDto.Price,
+                                Status = variationDto.Stock == 0
+                                    ? ProductVariationStatus.OutOfStock
+                                    : variationDto.Status,
                                 Stock = variationDto.Stock,
                                 CreatedAt = DateTime.UtcNow,
                                 CreatedBy = userId
@@ -367,12 +376,12 @@ namespace Application.Services.Admin
                     }
 
                     // Xác định các biến thể cần xóa
-                    var toDelete = existingVariations
-                        .Where(v => !incomingIds.Contains(v.ProductVariationId))
-                        .ToList();
+                    //var toDelete = existingVariations
+                    //    .Where(v => !incomingIds.Contains(v.ProductVariationId))
+                    //    .ToList();
 
-                    if (toDelete.Any())
-                        await _productVariation.DeleteRangeAsync(toDelete, cancellationToken);
+                    //if (toDelete.Any())
+                    //    await _productVariation.DeleteRangeAsync(toDelete, cancellationToken);
 
                     if (addList.Any())
                         await _productVariation.AddRangeAsync(addList, cancellationToken);
@@ -399,14 +408,23 @@ namespace Application.Services.Admin
 
         public async Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
+            var categoryTree = await _category.GetAllCategoriesFlatAsync(cancellationToken);
+            List<int>? categoryIds = null;
+
+            if (filters.CategoryId.HasValue)
+            {
+                // categoryTree là danh mục toàn hệ thống đã lấy từ DB hoặc cache
+                categoryIds = GetAllSubCategoryIds(categoryTree, filters.CategoryId.Value);
+            }
             var domainFilter = new ProductFilterDto
             {
                 ProductCode = filters.ProductCode,
                 Keyword = filters.Keyword,
                 SortBy = filters.SortBy,
-                CategoryId = filters.CategoryId,
+                //CategoryId = filters.CategoryId,
                 BrandId = filters.BrandId,
-                Status = ProductStatus.Active
+                Status = ProductStatus.Active,
+                CategoryIds = categoryIds
             };
 
             var query = _productRepo.GetFilteredProducts(domainFilter, cancellationToken);
@@ -457,6 +475,20 @@ namespace Application.Services.Admin
                 CurrentPage = pageNumber,
                 PageSize = pageSize,
             };
+        }
+
+        public List<int> GetAllSubCategoryIds(List<Category> allCategories, int parentId)
+        {
+            var result = new List<int> { parentId };
+
+            var childCategories = allCategories.Where(c => c.ParentId == parentId).ToList();
+
+            foreach (var child in childCategories)
+            {
+                result.AddRange(GetAllSubCategoryIds(allCategories, child.CategoryId));
+            }
+
+            return result;
         }
 
         public async Task<StoreProducts> StoreGetProductByCodeAsync(string productCode, CancellationToken cancellationToken)

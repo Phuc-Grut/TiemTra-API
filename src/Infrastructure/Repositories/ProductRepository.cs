@@ -36,6 +36,7 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Products
                 .AsNoTracking()
                 .Include(p => p.ProductImages)
+                .Include(p => p.Category)
                 .Include(p => p.ProductVariations.Where(v => v.Status != ProductVariationStatus.Deleted))
                 .Where(p => p.ProductStatus != ProductStatus.Deleted)
                 .AsQueryable();
@@ -52,9 +53,9 @@ namespace Infrastructure.Repositories
                 query = query.Where(p => p.ProductName.Contains(keyword) || p.ProductCode.Contains(keyword));
             }
 
-            if (filters.CategoryId.HasValue)
+            if (filters.CategoryIds != null && filters.CategoryIds.Any())
             {
-                query = query.Where(p => p.CategoryId == filters.CategoryId.Value);
+                query = query.Where(p => filters.CategoryIds.Contains(p.CategoryId.Value));
             }
 
             if (filters.BrandId.HasValue)
@@ -113,7 +114,6 @@ namespace Infrastructure.Repositories
         public async Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
         {
             var product = await _dbContext.Products
-                .AsNoTracking()
                 .AsSplitQuery()
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariations)

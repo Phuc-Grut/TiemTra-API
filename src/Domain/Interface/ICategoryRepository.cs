@@ -24,6 +24,7 @@ namespace Domain.Interface
 
         Task<List<Category>> GetSubCategories(int parentId, CancellationToken cancellationToken);
         Task<List<Category>> GetLeafCategoriesAsync(CancellationToken cancellationToken);
+        Task<List<Category>> GetAllCategoriesFlatAsync(CancellationToken cancellationToken);
         //Task<Category> 
 
         //Task<IEnumerable<Category>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);

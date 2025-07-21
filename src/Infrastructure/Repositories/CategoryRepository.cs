@@ -83,5 +83,13 @@ namespace Infrastructure.Repositories
                 .Where(c => !c.ChildCategories.Any())
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<Category>> GetAllCategoriesFlatAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
+
     }
 }
