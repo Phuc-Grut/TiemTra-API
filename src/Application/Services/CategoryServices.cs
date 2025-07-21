@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Attributes;
 using Application.DTOs.Admin.Category;
+using Application.DTOs.Store.Response;
 using Application.DTOs.User;
 using Application.Interface;
 using AutoMapper;
@@ -458,5 +459,24 @@ namespace Application.Services
         //        })
         //        .ToList();
         //}
+
+        public async Task<List<CategoryTreeDto>> GetCategoryTreeAsync(CancellationToken cancellationToken)
+        {
+            var allCategories = (await _categoryRepository.GetAllCategories(cancellationToken)).ToList();
+            return BuildTree(allCategories, null);
+        }
+
+        private List<CategoryTreeDto> BuildTree(List<Category> categories, int? parentId)
+        {
+            return categories
+                .Where(c => c?.ParentId == parentId)
+                .Select(c => new CategoryTreeDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    Children = BuildTree(categories, c.CategoryId)
+                })
+                .ToList();
+        }
     }
 }

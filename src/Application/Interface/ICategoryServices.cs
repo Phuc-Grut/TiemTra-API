@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Category;
+using Application.DTOs.Store.Response;
 using System.Security.Claims;
 
 namespace Application.Interface
@@ -14,6 +15,7 @@ namespace Application.Interface
         Task<bool> UpdateCategory(int categoryId, UpCategoryDto categoryDto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<(bool CanDelete, string Message)> CheckIfCategoryCanBeDeleted(int categoryId, CancellationToken cancellationToken);
         Task<List<CategoryDto>> GetLeafCategoriesAsync(CancellationToken cancellationToken);
+        Task<List<CategoryTreeDto>> GetCategoryTreeAsync(CancellationToken cancellation);
 
         //Task DeleteCategory(int categoryId);
         //Task<IEnumerable<CategoryDto>> FilterCategories(CategoryFilterDto filters, CancellationToken cancellationToken);
