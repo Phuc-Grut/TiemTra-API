@@ -6,6 +6,7 @@ namespace Domain.Data.Entities
     public class User : BaseEntity
     {
         public Guid UserId { get; set; } = Guid.NewGuid();
+        public string UserCode { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
         public bool EmailConfirmed { get; set; } = false;

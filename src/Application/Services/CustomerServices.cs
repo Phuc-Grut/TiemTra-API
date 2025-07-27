@@ -1,6 +1,8 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
+using Domain.DTOs;
+using Domain.DTOs.Customer;
 using Domain.Interface;
 using System;
 using System.Collections.Generic;
@@ -24,16 +26,16 @@ namespace Application.Services
         private async Task<string> GenerateUniqueCustomerCodeAsync()
         {
             var random = new Random();
-            string orderCode;
+            string customerCode;
             bool exists;
             do
             {
-                int ranDomNumber = random.Next(0, 9999);
-                orderCode = $"KH{ranDomNumber:D3}";
-                exists = await _customerRepository.CustomerCodeExistsAsync(orderCode);
+                int ranDomNumber = random.Next(0, 999);
+                customerCode = $"KH{ranDomNumber:D3}";
+                exists = await _customerRepository.CustomerCodeExistsAsync(customerCode);
             }
             while (exists);
-            return orderCode;
+            return customerCode;
         }
 
         public async Task<Guid> GetOrCreateCustomerAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
@@ -56,14 +58,15 @@ namespace Application.Services
 
                 var newCustomer = new Customer
                 {
-                    CustomerId = Guid.NewGuid(),
-                    CustomerCode = await GenerateUniqueCustomerCodeAsync(),
-                    CustomerName = request.RecipientName ?? user?.FullName ?? "Chưa cập nhật",
-                    PhoneNumber = request.RecipientPhone,
-                    Address = request.RecipientAddress ?? user?.Address ?? "Chưa cập nhật",
+                    CustomerId = userId.Value,
+                    CustomerCode = user.UserCode ?? await GenerateUniqueCustomerCodeAsync(),
+                    CustomerName = user?.FullName ?? request.RecipientName ?? "Chưa cập nhật",
+                    PhoneNumber = user.PhoneNumber ?? request.RecipientPhone,
+                    Address = user?.Address ?? request.RecipientAddress ?? "Chưa cập nhật",
                     UserId = userId.Value,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = userId.Value
+                    CreatedBy = userId.Value,
+                    AvatarUrl = user?.Avatar
                 };
 
                 await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
@@ -85,6 +88,11 @@ namespace Application.Services
                 await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
                 return newCustomer.CustomerId;
             }
+        }
+
+        public async Task<PagedResult<CustomerDto>> GetPagingAsync(CustomerFilterDto filterDto, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            return await _customerRepository.GetPagingAsync(filterDto, pageNumber, pageSize, cancellationToken);
         }
     }
 }

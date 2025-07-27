@@ -16,5 +16,6 @@ namespace Domain.Data.Entities
         public string Address { get; set; }
         public Guid? UserId { get; set; }
         public ICollection<Order>? Orders { get; set; }
+        public string? AvatarUrl { get; set; } 
     }
 }

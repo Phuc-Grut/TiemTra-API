@@ -1,4 +1,6 @@
 ﻿using Domain.Data.Entities;
+using Domain.DTOs;
+using Domain.DTOs.Customer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +19,6 @@ namespace Application.Interface
         Task CreateCustomerAsync(Customer customer, CancellationToken cancellationToken);
 
         Task<bool> CustomerCodeExistsAsync(string customerCode);
+        Task<PagedResult<CustomerDto>> GetPagingAsync(CustomerFilterDto filterDto, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

@@ -44,5 +44,10 @@ namespace Infrastructure.Repositories
             _context.Users.Update(user);
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
+
+        public async Task<bool> UserCodeExistsAsync(string userCode)
+        {
+            return await _context.Users.AsNoTracking().AnyAsync(us => us.UserCode == userCode);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Authentication;
+using Application.Interface;
 using Application.Interface.Authentication;
 using Domain.Data.Entities;
 using Domain.Enum;
@@ -174,6 +175,7 @@ namespace Application.Services.Authentincation
             var user = new UserResponseDTO
             {
                 //UserId = data.UserId,
+                UserCode = await GenerateUniqueUserCodeAsync(),
                 FullName = data.FullName,
                 Email = data.Email,
                 PhoneNumber = data.PhoneNumber,
@@ -184,6 +186,21 @@ namespace Application.Services.Authentincation
 
 
             return new ApiResponse(true, "Đăng nhập thành công", user, token, refreshToken);
+        }
+
+        private async Task<string> GenerateUniqueUserCodeAsync()
+        {
+            var random = new Random();
+            string userCode;
+            bool exists;
+            do
+            {
+                int ranDomNumber = random.Next(0, 999);
+                userCode = $"TK{ranDomNumber:D3}";
+                exists = await _userRepository.UserCodeExistsAsync(userCode);
+            }
+            while (exists);
+            return userCode;
         }
 
         private string GenerateJwtToken(User user, out string refreshToken)
