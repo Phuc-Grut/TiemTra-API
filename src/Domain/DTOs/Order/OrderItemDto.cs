@@ -8,6 +8,8 @@ namespace Domain.DTOs.Order
 {
     public class OrderItemDto
     {
+        public Guid ProductId { get; set; }
+        public Guid ProductVariationId { get; set; }
         public string ProductCode { get; set; } // Mã sản phẩm
         public string ProductName { get; set; }
         public string? PreviewImageUrl { get; set; }

@@ -1,6 +1,8 @@
 ﻿using Application.DTOs.Admin.Cart;
+using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
+using Domain.DTOs.Order;
 using Domain.Interface;
 using Shared.Common;
 
@@ -166,6 +168,15 @@ namespace Application.Services
             return new ApiResponse(true, "Xóa sản phẩm thành công");
         }
 
+        public async Task RemoveItemsFromCartAsync(Guid userId, IEnumerable<Guid> cartItemIds, CancellationToken cancellationToken)
+        {
+            foreach (var id in cartItemIds)
+            {
+                await _cartRepository.DeleteByIdAsync(userId, id, cancellationToken);
+            }
+            await _cartRepository.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<ApiResponse> UpdateCartItemQuantityAsync(Guid userId, Guid productId, Guid? productVariationId, int newQuantity, CancellationToken cancellationToken)
         {
             if (newQuantity <= 0)
@@ -219,5 +230,20 @@ namespace Application.Services
             return new ApiResponse(true, "Cập nhật số lượng sản phẩm thành công");
         }
 
+        public async Task<List<Guid>> GetCartItemIdsMatchingOrderAsync(Guid userId, IEnumerable<CreateOrderItemDto> orderItems, CancellationToken cancellationToken)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
+            if (cart == null || cart.CartItem == null || !cart.CartItem.Any())
+                return new List<Guid>();
+
+            var cartItemIds = cart.CartItem
+                .Where(ci => orderItems.Any(oi =>
+                    oi.ProductId == ci.ProductId &&
+                    oi.ProductVariationId == ci.ProductVariationId))
+                .Select(ci => ci.CartItemId)
+                .ToList();
+
+            return cartItemIds;
+        }
     }
 }
