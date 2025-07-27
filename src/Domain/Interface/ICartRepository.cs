@@ -17,6 +17,8 @@ namespace Domain.Interface
         Task UpdateCartAsync(Cart cart, CancellationToken cancellationToken);
 
         Task RemoveCartItemAsync(CartItem cartItem, CancellationToken cancellationToken);
+        Task DeleteByIdAsync(Guid userId, Guid cartItemId, CancellationToken cancellationToken);
 
+        Task SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

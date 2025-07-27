@@ -56,5 +56,23 @@ namespace Infrastructure.Repositories
             _context.CartItems.Remove(cartItem);
             return _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task DeleteByIdAsync(Guid userId, Guid cartItemId, CancellationToken cancellationToken)
+        {
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .FirstOrDefaultAsync(ci => ci.CartItemId == cartItemId && ci.Cart.UserId == userId, cancellationToken);
+
+            if (cartItem != null)
+            {
+                _context.CartItems.Remove(cartItem);
+            }
+
+        }
+
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
     }
 }

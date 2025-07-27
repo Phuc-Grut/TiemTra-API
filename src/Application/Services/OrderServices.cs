@@ -19,8 +19,10 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICartRepository _cartRepository;
         private readonly ICustomerService _customerService;
+        private readonly IInventoryService _inventoryService;
+        private readonly ICartServices _cartService;    
 
-        public OrderServices(ICustomerService customerService, IOrderRepository orderRepository, IProductRepository productRepository, IProductVariationRepository productVariationRepository, IUserRepository userRepository, ICartRepository cartRepository)
+        public OrderServices(ICartServices cartServices, IInventoryService inventoryService, ICustomerService customerService, IOrderRepository orderRepository, IProductRepository productRepository, IProductVariationRepository productVariationRepository, IUserRepository userRepository, ICartRepository cartRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
@@ -28,6 +30,8 @@ namespace Application.Services
             _userRepository = userRepository;
             _cartRepository = cartRepository;
             _customerService = customerService;
+            _inventoryService = inventoryService;
+            _cartService = cartServices;
         }
 
         public async Task<string> GenerateUniqueOrderCodeAsync()
@@ -58,11 +62,11 @@ namespace Application.Services
 
                 if (variation.Stock < itemDto.Quantity)
                 {
-                    throw new Exception($"Sản phẩm {variation.Product.ProductName} không đủ số lượng trong kho");
+                    throw new Exception($"Sản phẩm {variation.Product.ProductName} - {variation.TypeName}  không đủ số lượng trong kho");
                 }
 
                 if (variation.Status == ProductVariationStatus.Deleted || variation.Status == ProductVariationStatus.Inactive)
-                    throw new Exception($"Sản phẩm đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
+                    throw new Exception($"Sản phẩm {variation.Product.ProductName} - {variation.TypeName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
                 
 
                 price = variation.Price;
@@ -74,7 +78,7 @@ namespace Application.Services
                     throw new Exception($"Không tìm thấy sản phẩm {itemDto.ProductId}");
 
                 if (product.ProductStatus == ProductStatus.Deleted || product.ProductStatus == ProductStatus.Inactive || product.ProductStatus == ProductStatus.Draft)
-                    throw new Exception($"Sản phẩm đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
+                    throw new Exception($"Sản phẩm {product.ProductName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
 
                 if (product.Stock < itemDto.Quantity)
                     throw new Exception($"Sản phẩm {product.ProductName} không đủ số lượng trong kho");
@@ -113,7 +117,6 @@ namespace Application.Services
                 return new ApiResponse(false, "Vui lòng chọn sản phẩm");
 
             Guid customerId;
-
             try
             {
                 customerId = await _customerService.GetOrCreateCustomerAsync(request, userId, cancellationToken);
@@ -133,26 +136,12 @@ namespace Application.Services
                 CustomerId = customerId,
                 Note = request.Note,
                 ShippingFee = request.ShippingFee,
-
                 PaymentMethod = request.PaymentMethod,
-
                 OrderItems = new List<OrderItem>(),
-
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = userId ?? customerId
             };
 
-            if (request.PaymentMethod == PaymentMethod.BankTransfer)
-            {
-                newOrder.PaymentStatus = PaymentStatus.Paid;
-                newOrder.OrderStatus = OrderStatus.Confirmed;
-            }
-            else
-            {
-                newOrder.PaymentStatus = PaymentStatus.Unpaid;
-            }
-
-            decimal totalAmount = 0;
             try
             {
                 foreach (var itemDto in request.OrderItems)
@@ -160,12 +149,32 @@ namespace Application.Services
                     var orderItem = await CreateOrderItemAsync(itemDto, newOrder.OrderId, cancellationToken);
                     newOrder.OrderItems.Add(orderItem);
                 }
-                totalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
 
                 newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
-                newOrder.TotalAmount = totalAmount;
+                newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
+
+                if (request.PaymentMethod == PaymentMethod.BankTransfer)
+                {
+                    newOrder.PaymentStatus = PaymentStatus.Paid;
+                    newOrder.OrderStatus = OrderStatus.Confirmed;
+
+                    await _inventoryService.UpdateStockAsync(newOrder.OrderItems, cancellationToken);
+                }
+                else
+                {
+                    newOrder.PaymentStatus = PaymentStatus.Unpaid;
+                }
+
+
 
                 await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
+
+                if (userId.HasValue && request.OrderItems != null && request.OrderItems.Any())
+                {
+                    var cartItemIds = await _cartService.GetCartItemIdsMatchingOrderAsync(userId.Value, request.OrderItems, cancellationToken);
+                    await _cartService.RemoveItemsFromCartAsync(userId.Value, cartItemIds, cancellationToken);
+                }
+
                 return new ApiResponse(true, "Đặt đơn hàng thành công");
             }
             catch (Exception ex)
@@ -173,6 +182,7 @@ namespace Application.Services
                 return new ApiResponse(false, ex.Message);
             }
         }
+
 
         public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
@@ -182,65 +192,37 @@ namespace Application.Services
         public async Task<ApiResponse> ConfirmOrderAsync(Guid orderId, Guid userId, CancellationToken cancellationToken)
         {
             if (orderId == Guid.Empty)
-                return new ApiResponse(false, "Đã có lỗi sảy ra");
+                return new ApiResponse(false, "Đã có lỗi xảy ra");
 
             var order = await _orderRepository.GetByIdWithItemsAsync(orderId, cancellationToken);
             if (order == null)
                 return new ApiResponse(false, "Không tìm thấy đơn hàng");
 
             if (order.OrderStatus != OrderStatus.Pending)
-                return new ApiResponse(false, "Đơn hàng ko ở trạng thái chờ xác nhận");
+                return new ApiResponse(false, "Đơn hàng không ở trạng thái chờ xác nhận");
 
-            // Kiểm tra tồn kho
-            foreach (var item in order.OrderItems)
-            {
-                if (item.ProductVariationId.HasValue)
-                {
-                    var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, cancellationToken);
-                    if (variation == null || variation.Stock < item.Quantity)
-                        return new ApiResponse(false, $"Sản phẩm {variation?.Product?.ProductName} không đủ số lượng");
-                }
-                else
-                {
-                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
-                    if (product == null || product.Stock < item.Quantity)
-                        return new ApiResponse(false, $"Sản phẩm {product.ProductName} không đủ số lượng");
-                }
-            }
+            // Kiểm tra tồn kho qua InventoryService
+            var checkResult = await _inventoryService.CheckStockAvailabilityAsync(order.OrderItems, cancellationToken);
+            if (!checkResult.Success)
+                return checkResult;
 
-            // Trừ tồn kho
-            foreach (var item in order.OrderItems)
-            {
-                if (item.ProductVariationId.HasValue)
-                {
-                    var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, cancellationToken);
-                    variation.Stock -= item.Quantity;
-                    variation.Product.Stock -= item.Quantity;
-                    variation.Product.TotalSold += item.Quantity;
-                }
-                else
-                {
-                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
-                    product.Stock -= item.Quantity;
-                    product.TotalSold += item.Quantity;
-                }
-            }
+            // Trừ tồn kho qua InventoryService
+            await _inventoryService.UpdateStockAsync(order.OrderItems, cancellationToken);
 
-            if(order.PaymentMethod == PaymentMethod.BankTransfer)
+            if (order.PaymentMethod == PaymentMethod.BankTransfer)
             {
                 order.PaymentStatus = PaymentStatus.Paid;
             }
 
-            // Cập nhật trạng thái đơn
             order.OrderStatus = OrderStatus.Confirmed;
             order.ConfirmedAt = DateTime.UtcNow;
             order.UpdatedBy = userId;
 
-            // Save toàn bộ thay đổi 1 lần
             await _orderRepository.SaveChangesAsync(cancellationToken);
 
             return new ApiResponse(true, "Xác nhận thành công");
         }
+
 
         public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken cancellationToken)
         {
@@ -296,6 +278,8 @@ namespace Application.Services
 
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
+                    ProductId = oi.ProductId,
+                    ProductVariationId = oi.ProductVariationId ?? Guid.Empty,
                     ProductCode = oi.Product.ProductCode,
                     ProductName = oi.Product.ProductName,
                     PreviewImageUrl = oi.Product.PrivewImage,
