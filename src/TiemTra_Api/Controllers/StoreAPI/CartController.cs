@@ -44,8 +44,6 @@ namespace TiemTra_Api.Controllers.StoreAPI
             return Ok(result);
         }
 
-
-
         [HttpGet("view-cart")]
         public async Task<IActionResult> ViewCart(CancellationToken cancellationToken = default)
         {
