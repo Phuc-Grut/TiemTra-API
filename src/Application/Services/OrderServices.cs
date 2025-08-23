@@ -54,7 +54,7 @@ namespace Application.Services
         {
             decimal price;
 
-            if (itemDto.ProductVariationId.HasValue)
+            if (itemDto.ProductVariationId.HasValue && itemDto.ProductVariationId.Value != Guid.Empty)
             {
                 var variation = await _productVariationRepository.GetByIdAsync(itemDto.ProductVariationId, cancellationToken);
                 if (variation == null)
