@@ -18,7 +18,7 @@ namespace Application.Interface
         Task<PagedResult<ProductDTO>> GetPagingAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<CreateProductDto> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken);
-
+        Task<int> SoftDeleteProductsAsync(IEnumerable<Guid> productIds, ClaimsPrincipal user, CancellationToken ct);
         /// Store Product
         /// 
 
