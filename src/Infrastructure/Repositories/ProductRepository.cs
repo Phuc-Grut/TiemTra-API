@@ -196,5 +196,39 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<List<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct)
+        {
+            var idList = ids.Distinct().ToList();
+            if (idList.Count == 0) return new List<Product>();
+
+            return await _dbContext.Products
+                .Where(p => idList.Contains(p.ProductId))
+                .ToListAsync(ct);
+        }
+
+        public async Task<int> SoftDeleteByIdsAsync( IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct)
+        {
+            var idList = ids?.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
+            if (idList.Count == 0) return 0;
+
+            // Tải những sản phẩm chưa bị xóa
+            var products = await _dbContext.Products
+                .Where(p => idList.Contains(p.ProductId) && p.ProductStatus != ProductStatus.Deleted)
+                .ToListAsync(ct);
+
+            if (products.Count == 0) return 0;
+
+            foreach (var p in products)
+            {
+                p.ProductStatus = ProductStatus.Deleted;
+
+                p.UpdatedAt = utcNow;
+                p.UpdatedBy = updatedBy;
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
+            return products.Count;
+        }
+
     }
 }

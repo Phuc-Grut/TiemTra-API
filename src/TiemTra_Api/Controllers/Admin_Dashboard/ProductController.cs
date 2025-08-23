@@ -101,5 +101,15 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpPost("soft-delete")]
+        public async Task<IActionResult> SoftDeleteMany([FromBody] BulkSoftDeleteRequest req, CancellationToken ct)
+        {
+            if (req is null || req.Ids is null || req.Ids.Count == 0)
+                return BadRequest("Ids is required.");
+
+            var affected = await _productServices.SoftDeleteProductsAsync(req.Ids, User, ct);
+            return Ok(new { requested = req.Ids.Count, affected });
+        }
     }
 }

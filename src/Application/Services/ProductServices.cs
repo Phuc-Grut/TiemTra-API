@@ -400,6 +400,18 @@ namespace Application.Services.Admin
             }
         }
 
+        public async Task<int> SoftDeleteProductsAsync( IEnumerable<Guid> productIds, ClaimsPrincipal user, CancellationToken ct)
+        {
+            var ids = productIds?.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
+            if (ids.Count == 0) return 0;
+
+            var userId = GetUserIdFromClaims.GetUserId(user);
+            Guid updatedBy = userId == Guid.Empty ? Guid.Empty : userId;
+
+            var utcNow = DateTime.UtcNow;
+            return await _productRepo.SoftDeleteByIdsAsync(ids, updatedBy, utcNow, ct);
+        }
+
 
         /// <summary> 
         /// Store 

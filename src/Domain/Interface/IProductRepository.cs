@@ -21,6 +21,8 @@ namespace Domain.Interface
         Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken);
         Task UpdateQuantityAsync(Guid productId, CancellationToken cancellationToken);
         Task UpdateSoldQuantityAsync(Guid productId, int soldQuantity, CancellationToken cancellationToken);
+        Task<List<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct);
+        Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct);
 
 
 
