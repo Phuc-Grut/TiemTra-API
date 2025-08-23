@@ -101,5 +101,26 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpDelete("delete-product/{productId}")]
+        public async Task<IActionResult> Delete(Guid productId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (productId == Guid.Empty)
+                    return BadRequest(new { success = false, message = "ID sản phẩm không hợp lệ" });
+
+                var result = await _productServices.DeleteProductAsync(productId, User, cancellationToken);
+
+                if (result)
+                    return Ok(new { success = true, message = "Xóa sản phẩm thành công" });
+
+                return BadRequest(new { success = false, message = "Xóa sản phẩm thất bại" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

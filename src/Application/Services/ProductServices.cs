@@ -400,6 +400,34 @@ namespace Application.Services.Admin
             }
         }
 
+        public async Task<bool> DeleteProductAsync(Guid productId, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var product = await _productRepo.GetProductByIdAsync(productId, cancellationToken);
+                
+                if (product == null)
+                {
+                    throw new Exception("Sản phẩm không tồn tại");
+                }
+
+                var userId = GetUserIdFromClaims.GetUserId(user);
+
+                // Soft delete by changing status to Deleted (4)
+                product.ProductStatus = ProductStatus.Deleted;
+                product.UpdatedAt = DateTime.UtcNow;
+                product.UpdatedBy = userId;
+
+                await _productRepo.UpdateProduct(product, cancellationToken);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Xóa sản phẩm thất bại", ex);
+            }
+        }
+
 
         /// <summary> 
         /// Store 

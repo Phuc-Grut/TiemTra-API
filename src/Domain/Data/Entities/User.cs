@@ -15,9 +15,7 @@ namespace Domain.Data.Entities
         public int? Age { get; set; }
         public string? Address { get; set; }
         public string? VerificationCode { get; set; } // Mã OTP
-        public string? ResetPasswordCode { get; set; } // Mã OTP
         public DateTime? VerificationExpiry { get; set; } // thời gian hết hạn otp
-        public DateTime? ResetPasswordExpiry { get; set; } // thời gian hết hạn otp
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string? Avatar { get; set; }
@@ -26,6 +24,5 @@ namespace Domain.Data.Entities
 
         public Cart? Cart { get; set; }
         public Customer? Customer { get; set; }
-
     }
 }

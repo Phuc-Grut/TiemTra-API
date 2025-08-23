@@ -652,28 +652,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(236),
+                            CreatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2777),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(278),
+                            UpdatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2813),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(281),
+                            CreatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2816),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(282),
+                            UpdatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2817),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(284),
+                            CreatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2819),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 8, 23, 15, 44, 48, 104, DateTimeKind.Unspecified).AddTicks(284),
+                            UpdatedAt = new DateTime(2025, 7, 27, 20, 14, 41, 262, DateTimeKind.Unspecified).AddTicks(2819),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -723,12 +723,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ResetPasswordCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ResetPasswordExpiry")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")

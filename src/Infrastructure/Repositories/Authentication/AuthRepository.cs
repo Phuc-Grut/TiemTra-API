@@ -47,10 +47,5 @@ namespace Infrastructure.Repositories.Authentication
         {
             await _context.UserRoles.AddAsync(userRole);
         }
-
-        public async Task<bool> PhoneNumberExists(string phoneNumber)
-        {
-            return await _context.Users.AnyAsync(us => us.PhoneNumber == phoneNumber);
-        }
     }
 }

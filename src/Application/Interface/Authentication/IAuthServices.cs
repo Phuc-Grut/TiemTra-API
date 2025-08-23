@@ -16,6 +16,5 @@ namespace Application.Interface.Authentication
         Task<ApiResponse> RefreshTokenAsync(RefreshTokenDTO model);
         Task<ApiResponse> ForgotPassword(ForgotPasswordDto dto);
         Task<ApiResponse> ResetPassword(ResetPasswordDTO dto);
-
     }
 }

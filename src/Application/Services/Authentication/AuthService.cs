@@ -38,9 +38,6 @@ namespace Application.Services.Authentincation
             if (await _authRepository.EmailExists(model.Email))
                 return new ApiResponse(false, "Emaill đã tồn tại");
 
-            if (await _authRepository.PhoneNumberExists(model.PhoneNumber))
-                return new ApiResponse(false, "Số điện thoại đã tồn tại");
-
             var hashedPassword = HashPassword(model.Password);
             var otp = new Random().Next(100000, 999999).ToString();
             bool isFirstUser = !await _authRepository.AnyUserExists();
@@ -275,31 +272,27 @@ namespace Application.Services.Authentincation
         {
             var user = await _authRepository.GetUserByEmail(dto.Email);
             if (user == null)
-                return new ApiResponse(true, "Nếu email tồn tại, OTP sẽ được gửi.");
+                return new ApiResponse(false, "Email không tồn tại");
 
-            if (!user.EmailConfirmed)
-                return new ApiResponse(false, "Email này chưa xác thực. Vui lòng xác thực tài khoản trước.");
+            var otp = new Random().Next(100000, 999999).ToString();
 
-            if (user.ResetPasswordExpiry.HasValue && user.ResetPasswordExpiry > DateTime.UtcNow)
-                return new ApiResponse(true, "Mã OTP đã được gửi trước đó, vui lòng kiểm tra email.");
-
-            var otp = HelpersAuth.GenerateNumericOtp(6);
-            user.ResetPasswordCode = HelpersAuth.HashOtp(otp);
-            user.ResetPasswordExpiry = HelpersAuth.CreateExpiryUtc(10);
+            user.VerificationCode = otp;
+            user.VerificationExpiry = DateTime.UtcNow.AddMinutes(2);
 
             await _authRepository.SaveChanges();
 
             var emailMessage = $@"
-            <p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName)},</p>
-            <p>Bạn vừa yêu cầu đặt lại mật khẩu.</p>
-            <p><strong>Mã OTP của bạn là: <span style='color:blue;font-size:18px'>{otp}</span></strong></p>
-            <p>Mã sẽ hết hạn sau 10 phút.</p>
-            <p>Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.</p>";
+                <p>Xin chào {user.FullName},</p>
+                <p>Bạn vừa yêu cầu đặt lại mật khẩu.</p>
+                <p><strong>Mã OTP của bạn là: <span style='color:blue;font-size:18px'>{otp}</span></strong></p>
+                <p>Mã sẽ hết hạn sau 2 phút.</p>
+                <p>Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.</p>
+            ";
 
             await _emailService.SendEmailAsync(user.Email, "Mã OTP đặt lại mật khẩu", emailMessage);
-            return new ApiResponse(true, "Nếu email tồn tại, OTP sẽ được gửi.");
-        }
 
+            return new ApiResponse(true, "Mã OTP đã được gửi đến email của bạn.");
+        }
 
         public async Task<ApiResponse> ResetPassword(ResetPasswordDTO dto)
         {
@@ -307,18 +300,18 @@ namespace Application.Services.Authentincation
             if (user == null)
                 return new ApiResponse(false, "Email không hợp lệ");
 
-            if (!user.ResetPasswordExpiry.HasValue || user.ResetPasswordExpiry <= DateTime.UtcNow)
-                return new ApiResponse(false, "Mã OTP đã hết hạn");
-
-            if (string.IsNullOrEmpty(user.ResetPasswordCode) ||
-                !HelpersAuth.VerifyOtp(dto.Otp, user.ResetPasswordCode))
+            if (user.VerificationCode != dto.Otp)
                 return new ApiResponse(false, "Mã OTP không hợp lệ");
 
+            if (user.VerificationExpiry < DateTime.UtcNow)
+                return new ApiResponse(false, "Mã OTP đã hết hạn");
+
             user.HashPassword = HashPassword(dto.NewPassword);
-            user.ResetPasswordCode = null;
-            user.ResetPasswordExpiry = null;
+            user.VerificationCode = null;
+            user.VerificationExpiry = null;
 
             await _authRepository.SaveChanges();
+
             return new ApiResponse(true, "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.");
         }
     }
