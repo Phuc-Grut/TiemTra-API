@@ -67,7 +67,10 @@ namespace Application.Services
 
                 if (variation.Status == ProductVariationStatus.Deleted || variation.Status == ProductVariationStatus.Inactive)
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} - {variation.TypeName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
-                
+
+
+                if (variation.Product.ProductStatus == ProductStatus.Deleted || variation.Product.ProductStatus == ProductStatus.Inactive || variation.Product.ProductStatus == ProductStatus.Draft)
+                    throw new Exception($"Sản phẩm {variation.Product.ProductName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
 
                 price = variation.Price;
             }

@@ -45,20 +45,22 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
         }
 
-
         public async Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Orders.Include(o => o.Customer).AsQueryable();
 
-            if (!string.IsNullOrEmpty(filter.OrderCode))
-            {
+            // Base query
+            var query = _dbContext.Orders
+                .AsNoTracking()
+                .Include(o => o.Customer)
+                .AsQueryable();
+
+            // Filters
+            if (!string.IsNullOrWhiteSpace(filter.OrderCode))
                 query = query.Where(o => o.OrderCode.Contains(filter.OrderCode));
-            }
 
-            if (!string.IsNullOrEmpty(filter.CustomerCode))
-            {
-                query = query.Where(o => o.Customer.CustomerCode.Contains(filter.CustomerCode));
-            }
+            if (!string.IsNullOrWhiteSpace(filter.CustomerCode))
+                query = query.Where(o => o.Customer != null &&
+                                         o.Customer.CustomerCode.Contains(filter.CustomerCode));
 
             if (filter.OrderStatus != 0)
                 query = query.Where(o => o.OrderStatus == filter.OrderStatus);
@@ -72,23 +74,62 @@ namespace Infrastructure.Repositories
             if (filter.CreateAt.HasValue)
                 query = query.Where(o => o.CreatedAt >= filter.CreateAt.Value);
 
-            if (filter.UpdateAt.HasValue)
-                query = query.Where(o => o.UpdatedAt >= filter.UpdateAt.Value);
-
             var totalItems = await query.CountAsync(cancellationToken);
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
+            var sortFields = (filter.SortBy ?? "")
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim().ToLower())
+                .ToList();
+
+          
+                bool isFirstSort = true;
+
+                foreach (var sort in sortFields)
+                {
+                    if (sort == "createdat-asc")
+                    {
+                        query = isFirstSort
+                            ? query.OrderBy(o => o.CreatedAt)
+                            : ((IOrderedQueryable<Order>)query).ThenBy(o => o.CreatedAt);
+                        isFirstSort = false;
+                    }
+                    else if (sort == "createdat-desc")
+                    {
+                        query = isFirstSort
+                            ? query.OrderByDescending(o => o.CreatedAt)
+                            : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.CreatedAt);
+                        isFirstSort = false;
+                    }
+                    else if (sort == "totalamount-asc")
+                    {
+                        query = isFirstSort
+                            ? query.OrderBy(o => o.TotalAmount)
+                            : ((IOrderedQueryable<Order>)query).ThenBy(o => o.TotalAmount);
+                        isFirstSort = false;
+                    }
+                    else if (sort == "totalamount-desc")
+                    {
+                        query = isFirstSort
+                            ? query.OrderByDescending(o => o.TotalAmount)
+                            : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.TotalAmount);
+                        isFirstSort = false;
+                    }
+                    // nếu sort key không khớp thì bỏ qua
+                }
+           
+
+            // Paging + Projection
             var orders = await query
-                .OrderByDescending(o => o.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(o => new OrderDto
                 {
                     OrderId = o.OrderId,
                     OrderCode = o.OrderCode,
-                    CustomerName = o.Customer.CustomerName,
-                    CustomerCode = o.Customer.CustomerCode,
-                    ReceivertName = o.RecipientName,
+                    CustomerName = o.Customer != null ? o.Customer.CustomerName : null,
+                    CustomerCode = o.Customer != null ? o.Customer.CustomerCode : null,
+                    ReceivertName = o.RecipientName,   // giữ nguyên theo DTO của bạn
                     ReceiverAddress = o.DeliveryAddress,
                     ReceiverPhone = o.ReceiverPhone,
                     TotalAmount = o.TotalAmount,
@@ -97,8 +138,6 @@ namespace Infrastructure.Repositories
                     PaymentMethod = o.PaymentMethod,
                     PaymentStatus = o.PaymentStatus,
                     CreateAt = o.CreatedAt,
-                    UpdateAt = o.UpdatedAt
-                    
                 })
                 .ToListAsync(cancellationToken);
 
@@ -110,8 +149,8 @@ namespace Infrastructure.Repositories
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
-
         }
+
 
         public async Task<bool> OrderCodeExistsAsync(string orderCode)
         {
