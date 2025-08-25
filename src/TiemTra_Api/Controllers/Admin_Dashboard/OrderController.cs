@@ -78,5 +78,18 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             }
             return Ok(result);
         }
+
+        [HttpPost("{orderId:guid}/cancel")]
+        public async Task<IActionResult> CancelOrder(Guid orderId, [FromBody] CancelOrderRequest body, CancellationToken ct)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var adminUserId))
+            {
+                return Unauthorized("Không xác định được người dùng");
+            }
+            var res = await _orderServices.CancelByAdminAsync(orderId, adminUserId, body?.Reason, ct);
+
+            return Ok(res);
+        }
     }
 }
