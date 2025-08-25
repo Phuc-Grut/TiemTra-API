@@ -301,5 +301,50 @@ namespace Application.Services
         {
             return await _orderRepository.GetByUserIDAsync(UserID, fillterDto, pageNumber, pageSize, cancellationToken);
         }
+
+        public async Task<ApiResponse> CancelByCustomerAsync(Guid orderId, Guid customerUserId, string? reason, CancellationToken ct)
+        {
+            var order = await _orderRepository.GetByIdWithItemsAsync(orderId, ct);
+            if (order == null)
+                return new ApiResponse(false, "Không tìm thấy đơn hàng");
+
+            if (!OrderStatusValidator.CanChange(order.OrderStatus, OrderStatus.CancelledByUser))
+                return new ApiResponse(false, "Đơn hàng không thể hủy, vui lòng liên hệ shop");
+
+            order.OrderStatus = OrderStatus.CancelledByUser;
+            order.UpdatedBy = customerUserId;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                order.Note = $"[User cancel]: {reason}";
+            }
+
+            await _orderRepository.UpdateAsync(order, ct);
+
+            return new ApiResponse(true, "Hủy đơn thành công");
+        }
+
+        public async Task<ApiResponse> CancelByAdminAsync(Guid orderId, Guid adminUserId, string? reason, CancellationToken ct)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId, ct);
+            if (order == null)
+                return new ApiResponse(false, "Không tìm thấy đơn hàng");
+
+            if (!OrderStatusValidator.CanChange(order.OrderStatus, OrderStatus.CancelledByShop))
+                return new ApiResponse(false, "Đơn hàng ở trạng thái hiện tại không thể hủy");
+
+            order.OrderStatus = OrderStatus.CancelledByShop;
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                order.Note = $"[User cancel]: {reason}";
+            }
+            order.UpdatedBy = adminUserId;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _orderRepository.UpdateAsync(order, ct);
+
+            return new ApiResponse(true, "Hủy thành công");
+        }
     }
 }

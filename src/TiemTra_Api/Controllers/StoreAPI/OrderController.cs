@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
+using Application.Services;
 using Application.Services.Admin;
 using Domain.Data.Entities;
 using Domain.DTOs.Order;
@@ -50,6 +51,20 @@ namespace TiemTra_Api.Controllers.StoreAPI
         {
             var result = await _orderServices.GetByUserIDAsync(userId, fillterDto, pageNumber, pageSize, cancellationToken);
             return Ok(result);
+        }
+
+        [HttpPost("{orderId:guid}/cancel")]
+        public async Task<IActionResult> CancelOrder(Guid orderId, [FromBody] CancelOrderRequest request, CancellationToken ct)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized("Không tìm thấy hoặc không hợp lệ thông tin người dùng");
+            }
+
+            var res = await _orderServices.CancelByCustomerAsync(orderId, userId, request.Reason, ct);
+
+            return Ok(res);
         }
     }
 }
