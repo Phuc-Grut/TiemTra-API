@@ -8,6 +8,7 @@ namespace Domain.Interface.Authentication
 
         Task<bool> EmailExists(string email);
         Task<bool> PhoneNumberExists(string phoneNumber);
+        Task<bool> UserCodeExistsAsync(string userCode);
 
         public Task AddUserRole(UserRole userRole);
 
