@@ -23,5 +23,7 @@ namespace Domain.Interface
         Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
         Task<Order> GetByIdAsync(Guid orderId, CancellationToken cancellationToken); // ko include
+
+        Task<PagedResult<OrderDto>> GetByUserIDAsync(Guid userID, OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }
