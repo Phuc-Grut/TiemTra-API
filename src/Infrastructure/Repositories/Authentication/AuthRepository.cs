@@ -52,5 +52,10 @@ namespace Infrastructure.Repositories.Authentication
         {
             return await _context.Users.AnyAsync(us => us.PhoneNumber == phoneNumber);
         }
+
+        public async Task<bool> UserCodeExistsAsync(string userCode)
+        {
+            return await _context.Users.AsNoTracking().AnyAsync(c => c.UserCode == userCode);
+        }
     }
 }

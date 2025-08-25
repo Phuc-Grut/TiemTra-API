@@ -48,6 +48,7 @@ namespace Application.Services.Authentincation
             var user = new User
             {
                 FullName = model.FullName,
+                UserCode = await GenerateUniqueUserCodeCodeAsync(),
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
                 HashPassword = hashedPassword,
@@ -320,6 +321,21 @@ namespace Application.Services.Authentincation
 
             await _authRepository.SaveChanges();
             return new ApiResponse(true, "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.");
+        }
+
+        private async Task<string> GenerateUniqueUserCodeCodeAsync()
+        {
+            var random = new Random();
+            string customerCode;
+            bool exists;
+            do
+            {
+                int ranDomNumber = random.Next(0, 999);
+                customerCode = $"US{ranDomNumber:D3}";
+                exists = await _authRepository.UserCodeExistsAsync(customerCode);
+            }
+            while (exists);
+            return customerCode;
         }
     }
 }
