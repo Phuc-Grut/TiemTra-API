@@ -296,5 +296,10 @@ namespace Application.Services
 
             return orderDto;
         }
+
+        public async Task<PagedResult<OrderDto>> GetByUserIDAsync(Guid UserID, OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            return await _orderRepository.GetByUserIDAsync(UserID, fillterDto, pageNumber, pageSize, cancellationToken);
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
 using Application.Services.Admin;
+using Domain.Data.Entities;
+using Domain.DTOs.Order;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -41,6 +43,13 @@ namespace TiemTra_Api.Controllers.StoreAPI
         {
             var orderCode = await _orderServices.GenerateUniqueOrderCodeAsync();
             return Ok(orderCode);
+        }
+
+        [HttpGet("users/{userId}/orders")]
+        public async Task<IActionResult> GetPagingOrderByUserId([FromRoute] Guid userId, [FromQuery] OrderFillterDto fillterDto, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5, CancellationToken cancellationToken = default)
+        {
+            var result = await _orderServices.GetByUserIDAsync(userId, fillterDto, pageNumber, pageSize, cancellationToken);
+            return Ok(result);
         }
     }
 }

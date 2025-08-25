@@ -178,7 +178,7 @@ namespace Application.Services.Authentincation
 
             var user = new UserResponseDTO
             {
-                //UserId = data.UserId,
+                UserId = data.UserId,
                 UserCode = await GenerateUniqueUserCodeAsync(),
                 FullName = data.FullName,
                 Email = data.Email,
