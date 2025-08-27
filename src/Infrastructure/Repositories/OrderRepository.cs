@@ -180,7 +180,7 @@ namespace Infrastructure.Repositories
         {
             IQueryable<Order> query = _dbContext.Orders
                    .AsNoTracking()
-                   .Where(o => o.Customer != null && o.Customer.UserId == userID);
+                   .Where(o => o.Customer != null && o.Customer.UserId == userID && o.PaymentStatus == Domain.Enum.PaymentStatus.Paid);
 
             // Filters
             if (!string.IsNullOrWhiteSpace(filter.OrderCode))
