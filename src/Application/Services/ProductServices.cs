@@ -547,5 +547,14 @@ namespace Application.Services.Admin
             };
             return productDto;
         }
+
+
+        public async Task<int> SoftDeleteByIdVarition(IEnumerable<Guid> ids, Guid updatedBy, CancellationToken ct)
+        {
+            if (ids == null) return 0;
+            var utcNow = DateTime.UtcNow;
+
+            return await _productVariation.SoftDeleteByIdsAsync(ids, updatedBy, utcNow, ct);
+        }
     }
 }
