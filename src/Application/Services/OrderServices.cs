@@ -291,6 +291,7 @@ namespace Application.Services
                 ReceivertName = order.RecipientName,
                 ReceiverPhone = order.ReceiverPhone,
                 ReceiverAddress = order.DeliveryAddress,
+                ShippingFee = order.ShippingFee,
 
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
