@@ -16,5 +16,7 @@ namespace Domain.Interface
         Task<List<ProductVariations>> GetAllByProductIdAsync(Guid productId, CancellationToken cancellationToken);
 
         Task UpdateQuantityAsync(Guid productVariationId, int newStock, CancellationToken cancellationToken);
+
+        Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> id, Guid updatedBy, DateTime utcNow, CancellationToken ct);
     }
 }

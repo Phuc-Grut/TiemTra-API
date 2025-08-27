@@ -5,6 +5,8 @@ using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Common;
+using System.Security.Claims;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
 {
@@ -111,5 +113,19 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var affected = await _productServices.SoftDeleteProductsAsync(req.Ids, User, ct);
             return Ok(new { requested = req.Ids.Count, affected });
         }
+
+        [HttpPost("{id}/soft-delete-variation")]
+        public async Task<IActionResult> SoftDeleteVariation(Guid id, CancellationToken ct)
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim == null || !Guid.TryParse(claim.Value, out var userId))
+                return Unauthorized(new { success = false });
+
+            var affected = await _productServices.SoftDeleteByIdVarition(new[] { id }, userId, ct);
+
+            bool success = affected > 0;
+            return Ok(new { success });
+        }
+
     }
 }

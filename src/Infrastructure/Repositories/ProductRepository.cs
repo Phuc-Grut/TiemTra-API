@@ -38,7 +38,7 @@ namespace Infrastructure.Repositories
                 .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.ProductVariations.Where(v => v.Status != ProductVariationStatus.Deleted))
-                .Where(p => p.ProductStatus != ProductStatus.Deleted)
+                .Where(p => p.ProductStatus != ProductStatus.Deleted && p.ProductStatus != ProductStatus.Draft && p.ProductStatus != ProductStatus.Inactive)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filters.ProductCode))
@@ -116,7 +116,7 @@ namespace Infrastructure.Repositories
             var product = await _dbContext.Products
                 .AsSplitQuery()
                 .Include(p => p.ProductImages)
-                .Include(p => p.ProductVariations)
+                .Include(p => p.ProductVariations.Where(v => v.Status != ProductVariationStatus.Deleted))
                 .Include(p => p.ProductAttributes)
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
@@ -156,7 +156,7 @@ namespace Infrastructure.Repositories
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(p => p.ProductImages)
-                .Include(p => p.ProductVariations)
+                .Include(p => p.ProductVariations.Where(v => v.Status != ProductVariationStatus.Deleted))
                 .Include(p => p.ProductAttributes!)
                     .ThenInclude(pa => pa.Attribute)
                 .Include(p => p.Brand)

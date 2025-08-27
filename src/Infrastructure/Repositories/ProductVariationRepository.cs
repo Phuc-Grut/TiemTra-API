@@ -1,4 +1,5 @@
 ﻿using Domain.Data.Entities;
+using Domain.Enum;
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,37 @@ namespace Infrastructure.Repositories
         {
             _context.ProductVariations.RemoveRange(variations);
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct)
+        {
+            if (ids == null) return 0;
+
+            var affected = 0;
+
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var variation = await _context.ProductVariations
+                        .FirstOrDefaultAsync(v => v.ProductVariationId == id, ct);
+
+                    if (variation == null)
+                        continue;
+                    variation.Status = ProductVariationStatus.Deleted;
+                    variation.UpdatedBy = updatedBy;
+                    variation.UpdatedAt = utcNow;
+
+                    await _context.SaveChangesAsync(ct);
+                    affected++;
+                }
+                catch
+                {
+
+                }
+            }
+
+            return affected;
         }
 
     }
