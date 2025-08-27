@@ -227,9 +227,9 @@ namespace Application.Services
         }
 
 
-        public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> ChangeOrderStatus( Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
         {
-            var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+            var order = await _orderRepository.GetByIdAsync(orderId, ct);
             if (order == null)
                 return new ApiResponse(false, "Không tìm thấy đơn hàng");
 
@@ -237,19 +237,32 @@ namespace Application.Services
             {
                 var from = OrderStatusHelper.GetStatusDisplayName(order.OrderStatus);
                 var to = OrderStatusHelper.GetStatusDisplayName(newStatus);
-
                 return new ApiResponse(false, $"Không thể chuyển trạng thái từ {from} sang {to}");
             }
 
             order.OrderStatus = newStatus;
             order.UpdatedBy = userId;
             order.UpdatedAt = DateTime.UtcNow;
+            
+            if (newStatus == OrderStatus.Delivered && order.PaymentStatus == PaymentStatus.Unpaid)
+            {
+                order.PaymentStatus = PaymentStatus.Paid;
+                order.UpdatedAt = DateTime.UtcNow;
 
-            await _orderRepository.UpdateAsync(order, cancellationToken);
+                order.Note = string.IsNullOrWhiteSpace(order.Note)
+                    ? "[System] Auto mark Paid on Delivered (COD)"
+                    : $"{order.Note}\n[System] Auto mark Paid on Delivered (COD)";
+            }
+            if (newStatus == OrderStatus.Refunded)
+            {
+                order.PaymentStatus = PaymentStatus.Refunded;
+                order.UpdatedAt = DateTime.UtcNow;
+            }
 
+            await _orderRepository.UpdateAsync(order, ct);
             return new ApiResponse(true, "Chuyển trạng thái thành công");
-
         }
+
 
         public async Task<OrderDto> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
         {
