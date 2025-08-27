@@ -17,5 +17,6 @@ namespace Application.DTOs.Authentication
         public string? Avatar { get; set; }
         public UserStatus Status { get; set; }
         public List<string> Roles { get; set; }
+        public string? Address { get; set; }
     }
 }
