@@ -19,10 +19,12 @@ namespace Application.Interface
         Task<CreateProductDto> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<bool> UpdateProductAsync(Guid productId, ClaimsPrincipal user, CreateProductDto dto, CancellationToken cancellationToken);
         Task<int> SoftDeleteProductsAsync(IEnumerable<Guid> productIds, ClaimsPrincipal user, CancellationToken ct);
+        Task<int> SoftDeleteByIdVarition(IEnumerable<Guid> ids, Guid updatedBy, CancellationToken ct);
         /// Store Product
         /// 
 
         Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<StoreProducts> StoreGetProductByCodeAsync(string productCode, CancellationToken cancellationToken);
+
     }
 }
