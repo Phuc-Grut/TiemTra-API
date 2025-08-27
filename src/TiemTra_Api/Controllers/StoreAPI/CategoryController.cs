@@ -29,5 +29,12 @@ namespace TiemTra_Api.Controllers.StoreAPI
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Lỗi khi lấy danh mục: {ex.Message}");
             }
         }
+
+        [HttpGet("get-leaf-categories")]
+        public async Task<IActionResult> GetLeafCategories(CancellationToken cancellationToken)
+        {
+            var categories = await _categoryServices.GetLeafCategoriesAsync(cancellationToken);
+            return Ok(categories);
+        }
     }
 }

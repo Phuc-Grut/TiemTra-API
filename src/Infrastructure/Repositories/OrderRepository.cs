@@ -260,6 +260,7 @@ namespace Infrastructure.Repositories
                     OrderStatus = o.OrderStatus,
                     PaymentMethod = o.PaymentMethod,
                     PaymentStatus = o.PaymentStatus,
+                    ShippingFee = o.ShippingFee,
                     CreateAt = o.CreatedAt,
                 })
                 .ToListAsync(cancellationToken);
