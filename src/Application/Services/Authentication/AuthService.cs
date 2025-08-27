@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Common;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -183,6 +184,7 @@ namespace Application.Services.Authentincation
                 FullName = data.FullName,
                 Email = data.Email,
                 PhoneNumber = data.PhoneNumber,
+                Address = data.Address,
                 Avatar = data.Avatar,
                 Status = data.Status,
                 Roles = data.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>()

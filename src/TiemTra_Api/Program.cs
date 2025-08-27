@@ -73,6 +73,8 @@ builder.Services.AddScoped<ICustomerService, CustomerServices>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IOrderReadRepository, OrderReadRepository>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IProfileServices, ProfileService>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
 // Cấu hình AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
