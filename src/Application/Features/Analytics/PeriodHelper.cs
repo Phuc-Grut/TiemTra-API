@@ -1,5 +1,4 @@
-﻿// Application/Features/Analytics/PeriodHelper.cs
-using Domain.DTOs.Dashboard;
+﻿using Domain.DTOs.Dashboard;
 using System;
 
 namespace Application.Features.Analytics;
@@ -7,13 +6,14 @@ namespace Application.Features.Analytics;
 public static class PeriodHelper
 {
     public static (DateTime from, DateTime to) Resolve(
-        PeriodPreset preset, DateTime? from, DateTime? to, string tz)
+    PeriodPreset p, DateTime? from, DateTime? to, string tz
+)
     {
         var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
         var now = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tzInfo);
 
         DateTime start, end;
-        switch (preset)
+        switch (p)
         {
             case PeriodPreset.Today:
                 start = now.Date; end = start.AddDays(1); break;
@@ -32,12 +32,10 @@ public static class PeriodHelper
                 start = new DateTime(now.Year, q * 3 + 1, 1); end = start.AddMonths(3); break;
             case PeriodPreset.Custom:
             default:
-                if (from is null || to is null) throw new ArgumentException("from/to required for Custom");
+                if (from is null || to is null) throw new ArgumentException("from/to required");
                 start = from.Value; end = to.Value; break;
         }
 
-        // Trả về UTC nếu DB lưu UTC
-        return (TimeZoneInfo.ConvertTimeToUtc(start, tzInfo),
-                TimeZoneInfo.ConvertTimeToUtc(end, tzInfo));
+        return (start, end);
     }
 }
