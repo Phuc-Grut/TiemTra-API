@@ -59,6 +59,7 @@ namespace Application.Services.Admin
                     Note = dto.Note,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId,
+                    Description = dto.Description
                 };
                
 
