@@ -238,7 +238,7 @@ namespace Application.Services
 
             var cartItemIds = cart.CartItem
                 .Where(ci => orderItems.Any(oi =>
-                    oi.ProductId == ci.ProductId &&
+                    oi.ProductId == ci.ProductId ||
                     oi.ProductVariationId == ci.ProductVariationId))
                 .Select(ci => ci.CartItemId)
                 .ToList();

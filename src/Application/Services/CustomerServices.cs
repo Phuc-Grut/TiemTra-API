@@ -43,9 +43,9 @@ namespace Application.Services
             if (string.IsNullOrWhiteSpace(request.RecipientPhone))
                 throw new ArgumentException("Vui lòng nhập số điện thoại nhận hàng");
 
-            var existingCustomer = await _customerRepository.FindByPhoneNumberAsync(request.RecipientPhone, cancellationToken);
-            if (existingCustomer != null)
-                return existingCustomer.CustomerId;
+            //var existingCustomer = await _customerRepository.FindByPhoneNumberAsync(request.RecipientPhone, cancellationToken);
+            //if (existingCustomer != null)
+            //    return existingCustomer.CustomerId;
 
             if (userId.HasValue)
             {

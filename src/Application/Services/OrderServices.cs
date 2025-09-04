@@ -94,7 +94,7 @@ namespace Application.Services
                 OrderItemId = Guid.NewGuid(),
                 OrderId = orderId,
                 ProductId = itemDto.ProductId,
-                ProductVariationId = itemDto.ProductVariationId,
+                ProductVariationId = itemDto.ProductVariationId.HasValue && itemDto.ProductVariationId.Value != Guid.Empty ? itemDto.ProductVariationId : null,
                 Quantity = itemDto.Quantity,
                 UnitPrice = price,
                 TotalPrice = price * itemDto.Quantity
@@ -292,6 +292,8 @@ namespace Application.Services
                 ReceiverPhone = order.ReceiverPhone,
                 ReceiverAddress = order.DeliveryAddress,
                 ShippingFee = order.ShippingFee,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
 
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {

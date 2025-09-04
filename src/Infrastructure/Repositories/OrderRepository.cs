@@ -180,20 +180,20 @@ namespace Infrastructure.Repositories
         {
             IQueryable<Order> query = _dbContext.Orders
                    .AsNoTracking()
-                   .Where(o => o.Customer != null && o.Customer.UserId == userID && o.PaymentStatus == Domain.Enum.PaymentStatus.Paid);
+                   .Where(o => o.Customer != null && o.Customer.UserId == userID );
 
-            // Filters
-            if (!string.IsNullOrWhiteSpace(filter.OrderCode))
-                query = query.Where(o => o.OrderCode.Contains(filter.OrderCode));
-            if (!string.IsNullOrWhiteSpace(filter.CustomerCode))
-                query = query.Where(o => o.Customer != null &&
-                                         o.Customer.CustomerCode.Contains(filter.CustomerCode));
-            if (filter.OrderStatus != 0)
-                query = query.Where(o => o.OrderStatus == filter.OrderStatus);
-            if (filter.PaymentMethod != 0)
-                query = query.Where(o => o.PaymentMethod == filter.PaymentMethod);
-            if (filter.PaymentStatus != 0)
-                query = query.Where(o => o.PaymentStatus == filter.PaymentStatus);
+            //// Filters
+            //if (!string.IsNullOrWhiteSpace(filter.OrderCode))
+            //    query = query.Where(o => o.OrderCode.Contains(filter.OrderCode));
+            //if (!string.IsNullOrWhiteSpace(filter.CustomerCode))
+            //    query = query.Where(o => o.Customer != null &&
+            //                             o.Customer.CustomerCode.Contains(filter.CustomerCode));
+            //if (filter.OrderStatus != 0)
+            //    query = query.Where(o => o.OrderStatus == filter.OrderStatus);
+            //if (filter.PaymentMethod != 0)
+            //    query = query.Where(o => o.PaymentMethod == filter.PaymentMethod);
+            //if (filter.PaymentStatus != 0)
+            //    query = query.Where(o => o.PaymentStatus == filter.PaymentStatus);
             if (filter.CreateAt.HasValue)
                 query = query.Where(o => o.CreatedAt >= filter.CreateAt.Value);
 
@@ -244,8 +244,6 @@ namespace Infrastructure.Repositories
 
             // Paging + Projection
             var orders = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .Select(o => new OrderDto
                 {
                     OrderId = o.OrderId,
