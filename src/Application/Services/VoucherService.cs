@@ -1,0 +1,217 @@
+using Application.DTOs;
+using Application.DTOs.Admin.Voucher;
+using Application.DTOs.Store.Voucher;
+using Application.Interface;
+using Domain.Data.Entities;
+using Domain.DTOs.Admin.Voucher;
+using Domain.Enum;
+using Domain.Interface;
+using Shared.Common;
+using System.Security.Claims;
+
+namespace Application.Services
+{
+    public class VoucherService : IVoucherService
+    {
+        private readonly IVoucherRepository _voucherRepository;
+        private readonly IUserRepository _userRepository;
+
+        public VoucherService(IVoucherRepository voucherRepository, IUserRepository userRepository)
+        {
+            _voucherRepository = voucherRepository;
+            _userRepository = userRepository;
+        }
+
+        public async Task<ApiResponse> CreateVoucherAsync(CreateVoucherDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+
+                if (dto.EndDate <= DateTime.UtcNow)
+                {
+                    return new ApiResponse(false, "Ngày hết hạn phải sau thời điểm hiện tại");
+                }
+
+                var voucherCode = await _voucherRepository.GenerateUniqueVoucherCodeAsync(cancellationToken);
+
+                var voucher = new Voucher
+                {
+                    VoucherId = Guid.NewGuid(),
+                    VoucherCode = voucherCode,
+                    VoucherName = dto.VoucherName.Trim(),
+                    Description = dto.Description?.Trim(),
+                    Quantity = dto.Quantity,
+                    DiscountPercentage = dto.DiscountPercentage,
+                    EndDate = dto.EndDate,
+                    Status = VoucherStatus.Pending,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = userId,
+                    UpdatedBy = userId
+                };
+
+                var result = await _voucherRepository.CreateAsync(voucher, cancellationToken);
+
+                return new ApiResponse(true, "Tạo voucher thành công", new
+                {
+                    voucherId = result.VoucherId,
+                    voucherCode = result.VoucherCode,
+                    voucherName = result.VoucherName
+                });
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi tạo voucher: {ex.Message}");
+            }
+        }
+
+        public async Task<PagedResult<VoucherDto>> GetPagedVouchersAsync(int pageNumber, int pageSize, VoucherStatus? status, string? keyword, CancellationToken cancellationToken)
+        {
+            var result = await _voucherRepository.GetPagedAsync(pageNumber, pageSize, status, keyword, cancellationToken);
+
+            var voucherDtos = result.Items.Select(v => new VoucherDto
+            {
+                VoucherId = v.VoucherId,
+                VoucherCode = v.VoucherCode,
+                VoucherName = v.VoucherName,
+                Description = v.Description,
+                Quantity = v.Quantity,
+                UsedQuantity = v.UsedQuantity,
+                DiscountPercentage = v.DiscountPercentage,
+                EndDate = v.EndDate,
+                Status = v.Status,
+                CreatedAt = v.CreatedAt,
+                UpdatedAt = v.UpdatedAt,
+                CreatorName = v.Creator?.FullName,
+                UpdaterName = v.Updater?.FullName
+            }).ToList();
+
+            return new PagedResult<VoucherDto>
+            {
+                Items = voucherDtos,
+                TotalItems = result.TotalItems,
+                TotalPages = result.TotalPages,
+                CurrentPage = result.CurrentPage,
+                PageSize = result.PageSize
+            };
+        }
+
+        public async Task<VoucherDto?> GetVoucherByIdAsync(Guid voucherId, CancellationToken cancellationToken)
+        {
+            var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+            if (voucher == null) return null;
+
+            return new VoucherDto
+            {
+                VoucherId = voucher.VoucherId,
+                VoucherCode = voucher.VoucherCode,
+                VoucherName = voucher.VoucherName,
+                Description = voucher.Description,
+                Quantity = voucher.Quantity,
+                UsedQuantity = voucher.UsedQuantity,
+                DiscountPercentage = voucher.DiscountPercentage,
+                EndDate = voucher.EndDate,
+                Status = voucher.Status,
+                CreatedAt = voucher.CreatedAt,
+                UpdatedAt = voucher.UpdatedAt,
+                CreatorName = voucher.Creator?.FullName,
+                UpdaterName = voucher.Updater?.FullName
+            };
+        }
+
+        public async Task<ApiResponse> UpdateVoucherStatusAsync(Guid voucherId, VoucherStatus status, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+                
+                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+                if (voucher == null)
+                {
+                    return new ApiResponse(false, "Không tìm thấy voucher");
+                }
+
+                if (status == VoucherStatus.Publish && voucher.EndDate <= DateTime.UtcNow)
+                {
+                    return new ApiResponse(false, "Không thể công khai voucher đã hết hạn");
+                }
+
+                var result = await _voucherRepository.UpdateStatusAsync(voucherId, status, userId, cancellationToken);
+                
+                if (!result)
+                {
+                    return new ApiResponse(false, "Cập nhật trạng thái thất bại");
+                }
+
+                var statusDisplay = status switch
+                {
+                    VoucherStatus.Pending => "Chờ phê duyệt",
+                    VoucherStatus.Publish => "Công khai",
+                    _ => "Không xác định"
+                };
+
+                return new ApiResponse(true, $"Cập nhật trạng thái thành '{statusDisplay}' thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi cập nhật trạng thái: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse> UpdateVoucherAsync(Guid voucherId, CreateVoucherDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+                
+                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+                if (voucher == null)
+                {
+                    return new ApiResponse(false, "Không tìm thấy voucher");
+                }
+
+                voucher.VoucherName = dto.VoucherName.Trim();
+                voucher.Description = dto.Description?.Trim();
+                voucher.Quantity = dto.Quantity;
+                voucher.DiscountPercentage = dto.DiscountPercentage;
+                voucher.EndDate = dto.EndDate;
+                voucher.UpdatedAt = DateTime.UtcNow;
+                voucher.UpdatedBy = userId;
+
+                var result = await _voucherRepository.UpdateAsync(voucher, cancellationToken);
+                
+                if (!result)
+                {
+                    return new ApiResponse(false, "Cập nhật voucher thất bại");
+                }
+
+                return new ApiResponse(true, "Cập nhật voucher thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi cập nhật voucher: {ex.Message}");
+            }
+        }
+
+        public async Task<List<PublicVoucherDto>> GetPublicVouchersAsync(CancellationToken cancellationToken)
+        {
+            var vouchers = await _voucherRepository.GetPublicVouchersAsync(cancellationToken);
+
+            return vouchers.Select(v => new PublicVoucherDto
+            {
+                VoucherId = v.VoucherId,
+                VoucherCode = v.VoucherCode,
+                VoucherName = v.VoucherName,
+                Description = v.Description,
+                DiscountPercentage = v.DiscountPercentage,
+                EndDate = v.EndDate,
+                RemainingQuantity = v.Quantity - v.UsedQuantity
+            }).ToList();
+        }
+
+        public async Task<string> GenerateVoucherCodeAsync(CancellationToken cancellationToken)
+        {
+            return await _voucherRepository.GenerateUniqueVoucherCodeAsync(cancellationToken);
+        }
+    }
+}

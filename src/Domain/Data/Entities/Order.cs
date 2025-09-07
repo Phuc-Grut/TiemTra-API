@@ -28,6 +28,10 @@ namespace Domain.Data.Entities
         // Navigation property
         public Customer? Customer { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-        public DateTime? ConfirmedAt { get; set;}
+        public DateTime? ConfirmedAt { get; set; }
+        
+        //QH Voucher
+        public virtual ICollection<OrderVoucher>? OrderVouchers { get; set; } = new List<OrderVoucher>();
+
     }
 }
