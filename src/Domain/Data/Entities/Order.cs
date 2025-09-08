@@ -29,5 +29,11 @@ namespace Domain.Data.Entities
         public Customer? Customer { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public DateTime? ConfirmedAt { get; set;}
+
+
+        public DateTime? ShippedAt { get; set; }
+        public DateTime? DeliveredAt { get; set; }
+
+        public DateTime? CancelledAt { get; set; }
     }
 }

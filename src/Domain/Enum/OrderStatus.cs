@@ -10,12 +10,11 @@ namespace Domain.Enum
     {
         Pending = 10, // Đang chờ xử lý
         Confirmed = 1, // Đã xác nhận
-        Shipped = 2, // Đang giao hàng
+        Shipping = 2, // Đang giao hàng
         Delivered = 3, // Đã giao hàng thành công
 
         DeliveryFailed = 4, // Giao hàng ko thành công
         CancelledByShop = 5, // Đã hủy
         CancelledByUser = 6, // Người dùng hủy đơn hàng
-        Refunded = 7 // Đã hoàn tiền
     }
 }

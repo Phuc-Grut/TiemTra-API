@@ -10,13 +10,11 @@ namespace Application.Services
             {
                 OrderStatus.Pending => "Chờ xác nhận",
                 OrderStatus.Confirmed => "Đã xác nhận",
-                OrderStatus.Shipped => "Đang giao hàng",
+                OrderStatus.Shipping => "Đang giao hàng",
                 OrderStatus.Delivered => "Đã giao hàng",
                 OrderStatus.DeliveryFailed => "Giao hàng thất bại",
                 OrderStatus.CancelledByShop => "Shop đã hủy đơn",
-                OrderStatus.CancelledByUser => "Khách đã hủy đơn",
-                OrderStatus.Refunded => "Đã hoàn tiền",
-                _ => "Không xác định"
+                OrderStatus.CancelledByUser => "Khách đã hủy đơn"
             };
         }
     }

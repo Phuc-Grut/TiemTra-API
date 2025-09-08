@@ -7,11 +7,9 @@ namespace Application.Services
         private static readonly Dictionary<OrderStatus, OrderStatus[]> ValidTransitions = new()
         {
             { OrderStatus.Pending, new[] { OrderStatus.Confirmed, OrderStatus.CancelledByUser, OrderStatus.CancelledByShop } },
-            { OrderStatus.Confirmed, new[] { OrderStatus.Shipped, OrderStatus.CancelledByShop } },
-            { OrderStatus.Shipped, new[] { OrderStatus.Delivered, OrderStatus.DeliveryFailed } },
-            { OrderStatus.DeliveryFailed, new[] { OrderStatus.Shipped, OrderStatus.CancelledByShop } },
-            { OrderStatus.Delivered, new[] { OrderStatus.Refunded } },
-            { OrderStatus.Refunded, Array.Empty<OrderStatus>() },
+            { OrderStatus.Confirmed, new[] { OrderStatus.Shipping, OrderStatus.CancelledByShop } },
+            { OrderStatus.Shipping, new[] { OrderStatus.Delivered, OrderStatus.DeliveryFailed } },
+            { OrderStatus.DeliveryFailed, new[] { OrderStatus.Shipping, OrderStatus.CancelledByShop } },
             { OrderStatus.CancelledByUser, Array.Empty<OrderStatus>() },
             { OrderStatus.CancelledByShop, Array.Empty<OrderStatus>() }
         };

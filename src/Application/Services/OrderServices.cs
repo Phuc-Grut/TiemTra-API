@@ -248,15 +248,29 @@ namespace Application.Services
             {
                 order.PaymentStatus = PaymentStatus.Paid;
                 order.UpdatedAt = DateTime.UtcNow;
-
-                order.Note = string.IsNullOrWhiteSpace(order.Note)
-                    ? "[System] Auto mark Paid on Delivered (COD)"
-                    : $"{order.Note}\n[System] Auto mark Paid on Delivered (COD)";
+                order.ShippedAt = DateTime.UtcNow;
+               
             }
-            if (newStatus == OrderStatus.Refunded)
+
+            if(newStatus == OrderStatus.Delivered)
             {
-                order.PaymentStatus = PaymentStatus.Refunded;
+                order.ShippedAt = DateTime.UtcNow;
                 order.UpdatedAt = DateTime.UtcNow;
+                order.UpdatedBy = userId;
+            }
+
+            if (newStatus == OrderStatus.Shipping)
+            {
+                order.ShippedAt = DateTime.UtcNow;
+                order.UpdatedAt = DateTime.UtcNow;
+                order.UpdatedBy = userId;
+            }
+
+            if (newStatus == OrderStatus.DeliveryFailed)
+            {
+                order.DeliveredAt = DateTime.UtcNow;
+                order.UpdatedAt = DateTime.UtcNow;
+                order.UpdatedBy = userId;
             }
 
             await _orderRepository.UpdateAsync(order, ct);
@@ -330,10 +344,11 @@ namespace Application.Services
             order.OrderStatus = OrderStatus.CancelledByUser;
             order.UpdatedBy = customerUserId;
             order.UpdatedAt = DateTime.UtcNow;
+            order.CancelledAt = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(reason))
             {
-                order.Note = $"[User cancel]: {reason}";
+                order.Note = $"[Khách hủy đơn]: {reason}";
             }
 
             await _orderRepository.UpdateAsync(order, ct);
@@ -350,13 +365,25 @@ namespace Application.Services
             if (!OrderStatusValidator.CanChange(order.OrderStatus, OrderStatus.CancelledByShop))
                 return new ApiResponse(false, "Đơn hàng ở trạng thái hiện tại không thể hủy");
 
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                order.PaymentStatus = PaymentStatus.Refunded;
+            }
+
+            if (order.OrderStatus == OrderStatus.Confirmed)
+            {
+                await _inventoryService.RestoreStockAsync(order.OrderItems, ct);
+            }
+
             order.OrderStatus = OrderStatus.CancelledByShop;
             if (!string.IsNullOrWhiteSpace(reason))
             {
-                order.Note = $"[User cancel]: {reason}";
+                order.Note = $"[Shop hủy đơn]: {reason}";
             }
+
             order.UpdatedBy = adminUserId;
             order.UpdatedAt = DateTime.UtcNow;
+            order.CancelledAt = DateTime.UtcNow;
 
             await _orderRepository.UpdateAsync(order, ct);
 

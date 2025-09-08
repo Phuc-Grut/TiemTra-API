@@ -21,6 +21,43 @@ namespace Application.Services
             _productVariationRepository = productVariationRepository;
         }
 
+        public async Task RestoreStockAsync(IEnumerable<OrderItem> orderItems, CancellationToken ct)
+        {
+            foreach (var item in orderItems)
+            {
+                if (item.ProductVariationId.HasValue)
+                {
+                    var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, ct);
+                    if (variation != null)
+                    {
+                        variation.Stock += item.Quantity;
+                        variation.Product.Stock += item.Quantity;
+                        variation.Product.TotalSold -= item.Quantity;
+
+                        if(variation.Status == ProductVariationStatus.OutOfStock && item.Quantity > 0)
+                        {
+                            variation.Status = ProductVariationStatus.Active;
+                        }
+                    }
+                }
+                else
+                {
+                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, ct);
+                    if (product != null)
+                    {
+                        product.Stock += item.Quantity;
+                        product.TotalSold -= item.Quantity;
+
+                        if(product.ProductStatus == ProductStatus.OutOfStock && item.Quantity > 0)
+                        {
+                            product.ProductStatus = ProductStatus.Active;
+                        }
+                    }
+                }
+            }
+        }
+
+
         public async Task<ApiResponse> CheckStockAvailabilityAsync(IEnumerable<OrderItem> orderItems, CancellationToken cancellationToken)
         {
             foreach (var item in orderItems)
