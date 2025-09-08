@@ -1,5 +1,6 @@
 ﻿using Application.Interface;
 using Domain.Data.Entities;
+using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
 using System;
@@ -53,20 +54,44 @@ namespace Application.Services
                 if (item.ProductVariationId.HasValue)
                 {
                     var variation = await _productVariationRepository.GetByIdAsync(item.ProductVariationId.Value, cancellationToken);
-                    if (variation == null) throw new Exception("Không tìm thấy biến thể sản phẩm");
+                    if (variation == null)
+                        throw new Exception("Không tìm thấy biến thể sản phẩm");
 
                     variation.Stock -= item.Quantity;
+                    if (variation.Stock <= 0)
+                    {
+                        variation.Stock = 0;
+                        variation.Status = ProductVariationStatus.OutOfStock;
+                    }
+
                     variation.Product.Stock -= item.Quantity;
+                    if (variation.Product.Stock <= 0)
+                    {
+                        variation.Product.Stock = 0;
+                        variation.Product.ProductStatus = ProductStatus.OutOfStock;
+                    }
+
                     variation.Product.TotalSold += item.Quantity;
                 }
+
                 else
                 {
                     var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
-                    if (product == null) throw new Exception("Không tìm thấy sản phẩm");
+                    if (product == null)
+                        throw new Exception("Không tìm thấy sản phẩm");
 
                     product.Stock -= item.Quantity;
+                    if (product.Stock <= 0)
+                    {
+                        product.Stock = 0;
+                        product.ProductStatus = ProductStatus.OutOfStock;
+                    }
+
+                    // Cập nhật tổng bán (chặn null/âm)
+                    if (product.TotalSold < 0) product.TotalSold = 0; 
                     product.TotalSold += item.Quantity;
                 }
+
             }
         }
     }
