@@ -72,7 +72,7 @@ namespace Application.Services.Authentincation
             var userRole = new UserRole
             {
                 UserId = user.UserId,
-                RoleId = 1
+                RoleId = isFirstUser ? 1 : 3
             };
 
             await _authRepository.AddUserRole(userRole);

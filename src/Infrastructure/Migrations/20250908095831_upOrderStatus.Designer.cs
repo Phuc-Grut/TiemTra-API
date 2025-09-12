@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250908095831_upOrderStatus")]
+    partial class upOrderStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -428,55 +431,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("OrderItems", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.OrderVoucher", b =>
-                {
-                    b.Property<Guid>("OrderVoucherId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("UsedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VoucherCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("VoucherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("OrderVoucherId");
-
-                    b.HasIndex("VoucherId");
-
-                    b.HasIndex("OrderId", "VoucherId")
-                        .IsUnique();
-
-                    b.ToTable("OrderVouchers", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
                 {
                     b.Property<Guid>("ProductId")
@@ -832,73 +786,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.Voucher", b =>
-                {
-                    b.Property<Guid>("VoucherId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("DiscountPercentage")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("UsedQuantity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("VoucherCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("VoucherName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("VoucherId");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("UpdatedBy");
-
-                    b.HasIndex("VoucherCode")
-                        .IsUnique();
-
-                    b.ToTable("Vouchers", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Data.Entities.Cart", b =>
                 {
                     b.HasOne("Domain.Data.Entities.User", "User")
@@ -1005,25 +892,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProductVariations");
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.OrderVoucher", b =>
-                {
-                    b.HasOne("Domain.Data.Entities.Order", "Order")
-                        .WithMany("OrderVouchers")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Data.Entities.Voucher", "Voucher")
-                        .WithMany("OrderVouchers")
-                        .HasForeignKey("VoucherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Voucher");
-                });
-
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
                 {
                     b.HasOne("Domain.Data.Entities.Brand", "Brand")
@@ -1098,25 +966,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Data.Entities.Voucher", b =>
-                {
-                    b.HasOne("Domain.Data.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Data.Entities.User", "Updater")
-                        .WithMany()
-                        .HasForeignKey("UpdatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-
-                    b.Navigation("Updater");
-                });
-
             modelBuilder.Entity("Domain.Data.Entities.Attributes", b =>
                 {
                     b.Navigation("CategoryAttributes");
@@ -1151,8 +1000,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Data.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
-
-                    b.Navigation("OrderVouchers");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.Product", b =>
@@ -1187,11 +1034,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Domain.Data.Entities.Voucher", b =>
-                {
-                    b.Navigation("OrderVouchers");
                 });
 #pragma warning restore 612, 618
         }
