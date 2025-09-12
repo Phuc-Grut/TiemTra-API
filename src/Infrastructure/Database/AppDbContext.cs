@@ -23,6 +23,9 @@ namespace Infrastructure.Database
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Customer> Customer { get; set; }
 
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<OrderVoucher> OrderVouchers { get; set; }
+
         public AppDbContext()
         { }
 

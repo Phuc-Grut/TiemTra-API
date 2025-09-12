@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250906222922_AddSimpleVoucherSystem")]
+    partial class AddSimpleVoucherSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -309,9 +312,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("ConfirmedAt")
                         .HasColumnType("datetime2");
 
@@ -323,9 +323,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("DeliveryAddress")
                         .IsRequired()
@@ -355,9 +352,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("RecipientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ShippedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("ShippingFee")
                         .HasColumnType("decimal(18,2)");
@@ -710,28 +704,28 @@ namespace Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
-                            CreatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6601),
+                            CreatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8829),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Admin",
-                            UpdatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6643),
+                            UpdatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8877),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 2,
-                            CreatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6647),
+                            CreatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8886),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Staff",
-                            UpdatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6648),
+                            UpdatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8888),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             RoleId = 3,
-                            CreatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6650),
+                            CreatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8959),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             RoleName = "Customer",
-                            UpdatedAt = new DateTime(2025, 9, 8, 16, 58, 29, 346, DateTimeKind.Unspecified).AddTicks(6650),
+                            UpdatedAt = new DateTime(2025, 9, 7, 5, 29, 20, 123, DateTimeKind.Unspecified).AddTicks(8962),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });

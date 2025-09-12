@@ -250,6 +250,9 @@ namespace Application.Services
                 order.UpdatedAt = DateTime.UtcNow;
                 order.ShippedAt = DateTime.UtcNow;
                
+                order.Note = string.IsNullOrWhiteSpace(order.Note)
+                    ? "[System] Auto mark Paid on Delivered (COD)"
+                    : $"{order.Note}\n[System] Auto mark Paid on Delivered (COD)";
             }
 
             if(newStatus == OrderStatus.Delivered)
