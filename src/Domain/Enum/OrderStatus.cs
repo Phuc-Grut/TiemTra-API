@@ -16,5 +16,6 @@ namespace Domain.Enum
         DeliveryFailed = 4, // Giao hàng ko thành công
         CancelledByShop = 5, // Đã hủy
         CancelledByUser = 6, // Người dùng hủy đơn hàng
+        Returned = 7 // Đã trả hàng
     }
 }

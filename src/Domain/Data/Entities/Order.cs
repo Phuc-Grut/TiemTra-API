@@ -23,6 +23,17 @@ namespace Domain.Data.Entities
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+
+        public ReturnStatus? ReturnStatus { get; set; }
+        public string? ReturnReason { get; set; }
+        public string? ReturnRejectReason { get; set; }
+        public string? ReturnCarrier { get; set; }
+        public string? ReturnTrackingNumber { get; set; }
+        public DateTime? ReturnCreatedAt { get; set; }
+        public DateTime? ReturnApprovedAt { get; set; }
+        public DateTime? ReturnCompletedAt { get; set; }
+        public decimal? ReturnRefundAmount { get; set; }
+        public string? ReturnNote { get; set; }
         public string? Note { get; set; }
 
         // Navigation property
