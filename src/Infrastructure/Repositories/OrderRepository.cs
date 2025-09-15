@@ -4,12 +4,6 @@ using Domain.DTOs.Order;
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructure.Repositories
 {
@@ -48,7 +42,6 @@ namespace Infrastructure.Repositories
 
         public async Task<PagedResult<OrderDto>> GetPagedOrdersAsync(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-
             // Base query
             var query = _dbContext.Orders
                 .AsNoTracking()
@@ -83,42 +76,40 @@ namespace Infrastructure.Repositories
                 .Select(x => x.Trim().ToLower())
                 .ToList();
 
-          
-                bool isFirstSort = true;
+            bool isFirstSort = true;
 
-                foreach (var sort in sortFields)
+            foreach (var sort in sortFields)
+            {
+                if (sort == "createdat-asc")
                 {
-                    if (sort == "createdat-asc")
-                    {
-                        query = isFirstSort
-                            ? query.OrderBy(o => o.CreatedAt)
-                            : ((IOrderedQueryable<Order>)query).ThenBy(o => o.CreatedAt);
-                        isFirstSort = false;
-                    }
-                    else if (sort == "createdat-desc")
-                    {
-                        query = isFirstSort
-                            ? query.OrderByDescending(o => o.CreatedAt)
-                            : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.CreatedAt);
-                        isFirstSort = false;
-                    }
-                    else if (sort == "totalamount-asc")
-                    {
-                        query = isFirstSort
-                            ? query.OrderBy(o => o.TotalAmount)
-                            : ((IOrderedQueryable<Order>)query).ThenBy(o => o.TotalAmount);
-                        isFirstSort = false;
-                    }
-                    else if (sort == "totalamount-desc")
-                    {
-                        query = isFirstSort
-                            ? query.OrderByDescending(o => o.TotalAmount)
-                            : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.TotalAmount);
-                        isFirstSort = false;
-                    }
-                    // nếu sort key không khớp thì bỏ qua
+                    query = isFirstSort
+                        ? query.OrderBy(o => o.CreatedAt)
+                        : ((IOrderedQueryable<Order>)query).ThenBy(o => o.CreatedAt);
+                    isFirstSort = false;
                 }
-           
+                else if (sort == "createdat-desc")
+                {
+                    query = isFirstSort
+                        ? query.OrderByDescending(o => o.CreatedAt)
+                        : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.CreatedAt);
+                    isFirstSort = false;
+                }
+                else if (sort == "totalamount-asc")
+                {
+                    query = isFirstSort
+                        ? query.OrderBy(o => o.TotalAmount)
+                        : ((IOrderedQueryable<Order>)query).ThenBy(o => o.TotalAmount);
+                    isFirstSort = false;
+                }
+                else if (sort == "totalamount-desc")
+                {
+                    query = isFirstSort
+                        ? query.OrderByDescending(o => o.TotalAmount)
+                        : ((IOrderedQueryable<Order>)query).ThenByDescending(o => o.TotalAmount);
+                    isFirstSort = false;
+                }
+                // nếu sort key không khớp thì bỏ qua
+            }
 
             // Paging + Projection
             var orders = await query
@@ -152,7 +143,6 @@ namespace Infrastructure.Repositories
             };
         }
 
-
         public async Task<bool> OrderCodeExistsAsync(string orderCode)
         {
             return await _dbContext.Orders
@@ -180,7 +170,7 @@ namespace Infrastructure.Repositories
         {
             IQueryable<Order> query = _dbContext.Orders
                    .AsNoTracking()
-                   .Where(o => o.Customer != null && o.Customer.UserId == userID );
+                   .Where(o => o.Customer != null && o.Customer.UserId == userID);
 
             //// Filters
             //if (!string.IsNullOrWhiteSpace(filter.OrderCode))
@@ -204,7 +194,6 @@ namespace Infrastructure.Repositories
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim().ToLower())
                 .ToList();
-
 
             bool isFirstSort = true;
 
@@ -240,7 +229,6 @@ namespace Infrastructure.Repositories
                 }
                 // nếu sort key không khớp thì bỏ qua
             }
-
 
             // Paging + Projection
             var orders = await query

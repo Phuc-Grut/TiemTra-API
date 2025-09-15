@@ -1,5 +1,4 @@
-﻿
-using Application.DTOs.Order;
+﻿using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
 using Domain.DTOs;
@@ -20,7 +19,7 @@ namespace Application.Services
         private readonly ICartRepository _cartRepository;
         private readonly ICustomerService _customerService;
         private readonly IInventoryService _inventoryService;
-        private readonly ICartServices _cartService;    
+        private readonly ICartServices _cartService;
 
         public OrderServices(ICartServices cartServices, IInventoryService inventoryService, ICustomerService customerService, IOrderRepository orderRepository, IProductRepository productRepository, IProductVariationRepository productVariationRepository, IUserRepository userRepository, ICartRepository cartRepository)
         {
@@ -48,7 +47,6 @@ namespace Application.Services
             while (exists);
             return orderCode;
         }
-      
 
         private async Task<OrderItem> CreateOrderItemAsync(CreateOrderItemDto itemDto, Guid orderId, CancellationToken cancellationToken)
         {
@@ -67,7 +65,6 @@ namespace Application.Services
 
                 if (variation.Status == ProductVariationStatus.Deleted || variation.Status == ProductVariationStatus.Inactive)
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} - {variation.TypeName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
-
 
                 if (variation.Product.ProductStatus == ProductStatus.Deleted || variation.Product.ProductStatus == ProductStatus.Inactive || variation.Product.ProductStatus == ProductStatus.Draft)
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
@@ -100,7 +97,6 @@ namespace Application.Services
                 TotalPrice = price * itemDto.Quantity
             };
         }
-
 
         public async Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
@@ -168,8 +164,6 @@ namespace Application.Services
                     newOrder.PaymentStatus = PaymentStatus.Unpaid;
                 }
 
-
-
                 await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
 
                 if (userId.HasValue && request.OrderItems != null && request.OrderItems.Any())
@@ -185,7 +179,6 @@ namespace Application.Services
                 return new ApiResponse(false, ex.Message);
             }
         }
-
 
         public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
@@ -226,8 +219,7 @@ namespace Application.Services
             return new ApiResponse(true, "Xác nhận thành công");
         }
 
-
-        public async Task<ApiResponse> ChangeOrderStatus( Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
+        public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, ct);
             if (order == null)
@@ -243,19 +235,19 @@ namespace Application.Services
             order.OrderStatus = newStatus;
             order.UpdatedBy = userId;
             order.UpdatedAt = DateTime.UtcNow;
-            
+
             if (newStatus == OrderStatus.Delivered && order.PaymentStatus == PaymentStatus.Unpaid)
             {
                 order.PaymentStatus = PaymentStatus.Paid;
                 order.UpdatedAt = DateTime.UtcNow;
                 order.ShippedAt = DateTime.UtcNow;
-               
+
                 order.Note = string.IsNullOrWhiteSpace(order.Note)
                     ? "[System] Auto mark Paid on Delivered (COD)"
                     : $"{order.Note}\n[System] Auto mark Paid on Delivered (COD)";
             }
 
-            if(newStatus == OrderStatus.Delivered)
+            if (newStatus == OrderStatus.Delivered)
             {
                 order.ShippedAt = DateTime.UtcNow;
                 order.UpdatedAt = DateTime.UtcNow;
@@ -280,7 +272,6 @@ namespace Application.Services
             return new ApiResponse(true, "Chuyển trạng thái thành công");
         }
 
-
         public async Task<OrderDto> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
         {
             if (orderId == Guid.Empty)
@@ -288,7 +279,7 @@ namespace Application.Services
 
             var order = await _orderRepository.GetByIdWithItemsAsync(orderId, cancellationToken);
 
-            if(order == null)
+            if (order == null)
             {
                 throw new Exception("Không tìm thấy đơn hàng");
             }
