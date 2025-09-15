@@ -22,5 +22,9 @@ namespace Application.Interface
         Task<ApiResponse> UpdateVoucherAsync(Guid voucherId, CreateVoucherDto dto, ClaimsPrincipal user, CancellationToken cancellationToken);
         Task<List<PublicVoucherDto>> GetPublicVouchersAsync(CancellationToken cancellationToken);
         Task<string> GenerateVoucherCodeAsync(CancellationToken cancellationToken);
+
+        Task<ApplyVoucherResponse> ApplyVoucherAsync(ApplyVoucherRequest request, CancellationToken cancellationToken);
+
+        Task<ApiResponse> UnpublishVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken);
     }
 }

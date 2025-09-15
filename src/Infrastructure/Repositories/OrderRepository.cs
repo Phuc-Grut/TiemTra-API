@@ -272,5 +272,18 @@ namespace Infrastructure.Repositories
                 PageSize = pageSize
             };
         }
+
+        public async Task<Order?> GetOrderWithVouchersAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariations)
+                .Include(o => o.OrderVouchers) // Include OrderVouchers
+                    .ThenInclude(ov => ov.Voucher)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
+        }
     }
 }

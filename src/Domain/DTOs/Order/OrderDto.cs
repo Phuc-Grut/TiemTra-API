@@ -27,5 +27,6 @@ namespace Domain.DTOs.Order
         public DateTime UpdateAt { get; set; }
         public DateTime? ConfirmedAt { get; set; }
         public decimal ShippingFee { get; set; }
+        public List<OrderVoucherDto> AppliedVouchers { get; set; } = new List<OrderVoucherDto>();
     }
 }

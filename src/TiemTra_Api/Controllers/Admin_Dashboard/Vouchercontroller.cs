@@ -35,6 +35,26 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             return Ok(result);
         }
 
+           [HttpPut("unpublish/{voucherId}")]
+        public async Task<IActionResult> UnpublishVoucher(
+            Guid voucherId,
+            [FromBody] string reason,
+            CancellationToken cancellationToken)
+        {
+            if (voucherId == Guid.Empty)
+                return BadRequest("Voucher ID không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(reason))
+                return BadRequest("Lý do không được để trống");
+
+            var result = await _voucherService.UnpublishVoucherAsync(voucherId, User, cancellationToken);
+            
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpGet("get-paging")]
         public async Task<IActionResult> GetPagingVouchers(
             [FromQuery] int pageNumber = 1,

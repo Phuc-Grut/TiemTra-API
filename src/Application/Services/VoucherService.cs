@@ -213,5 +213,129 @@ namespace Application.Services
         {
             return await _voucherRepository.GenerateUniqueVoucherCodeAsync(cancellationToken);
         }
+
+        public async Task<ApplyVoucherResponse> ApplyVoucherAsync(ApplyVoucherRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                //Tìm voucher theo mã
+                var voucher = await _voucherRepository.GetByCodeAsync(request.VoucherCode, cancellationToken);
+
+                if(voucher == null){
+                    return new ApplyVoucherResponse
+                    {
+                        IsValid = false,
+                        Message = "Mã voucher không tồn tại",
+                        DiscountAmount = 0,
+                        FinalAmount = request.OrderTotal,
+                    };
+                }
+
+                //Kiểm tra trạng thái voucher
+                if(voucher.Status != VoucherStatus.Publish){
+                    return new ApplyVoucherResponse
+                    {
+                        IsValid = false,
+                        Message = "Voucher chưa được kích hoạt",
+                        DiscountAmount = 0,
+                        FinalAmount = request.OrderTotal
+                    };
+                }
+
+                //Kiểm tra ngày hết hạn
+                if(voucher.EndDate <= DateTime.UtcNow){
+                    return new ApplyVoucherResponse{
+                        IsValid = false,
+                        Message = "Voucher đã hết hạn",
+                        DiscountAmount = 0,
+                        FinalAmount = request.OrderTotal
+                    };
+                }
+
+                //Kiểm tra số lượng còn lại
+                if(voucher.UsedQuantity >= voucher.Quantity)
+                {
+                    return new ApplyVoucherResponse{
+                        IsValid = false,
+                        Message = "Voucher đã hết lượt sử dụng",
+                        DiscountAmount = 0,
+                        FinalAmount = request.OrderTotal
+                    };
+                }
+
+                //Tính toán số tiền giảm giá
+                var discountAmount = (request.OrderTotal * voucher.DiscountPercentage) / 100;
+                var finalAmount = request.OrderTotal - discountAmount;
+
+                //Đàm bảo số tiền cuối cùng không âm;
+                if(finalAmount < 0){
+                    finalAmount = 0;
+                    discountAmount = request.OrderTotal;
+                }
+
+                return new ApplyVoucherResponse
+                {
+                    IsValid = true,
+                    Message = "Áp dụng voucher thành công",
+                    DiscountAmount = discountAmount,
+                    FinalAmount = finalAmount,
+                    VoucherCode = voucher.VoucherCode,
+                    DiscountPercentage = voucher.DiscountPercentage,
+                    VoucherId = voucher.VoucherId,
+                };
+
+            }
+            catch (System.Exception ex)
+            {
+                return new ApplyVoucherResponse
+                {
+                    IsValid = false,
+                    Message = $"Lỗi khi áp dụng voucher :{ex.Message}",
+                    DiscountAmount = 0,
+                    FinalAmount = request.OrderTotal
+                };
+            }
+        }
+
+        public async Task<ApiResponse> UnpublishVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+          try
+          {
+            var userId = GetUserIdFromClaims.GetUserId(user);
+
+            var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+
+            if(voucher == null)
+            {
+                return new ApiResponse(false, "Không tìm thấy voucher");
+            }
+
+            if(voucher.Status != VoucherStatus.Publish)
+            {
+                return new ApiResponse(false,"Voucher chưa được công khai, không thể hủy công khai");
+            }
+
+
+            //Kiểm tra xem voucher đã được sử dụng chưa
+            if(voucher.UsedQuantity > 0)
+            {
+                return new ApiResponse(false, "Không thể hủy công khai voucher đã có người sử dụng");
+            }
+
+
+            //Cập nhật trạng thái về Pending
+            var result = await _voucherRepository.UpdateStatusAsync(voucherId, VoucherStatus.Pending, userId, cancellationToken);
+            if(!result) 
+            {
+                return new ApiResponse(false, "Hủy công khai voucher thất bại");
+            }
+
+            return new ApiResponse(true, $"Hủy công khai voucher thành công");
+          }
+          catch (System.Exception ex)
+          {
+           return new ApiResponse(false, $"Lỗi khi hủy công khai voucher: {ex.Message}");
+          }
+        }
     }
 }
