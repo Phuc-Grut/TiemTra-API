@@ -1,10 +1,8 @@
-using Application.DTOs;
 using Domain.Data.Entities;
 using Domain.Enum;
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace Infrastructure.Repositories
 {
@@ -38,12 +36,11 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(v => v.VoucherCode == voucherCode, cancellationToken);
         }
 
-
         public async Task<List<Voucher>> GetPublicVouchersAsync(CancellationToken cancellationToken)
         {
             var now = DateTime.UtcNow;
             return await _context.Vouchers
-                .Where(v => v.Status == VoucherStatus.Publish && 
+                .Where(v => v.Status == VoucherStatus.Publish &&
                            v.EndDate > now &&
                            v.UsedQuantity < v.Quantity)
                 .OrderBy(v => v.EndDate)
@@ -81,7 +78,7 @@ namespace Infrastructure.Repositories
             var random = new Random();
             string voucherCode;
             bool exists;
-            
+
             do
             {
                 int randomNumber = random.Next(100000, 999999);
@@ -89,7 +86,7 @@ namespace Infrastructure.Repositories
                 exists = await VoucherCodeExistsAsync(voucherCode, cancellationToken);
             }
             while (exists);
-            
+
             return voucherCode;
         }
 
@@ -98,12 +95,12 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-    async Task<Domain.DTOs.PagedResult<Voucher>> IVoucherRepository.GetPagedAsync(int pageNumber, int pageSize, VoucherStatus? status, string? keyword, CancellationToken cancellationToken)
-    {
-     var query = _context.Vouchers
-                .Include(v => v.Creator)
-                .Include(v => v.Updater)
-                .AsQueryable();
+        async Task<Domain.DTOs.PagedResult<Voucher>> IVoucherRepository.GetPagedAsync(int pageNumber, int pageSize, VoucherStatus? status, string? keyword, CancellationToken cancellationToken)
+        {
+            var query = _context.Vouchers
+                       .Include(v => v.Creator)
+                       .Include(v => v.Updater)
+                       .AsQueryable();
 
             if (status.HasValue)
             {
@@ -113,7 +110,7 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 var searchTerm = keyword.Trim().ToLower();
-                query = query.Where(v => 
+                query = query.Where(v =>
                     v.VoucherName.ToLower().Contains(searchTerm) ||
                     v.VoucherCode.ToLower().Contains(searchTerm) ||
                     (v.Description != null && v.Description.ToLower().Contains(searchTerm))
@@ -136,7 +133,6 @@ namespace Infrastructure.Repositories
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
+        }
     }
-    
-  }
 }

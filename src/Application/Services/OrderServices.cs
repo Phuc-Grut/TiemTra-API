@@ -1,5 +1,4 @@
-﻿
-using Application.DTOs.Order;
+﻿using Application.DTOs.Order;
 using Application.DTOs.Store.Voucher;
 using Application.Interface;
 using Domain.Data.Entities;
@@ -74,7 +73,6 @@ namespace Application.Services
                 if (variation.Status == ProductVariationStatus.Deleted || variation.Status == ProductVariationStatus.Inactive)
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} - {variation.TypeName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
 
-
                 if (variation.Product.ProductStatus == ProductStatus.Deleted || variation.Product.ProductStatus == ProductStatus.Inactive || variation.Product.ProductStatus == ProductStatus.Draft)
                     throw new Exception($"Sản phẩm {variation.Product.ProductName} đã ngừng bán, vui lòng xóa khỏi giỏ hàng");
 
@@ -106,7 +104,6 @@ namespace Application.Services
                 TotalPrice = price * itemDto.Quantity
             };
         }
-
 
         public async Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
@@ -333,7 +330,6 @@ namespace Application.Services
             await _orderRepository.UpdateAsync(order, ct);
             return new ApiResponse(true, "Chuyển trạng thái thành công");
         }
-
 
         public async Task<OrderDto> GetByIdAsync(Guid orderId, CancellationToken cancellationToken)
         {

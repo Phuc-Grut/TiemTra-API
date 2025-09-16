@@ -124,7 +124,7 @@ namespace Application.Services
             try
             {
                 var userId = GetUserIdFromClaims.GetUserId(user);
-                
+
                 var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
                 if (voucher == null)
                 {
@@ -137,7 +137,7 @@ namespace Application.Services
                 }
 
                 var result = await _voucherRepository.UpdateStatusAsync(voucherId, status, userId, cancellationToken);
-                
+
                 if (!result)
                 {
                     return new ApiResponse(false, "Cập nhật trạng thái thất bại");
@@ -163,7 +163,7 @@ namespace Application.Services
             try
             {
                 var userId = GetUserIdFromClaims.GetUserId(user);
-                
+
                 var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
                 if (voucher == null)
                 {
@@ -179,7 +179,7 @@ namespace Application.Services
                 voucher.UpdatedBy = userId;
 
                 var result = await _voucherRepository.UpdateAsync(voucher, cancellationToken);
-                
+
                 if (!result)
                 {
                     return new ApiResponse(false, "Cập nhật voucher thất bại");
