@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace TiemTra_Api.Controllers.Admin_Dashboard
 {
     [Route("api/admin/voucher")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [ApiController]
     public class VoucherController : ControllerBase
     {

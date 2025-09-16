@@ -77,8 +77,22 @@ builder.Services.AddScoped<IProfileServices, ProfileService>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddScoped<IGhnService, GhnService>();
 // Cấu hình AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+// conncet GHN
+var ghnToken = builder.Configuration["GHN:Token"] ?? "YOUR_GHN_TOKEN";
+var ghnShopId = builder.Configuration["GHN:ShopId"] ?? "YOUR_SHOP_ID";
+
+builder.Services.AddHttpClient<IGhnService, GhnService>((sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    client.BaseAddress = new Uri(config["GHN:BaseUrl"]!);
+    client.DefaultRequestHeaders.Add("Token", config["GHN:Token"]!);
+    client.DefaultRequestHeaders.Add("ShopId", config["GHN:ShopId"]!);
+});
+
 
 // Cấu hình JWT Bearer
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
