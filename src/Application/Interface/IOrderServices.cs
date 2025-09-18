@@ -26,5 +26,6 @@ namespace Application.Interface
         Task<string> GenerateUniqueOrderCodeAsync();
         Task<PagedResult<OrderDto>> GetByUserIDAsync(Guid UserID,OrderFillterDto fillterDto, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<ApiResponse> CancelByCustomerAsync(Guid orderId, Guid customerUserId, string? reason, CancellationToken ct);
+        Task<OrderDto> GetOrderWithVouchersAsync(Guid orderId, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Order;
+using Application.DTOs.Store.Voucher;
 using Application.Interface;
 using Domain.Data.Entities;
 using Domain.DTOs;
@@ -20,17 +21,22 @@ namespace Application.Services
         private readonly ICustomerService _customerService;
         private readonly IInventoryService _inventoryService;
         private readonly ICartServices _cartService;
+        private readonly IVoucherRepository _voucherRepository;
+        private readonly IVoucherService _voucherService;
 
-        public OrderServices(ICartServices cartServices, IInventoryService inventoryService, ICustomerService customerService, IOrderRepository orderRepository, IProductRepository productRepository, IProductVariationRepository productVariationRepository, IUserRepository userRepository, ICartRepository cartRepository)
+        public OrderServices(ICartServices cartServices, IInventoryService inventoryService, ICustomerService customerService, IOrderRepository orderRepository, IProductRepository productRepository, IProductVariationRepository productVariationRepository, IUserRepository userRepository, ICartRepository cartRepository,
+        IVoucherService voucherService, IVoucherRepository voucherRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
             _productVariationRepository = productVariationRepository;
             _userRepository = userRepository;
             _cartRepository = cartRepository;
+            _voucherRepository = voucherRepository;
             _customerService = customerService;
             _inventoryService = inventoryService;
             _cartService = cartServices;
+            _voucherService = voucherService;
         }
 
         public async Task<string> GenerateUniqueOrderCodeAsync()
@@ -47,6 +53,7 @@ namespace Application.Services
             while (exists);
             return orderCode;
         }
+
 
         private async Task<OrderItem> CreateOrderItemAsync(CreateOrderItemDto itemDto, Guid orderId, CancellationToken cancellationToken)
         {
@@ -137,6 +144,7 @@ namespace Application.Services
                 ShippingFee = request.ShippingFee,
                 PaymentMethod = request.PaymentMethod,
                 OrderItems = new List<OrderItem>(),
+                OrderVouchers = new List<OrderVoucher>(), // Đảm bảo khởi tạo
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = userId ?? customerId
             };
@@ -151,6 +159,45 @@ namespace Application.Services
 
                 newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
                 newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
+
+                // Xử lý voucher nếu có
+                if (!string.IsNullOrEmpty(request.VoucherCode))
+                {
+                    var voucherRequest = new ApplyVoucherRequest
+                    {
+                        VoucherCode = request.VoucherCode,
+                        OrderTotal = newOrder.TotalAmount
+                    };
+
+                    var voucherResult = await _voucherService.ApplyVoucherAsync(voucherRequest, cancellationToken);
+                    if (!voucherResult.IsValid)
+                    {
+                        return new ApiResponse(false, voucherResult.Message);
+                    }
+
+                    // Tạo OrderVoucher
+                    var orderVoucher = new OrderVoucher
+                    {
+                        OrderVoucherId = Guid.NewGuid(),
+                        OrderId = newOrder.OrderId,
+                        VoucherId = voucherResult.VoucherId.Value,
+                        VoucherCode = voucherResult.VoucherCode,
+                        DiscountAmount = voucherResult.DiscountAmount,
+                        UsedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = userId ?? customerId
+                    };
+
+                    newOrder.OrderVouchers.Add(orderVoucher);
+                    newOrder.TotalAmount = voucherResult.FinalAmount + request.ShippingFee;
+
+                    // Cập nhật UsedQuantity của voucher
+                    await UpdateVoucherUsedQuantityAsync(voucherResult.VoucherId.Value, cancellationToken);
+                }
+                else
+                {
+                    newOrder.TotalAmount += request.ShippingFee;
+                }
 
                 if (request.PaymentMethod == PaymentMethod.BankTransfer)
                 {
@@ -172,13 +219,24 @@ namespace Application.Services
                     await _cartService.RemoveItemsFromCartAsync(userId.Value, cartItemIds, cancellationToken);
                 }
 
-                return new ApiResponse(true, "Đặt đơn hàng thành công");
+                return new ApiResponse(true, "Đặt đơn hàng thành công", new { OrderId = newOrder.OrderId });
             }
             catch (Exception ex)
             {
                 return new ApiResponse(false, ex.Message);
             }
         }
+
+           private async Task UpdateVoucherUsedQuantityAsync(Guid voucherId, CancellationToken cancellationToken)
+        {
+            var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+            if (voucher != null)
+            {
+                voucher.UsedQuantity += 1;
+                await _voucherRepository.UpdateAsync(voucher, cancellationToken);
+            }
+        }
+
 
         public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
@@ -218,6 +276,7 @@ namespace Application.Services
 
             return new ApiResponse(true, "Xác nhận thành công");
         }
+
 
         public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
         {
@@ -382,6 +441,40 @@ namespace Application.Services
             await _orderRepository.UpdateAsync(order, ct);
 
             return new ApiResponse(true, "Hủy thành công");
+        }
+
+        public async Task<OrderDto> GetOrderWithVouchersAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            var order = await _orderRepository.GetOrderWithVouchersAsync(orderId, cancellationToken);
+            if (order == null)
+                throw new ArgumentException("Không tìm thấy đơn hàng");
+
+            return new OrderDto
+            {
+                OrderId = order.OrderId,
+                OrderCode = order.OrderCode,
+                CustomerName = order.Customer?.CustomerName ?? "",
+                CustomerCode = order.Customer?.CustomerCode ?? "",
+                ReceivertName = order.RecipientName,
+                ReceiverAddress = order.DeliveryAddress,
+                ReceiverPhone = order.ReceiverPhone,
+                TotalOrderItems = order.TotalOrderItems,
+                TotalAmount = order.TotalAmount,
+                OrderStatus = order.OrderStatus,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
+                Note = order.Note,
+                CreateAt = order.CreatedAt,
+                UpdateAt = order.UpdatedAt,
+                ConfirmedAt = order.ConfirmedAt,
+                ShippingFee = order.ShippingFee,
+                AppliedVouchers = order.OrderVouchers?.Select(ov => new Domain.DTOs.Order.OrderVoucherDto
+                {
+                    VoucherCode = ov.VoucherCode,
+                    DiscountAmount = ov.DiscountAmount,
+                    UsedAt = ov.UsedAt
+                }).ToList() ?? new List<Domain.DTOs.Order.OrderVoucherDto>()
+            };
         }
     }
 }
