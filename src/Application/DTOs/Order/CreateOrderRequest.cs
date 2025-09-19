@@ -23,5 +23,7 @@ namespace Application.DTOs.Order
 
         //Thêm Voucher
         public string? VoucherCode {get; set;}
+
+        public decimal TotalAmount {get; set;}
     }
 }

@@ -7,6 +7,8 @@ using Domain.DTOs.Order;
 using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Application.Services
@@ -107,6 +109,8 @@ namespace Application.Services
 
         public async Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
+
+            Console.WriteLine("Request: " + JsonSerializer.Serialize(request));
             if (string.IsNullOrWhiteSpace(request.RecipientName) ||
                 string.IsNullOrWhiteSpace(request.RecipientPhone) ||
                 string.IsNullOrWhiteSpace(request.RecipientAddress))
@@ -189,7 +193,7 @@ namespace Application.Services
                     };
 
                     newOrder.OrderVouchers.Add(orderVoucher);
-                    newOrder.TotalAmount = voucherResult.FinalAmount + request.ShippingFee;
+                    newOrder.TotalAmount = request.TotalAmount;
 
                     // Cập nhật UsedQuantity của voucher
                     await UpdateVoucherUsedQuantityAsync(voucherResult.VoucherId.Value, cancellationToken);
@@ -227,7 +231,7 @@ namespace Application.Services
             }
         }
 
-           private async Task UpdateVoucherUsedQuantityAsync(Guid voucherId, CancellationToken cancellationToken)
+        private async Task UpdateVoucherUsedQuantityAsync(Guid voucherId, CancellationToken cancellationToken)
         {
             var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
             if (voucher != null)
@@ -463,6 +467,19 @@ namespace Application.Services
                 OrderStatus = order.OrderStatus,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    ProductId = oi.ProductId,
+                    ProductVariationId = oi.ProductVariationId ?? Guid.Empty,
+                    ProductCode = oi.Product.ProductCode,
+                    ProductName = oi.Product.ProductName,
+                    PreviewImageUrl = oi.Product.PrivewImage,
+                    VariationName = oi.ProductVariations?.TypeName,
+
+                    UnitPrice = oi.UnitPrice,
+                    Quantity = oi.Quantity,
+                    TotalPrice = oi.TotalPrice,
+                }).ToList(),
                 Note = order.Note,
                 CreateAt = order.CreatedAt,
                 UpdateAt = order.UpdatedAt,
