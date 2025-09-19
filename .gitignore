@@ -365,6 +365,7 @@ FodyWeavers.xsd
 # Bỏ qua file cấu hình
 appsettings.json
 docker-compose.yml
+src/TiemTra_Api/docker-compose.yml
 
 src/TiemTra_Api/appsetting.development.json
 appsetting.json
