@@ -26,8 +26,9 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var user = User;
 
-            var result = await _voucherService.CreateVoucherAsync(dto, User, cancellationToken);
+            var result = await _voucherService.CreateVoucherAsync(dto, user, cancellationToken);
 
             if (!result.Success)
                 return BadRequest(result);
@@ -35,7 +36,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             return Ok(result);
         }
 
-           [HttpPut("unpublish/{voucherId}")]
+        [HttpPut("unpublish/{voucherId}")]
         public async Task<IActionResult> UnpublishVoucher(
             Guid voucherId,
             [FromBody] string reason,
