@@ -161,16 +161,14 @@ namespace Application.Services
                     newOrder.OrderItems.Add(orderItem);
                 }
 
-                newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
-                newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
-
                 // Xử lý voucher nếu có
                 if (!string.IsNullOrEmpty(request.VoucherCode))
                 {
+                    newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
                     var voucherRequest = new ApplyVoucherRequest
                     {
                         VoucherCode = request.VoucherCode,
-                        OrderTotal = newOrder.TotalAmount
+                        OrderTotal = newOrder.OrderItems.Sum(ot => ot.TotalPrice)
                     };
 
                     var voucherResult = await _voucherService.ApplyVoucherAsync(voucherRequest, cancellationToken);
@@ -193,14 +191,16 @@ namespace Application.Services
                     };
 
                     newOrder.OrderVouchers.Add(orderVoucher);
-                    newOrder.TotalAmount = request.TotalAmount;
+                    newOrder.ItemsSubtotal = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
+                    newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice) - orderVoucher.DiscountAmount;
 
                     // Cập nhật UsedQuantity của voucher
                     await UpdateVoucherUsedQuantityAsync(voucherResult.VoucherId.Value, cancellationToken);
                 }
-                else
-                {
-                    newOrder.TotalAmount += request.TotalAmount;
+                else {
+
+                    newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
+                    newOrder.ItemsSubtotal = newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
                 }
 
                 if (request.PaymentMethod == PaymentMethod.BankTransfer)
@@ -354,7 +354,8 @@ namespace Application.Services
                 CreateAt = order.CreatedAt,
                 ConfirmedAt = order?.ConfirmedAt,
                 Note = order?.Note,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.TotalAmount, // sau khi giảm,
+                ItemsSubtotal = order.ItemsSubtotal, // trước khi giảm
                 TotalOrderItems = order.TotalOrderItems,
 
                 CustomerCode = order.Customer.CustomerCode,
@@ -365,6 +366,13 @@ namespace Application.Services
                 ShippingFee = order.ShippingFee,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
+
+                AppliedVouchers = order.OrderVouchers?.Select(ov => new OrderVoucherDto
+                {
+                    VoucherCode = ov.VoucherCode,
+                    DiscountAmount = ov.DiscountAmount,
+                    UsedAt = ov.UsedAt
+                }).ToList() ?? new List<OrderVoucherDto>(),
 
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
@@ -485,12 +493,12 @@ namespace Application.Services
                 UpdateAt = order.UpdatedAt,
                 ConfirmedAt = order.ConfirmedAt,
                 ShippingFee = order.ShippingFee,
-                AppliedVouchers = order.OrderVouchers?.Select(ov => new Domain.DTOs.Order.OrderVoucherDto
-                {
-                    VoucherCode = ov.VoucherCode,
-                    DiscountAmount = ov.DiscountAmount,
-                    UsedAt = ov.UsedAt
-                }).ToList() ?? new List<Domain.DTOs.Order.OrderVoucherDto>()
+                //AppliedVouchers = order.OrderVouchers?.Select(ov => new Domain.DTOs.Order.OrderVoucherDto
+                //{
+                //    VoucherCode = ov.VoucherCode,
+                //    DiscountAmount = ov.DiscountAmount,
+                //    UsedAt = ov.UsedAt
+                //}).ToList() ?? new List<Domain.DTOs.Order.OrderVoucherDto>()
             };
         }
     }

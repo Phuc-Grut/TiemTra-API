@@ -70,7 +70,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
                 return Unauthorized(new ApiResponse(false, "Không xác định được người dùng"));
             }
 
-            var result = await _orderServices.GetOrderWithVouchersAsync(orderId, cancellationToken);
+            var result = await _orderServices.GetByIdAsync(orderId, cancellationToken);
 
             if (result == null)
             {

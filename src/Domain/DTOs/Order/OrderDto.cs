@@ -16,6 +16,7 @@ namespace Domain.DTOs.Order
         public string ReceivertName { get; set; }
         public string ReceiverAddress { get; set; }
         public string ReceiverPhone { get; set; }
+        public decimal ItemsSubtotal { get; set; }
         public decimal TotalAmount { get; set; }
         public string Note { get; set; }
         public OrderStatus OrderStatus { get; set; }
@@ -27,6 +28,6 @@ namespace Domain.DTOs.Order
         public DateTime UpdateAt { get; set; }
         public DateTime? ConfirmedAt { get; set; }
         public decimal ShippingFee { get; set; }
-        public List<OrderVoucherDto> AppliedVouchers { get; set; } = new List<OrderVoucherDto>();
+        public List<OrderVoucherDto>? AppliedVouchers { get; set; } = new();
     }
 }

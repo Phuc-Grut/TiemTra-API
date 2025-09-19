@@ -37,6 +37,7 @@ namespace Infrastructure.Repositories
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductVariations)
+                .Include(o => o.OrderVouchers)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
         }
 

@@ -18,7 +18,8 @@ namespace Domain.Data.Entities
         public string ReceiverPhone { get; set; }
         public Guid? CustomerId { get; set; }
         public int TotalOrderItems { get; set; }
-        public decimal TotalAmount { get; set; }
+        public decimal ItemsSubtotal { get; set; } // tiền hàng trước khi giảm
+        public decimal TotalAmount { get; set; } // tiền hàng sau khi giảm
 
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
         public PaymentMethod PaymentMethod { get; set; }
