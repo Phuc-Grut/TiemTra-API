@@ -148,7 +148,7 @@ namespace Application.Services
                 ShippingFee = request.ShippingFee,
                 PaymentMethod = request.PaymentMethod,
                 OrderItems = new List<OrderItem>(),
-                OrderVouchers = new List<OrderVoucher>(), // Đảm bảo khởi tạo
+                OrderVouchers = new List<OrderVoucher>(),
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = userId ?? customerId
             };
@@ -200,7 +200,7 @@ namespace Application.Services
                 }
                 else
                 {
-                    newOrder.TotalAmount += request.ShippingFee;
+                    newOrder.TotalAmount += request.TotalAmount;
                 }
 
                 if (request.PaymentMethod == PaymentMethod.BankTransfer)
