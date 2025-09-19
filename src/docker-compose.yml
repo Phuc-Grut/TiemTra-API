@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  tiemtra-api:
+    image: tiemtra-api
+    build:
+      context: .
+      dockerfile: src/TiemTra_Api/Dockerfile
+    container_name: tiemtra-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=tcp:phucgrunt24.database.windows.net,1433;Initial Catalog=Tiemtra2023;Persist Security Info=False;User ID=phucgrunt24;Password=grunt.0514@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      # ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=GStore24;User=sa;Password=Grunt.0514;TrustServerCertificate=True;"
+    ports:
+      - "5001:80"
+    networks:
+      - tiemtra-network
+
+  tiemtra-client:
+    image: tiemtra-client
+    build:
+      context: ../tiemtra-client
+      dockerfile: DockerFile
+    container_name: tiemtra-client
+    ports:
+      - "7001:80"
+    depends_on:
+      - tiemtra-api
+    networks:
+      - tiemtra-network
+
+networks:
+  tiemtra-network:
+    driver: bridge
