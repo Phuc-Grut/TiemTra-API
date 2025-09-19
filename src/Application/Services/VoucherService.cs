@@ -147,6 +147,7 @@ namespace Application.Services
                 {
                     VoucherStatus.Pending => "Chờ phê duyệt",
                     VoucherStatus.Publish => "Công khai",
+                    VoucherStatus.Deleted => "Đã xóa",
                     _ => "Không xác định"
                 };
 
@@ -315,13 +316,11 @@ namespace Application.Services
                 return new ApiResponse(false,"Voucher chưa được công khai, không thể hủy công khai");
             }
 
-
             //Kiểm tra xem voucher đã được sử dụng chưa
             if(voucher.UsedQuantity > 0)
             {
                 return new ApiResponse(false, "Không thể hủy công khai voucher đã có người sử dụng");
             }
-
 
             //Cập nhật trạng thái về Pending
             var result = await _voucherRepository.UpdateStatusAsync(voucherId, VoucherStatus.Pending, userId, cancellationToken);
@@ -336,6 +335,140 @@ namespace Application.Services
           {
            return new ApiResponse(false, $"Lỗi khi hủy công khai voucher: {ex.Message}");
           }
+        }
+
+        // Thêm methods xóa
+        public async Task<ApiResponse> SoftDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+
+                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+                if (voucher == null)
+                {
+                    return new ApiResponse(false, "Không tìm thấy voucher");
+                }
+
+                if (voucher.Status == VoucherStatus.Deleted)
+                {
+                    return new ApiResponse(false, "Voucher đã được xóa mềm trước đó");
+                }
+
+                // Kiểm tra xem voucher có đang được sử dụng trong đơn hàng không
+                // var hasUsedVouchers = await _voucherRepository.HasUsedVouchersAsync(voucherId, cancellationToken);
+                // if (hasUsedVouchers)
+                // {
+                //     return new ApiResponse(false, "Không thể xóa voucher đã được sử dụng trong đơn hàng");
+                // }
+
+                var result = await _voucherRepository.SoftDeleteAsync(voucherId, userId, cancellationToken);
+                if (!result)
+                {
+                    return new ApiResponse(false, "Xóa mềm voucher thất bại");
+                }
+
+                return new ApiResponse(true, "Xóa mềm voucher thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi xóa mềm voucher: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse> HardDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+
+                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+                if (voucher == null)
+                {
+                    return new ApiResponse(false, "Không tìm thấy voucher");
+                }
+
+                // Kiểm tra xem voucher có đang được sử dụng trong đơn hàng không
+                // var hasUsedVouchers = await _voucherRepository.HasUsedVouchersAsync(voucherId, cancellationToken);
+                // if (hasUsedVouchers)
+                // {
+                //     return new ApiResponse(false, "Không thể xóa cứng voucher đã được sử dụng trong đơn hàng");
+                // }
+
+                var result = await _voucherRepository.HardDeleteAsync(voucherId, cancellationToken);
+                if (!result)
+                {
+                    return new ApiResponse(false, "Xóa cứng voucher thất bại");
+                }
+
+                return new ApiResponse(true, "Xóa cứng voucher thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi xóa cứng voucher: {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResponse> RestoreVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserIdFromClaims.GetUserId(user);
+
+                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
+                if (voucher == null)
+                {
+                    return new ApiResponse(false, "Không tìm thấy voucher");
+                }
+
+                if (voucher.Status != VoucherStatus.Deleted)
+                {
+                    return new ApiResponse(false, "Voucher không ở trạng thái đã xóa");
+                }
+
+                var result = await _voucherRepository.RestoreAsync(voucherId, userId, cancellationToken);
+                if (!result)
+                {
+                    return new ApiResponse(false, "Khôi phục voucher thất bại");
+                }
+
+                return new ApiResponse(true, "Khôi phục voucher thành công");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, $"Lỗi khi khôi phục voucher: {ex.Message}");
+            }
+        }
+
+        // Thêm method để cập nhật trạng thái voucher hết hạn
+        public async Task<int> UpdateExpiredVouchersAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var expiredVouchers = await _voucherRepository.GetExpiredVouchersAsync(cancellationToken);
+                
+                if (!expiredVouchers.Any())
+                {
+                    return 0;
+                }
+
+                var updatedCount = 0;
+                foreach (var voucher in expiredVouchers)
+                {
+                    var result = await _voucherRepository.UpdateStatusAsync(voucher.VoucherId, VoucherStatus.OutDate, voucher.UpdatedBy, cancellationToken);
+                    if (result)
+                    {
+                        updatedCount++;
+                    }
+                }
+
+                return updatedCount;
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw to avoid stopping the background service
+                return 0;
+            }
         }
     }
 }

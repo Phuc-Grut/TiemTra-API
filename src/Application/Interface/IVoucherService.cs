@@ -26,5 +26,11 @@ namespace Application.Interface
         Task<ApplyVoucherResponse> ApplyVoucherAsync(ApplyVoucherRequest request, CancellationToken cancellationToken);
 
         Task<ApiResponse> UnpublishVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<ApiResponse> SoftDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<ApiResponse> HardDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken);
+        Task<ApiResponse> RestoreVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken);
+        
+        //method để cập nhật trạng thái voucher hết hạn
+        Task<int> UpdateExpiredVouchersAsync(CancellationToken cancellationToken);
     }
 }
