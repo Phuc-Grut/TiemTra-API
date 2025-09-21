@@ -1,6 +1,5 @@
 ﻿using Application.DTOs.Admin.Product;
 using Application.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.StoreAPI
@@ -16,7 +15,6 @@ namespace TiemTra_Api.Controllers.StoreAPI
             _productServices = productServices;
         }
 
-
         [HttpGet("get-paging-products")]
         public async Task<IActionResult> StroreGetPagingProduct(
             [FromQuery] ProductFilterRequest filterDto,
@@ -29,7 +27,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
         }
 
         [HttpGet("get-product-by-code/{productCode}")]
-        public async Task<IActionResult> StoreGetProductByCode( string productCode, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> StoreGetProductByCode(string productCode, CancellationToken cancellationToken = default)
         {
             var result = await _productServices.StoreGetProductByCodeAsync(productCode, cancellationToken);
             if (result == null)

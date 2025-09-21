@@ -2,12 +2,10 @@
 using Application.DTOs.Admin.Attributes;
 using Application.DTOs.Admin.Category;
 using Application.DTOs.Store.Response;
-using Application.DTOs.User;
 using Application.Interface;
 using AutoMapper;
 using Domain.Data.Entities;
 using Domain.Interface;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Security.Claims;

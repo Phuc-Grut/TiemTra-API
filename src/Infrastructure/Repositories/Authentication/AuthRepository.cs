@@ -1,6 +1,6 @@
 ﻿using Domain.Data.Entities;
-using Infrastructure.Database;
 using Domain.Interface.Authentication;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Authentication
@@ -30,7 +30,6 @@ namespace Infrastructure.Repositories.Authentication
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
                 .FirstOrDefaultAsync(us => us.Email == email);
-
         }
 
         public async Task SaveChanges()

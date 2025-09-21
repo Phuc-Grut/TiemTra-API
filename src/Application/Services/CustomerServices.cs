@@ -4,11 +4,6 @@ using Domain.Data.Entities;
 using Domain.DTOs;
 using Domain.DTOs.Customer;
 using Domain.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -72,7 +67,6 @@ namespace Application.Services
                 await _customerRepository.CreateCustomerAsync(newCustomer, cancellationToken);
                 return newCustomer.CustomerId;
             }
-
             else
             {
                 var newCustomer = new Customer

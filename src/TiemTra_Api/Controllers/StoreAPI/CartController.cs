@@ -1,8 +1,6 @@
 ﻿using Application.DTOs.Admin.Cart;
 using Application.Interface;
-using Application.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -34,7 +32,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
                 return Unauthorized("Không tìm thấy hoặc không hợp lệ thông tin người dùng");
             }
 
-            var result = await _cartServices.AddProductToCart( userId, request.ProductId, request?.ProductVariationId, request.Quantity, cancellationToken);
+            var result = await _cartServices.AddProductToCart(userId, request.ProductId, request?.ProductVariationId, request.Quantity, cancellationToken);
 
             if (!result.Success)
             {

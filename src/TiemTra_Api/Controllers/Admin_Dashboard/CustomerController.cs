@@ -1,8 +1,5 @@
 ﻿using Application.Interface;
-using Application.Services;
 using Domain.DTOs.Customer;
-using Domain.DTOs.Order;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
@@ -12,9 +9,10 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+
         public CustomerController(ICustomerService customerService)
         {
-                _customerService = customerService;
+            _customerService = customerService;
         }
 
         [HttpGet("get-paging-customer")]

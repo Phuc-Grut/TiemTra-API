@@ -2,14 +2,16 @@
 using Application.Interface.Authentication;
 using Application.Mappings;
 using Application.Services;
+using Application.Services.Admin;
 using Application.Services.Authentication;
 using Application.Services.Authentincation;
 using Application.Validations;
+using Azure.Storage.Blobs;
+using Domain.Interface;
+using Domain.Interface.Authentication;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Database;
-using Domain.Interface;
-using Domain.Interface.Authentication;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,8 +23,6 @@ using Shared.Common;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Azure.Storage.Blobs;
-using Application.Services.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
@@ -43,7 +43,6 @@ builder.Services.AddSingleton<BlobServiceClient>(sp =>
     var connectionString = builder.Configuration.GetSection("AzureStorage:ConnectionString").Value;
     return new BlobServiceClient(connectionString);
 });
-
 
 // Đăng ký các dịch vụ cần thiết
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -91,7 +90,6 @@ builder.Services.AddHttpClient<IGhnService, GhnService>((sp, client) =>
     client.DefaultRequestHeaders.Add("Token", options.Token);
     client.DefaultRequestHeaders.Add("ShopId", options.ShopId);
 });
-
 
 // Cấu hình JWT Bearer
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -191,8 +189,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
 var app = builder.Build();
 
 // Cấu hình pipeline yêu cầu HTTP
@@ -213,6 +209,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 app.MapControllers();
-
 
 app.Run();

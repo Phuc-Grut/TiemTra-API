@@ -11,6 +11,7 @@ namespace Domain.Interface
         Task<User> GetUserByRefreshToken(string refreshToken);
 
         Task<User> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+
         Task<bool> UserCodeExistsAsync(string userCode);
     }
 }

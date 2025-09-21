@@ -2,21 +2,18 @@
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
     public class ProductImageRepository : IProductImageRepository
     {
         private readonly AppDbContext _dbContext;
+
         public ProductImageRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
+
         public async Task AddRangeAsync(Guid productId, List<string> imageUrls, CancellationToken cancellationToken)
         {
             if (imageUrls == null || !imageUrls.Any())

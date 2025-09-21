@@ -1,5 +1,4 @@
-﻿using Application.DTOs.User;
-using Domain.Data.Base;
+﻿using Domain.Data.Base;
 
 namespace Application.DTOs.Admin.Category
 {

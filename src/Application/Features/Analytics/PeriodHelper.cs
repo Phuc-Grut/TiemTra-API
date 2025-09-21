@@ -1,5 +1,4 @@
 ﻿using Domain.DTOs.Dashboard;
-using System;
 
 namespace Application.Features.Analytics;
 

@@ -79,6 +79,7 @@ namespace APISell.Controllers.Authentication
 
             return Ok(result);
         }
+
         [AllowAnonymous]
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)

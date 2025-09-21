@@ -1,6 +1,4 @@
 ﻿using Application.Interface;
-using Domain.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.StoreAPI
@@ -16,7 +14,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
             _categoryServices = categoryServices;
         }
 
-        [HttpGet("tree")] 
+        [HttpGet("tree")]
         public async Task<IActionResult> GetTreeCategory(CancellationToken cancellationToken)
         {
             try

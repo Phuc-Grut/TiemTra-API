@@ -1,7 +1,6 @@
 ﻿using Application.Features.Analytics;
 using Application.Interface;
 using Domain.DTOs.Dashboard;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
@@ -11,6 +10,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
     public class AnalyticsController : ControllerBase
     {
         private readonly IAnalyticsService _svc;
+
         public AnalyticsController(IAnalyticsService svc) => _svc = svc;
 
         [HttpGet("dashboard")]

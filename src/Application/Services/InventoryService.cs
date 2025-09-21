@@ -3,11 +3,6 @@ using Domain.Data.Entities;
 using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -15,6 +10,7 @@ namespace Application.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductVariationRepository _productVariationRepository;
+
         public InventoryService(IProductRepository productRepository, IProductVariationRepository productVariationRepository)
         {
             _productRepository = productRepository;
@@ -34,7 +30,7 @@ namespace Application.Services
                         variation.Product.Stock += item.Quantity;
                         variation.Product.TotalSold -= item.Quantity;
 
-                        if(variation.Status == ProductVariationStatus.OutOfStock && item.Quantity > 0)
+                        if (variation.Status == ProductVariationStatus.OutOfStock && item.Quantity > 0)
                         {
                             variation.Status = ProductVariationStatus.Active;
                         }
@@ -48,7 +44,7 @@ namespace Application.Services
                         product.Stock += item.Quantity;
                         product.TotalSold -= item.Quantity;
 
-                        if(product.ProductStatus == ProductStatus.OutOfStock && item.Quantity > 0)
+                        if (product.ProductStatus == ProductStatus.OutOfStock && item.Quantity > 0)
                         {
                             product.ProductStatus = ProductStatus.Active;
                         }
@@ -56,7 +52,6 @@ namespace Application.Services
                 }
             }
         }
-
 
         public async Task<ApiResponse> CheckStockAvailabilityAsync(IEnumerable<OrderItem> orderItems, CancellationToken cancellationToken)
         {
@@ -83,10 +78,9 @@ namespace Application.Services
             return new ApiResponse(true, "Xác nhận thành công");
         }
 
-
         public async Task UpdateStockAsync(IEnumerable<OrderItem> orderItems, CancellationToken cancellationToken)
         {
-            foreach (var item in orderItems) 
+            foreach (var item in orderItems)
             {
                 if (item.ProductVariationId.HasValue)
                 {
@@ -110,7 +104,6 @@ namespace Application.Services
 
                     variation.Product.TotalSold += item.Quantity;
                 }
-
                 else
                 {
                     var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
@@ -125,10 +118,9 @@ namespace Application.Services
                     }
 
                     // Cập nhật tổng bán (chặn null/âm)
-                    if (product.TotalSold < 0) product.TotalSold = 0; 
+                    if (product.TotalSold < 0) product.TotalSold = 0;
                     product.TotalSold += item.Quantity;
                 }
-
             }
         }
     }

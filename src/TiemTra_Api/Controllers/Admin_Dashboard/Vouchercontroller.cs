@@ -2,10 +2,7 @@ using Application.DTOs.Admin.Voucher;
 using Application.Interface;
 using Domain.DTOs.Admin.Voucher;
 using Domain.Enum;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Common;
-using System.Security.Claims;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
 {
@@ -49,7 +46,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
                 return BadRequest("Lý do không được để trống");
 
             var result = await _voucherService.UnpublishVoucherAsync(voucherId, User, cancellationToken);
-            
+
             if (!result.Success)
                 return BadRequest(result);
 
@@ -84,8 +81,8 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
         [HttpPut("update-status/{voucherId}")]
         public async Task<IActionResult> UpdateVoucherStatus(
-            Guid voucherId, 
-            [FromBody] UpdateVoucherStatusDto dto, 
+            Guid voucherId,
+            [FromBody] UpdateVoucherStatusDto dto,
             CancellationToken cancellationToken)
         {
             if (voucherId == Guid.Empty)
@@ -104,8 +101,8 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
         [HttpPut("update/{voucherId}")]
         public async Task<IActionResult> UpdateVoucher(
-            Guid voucherId, 
-            [FromBody] CreateVoucherDto dto, 
+            Guid voucherId,
+            [FromBody] CreateVoucherDto dto,
             CancellationToken cancellationToken)
         {
             if (voucherId == Guid.Empty)

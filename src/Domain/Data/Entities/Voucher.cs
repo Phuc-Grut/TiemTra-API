@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Data.Base;
 using Domain.Enum;
 
@@ -21,6 +17,7 @@ namespace Domain.Data.Entities
 
         // Navigation properties - chỉ cần cho creator/updater
         public virtual User? Creator { get; set; }
+
         public virtual User? Updater { get; set; }
 
         // Quan hệ nhiều-nhiều với Order thông qua bảng trung gian

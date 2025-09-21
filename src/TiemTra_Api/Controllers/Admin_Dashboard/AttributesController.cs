@@ -1,6 +1,5 @@
 ﻿using Application.DTOs.Admin.Attributes;
 using Application.Interface;
-using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,7 +45,7 @@ namespace APISell.Controllers.Admin_Dashboard
         }
 
         [HttpGet("get-paging-attributes")]
-        public async Task<IActionResult> GetAllAttributes( [FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAllAttributes([FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
             var filter = new AttributesFilterDTO
             {

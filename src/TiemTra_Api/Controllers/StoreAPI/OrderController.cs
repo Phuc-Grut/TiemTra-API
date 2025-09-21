@@ -1,8 +1,5 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
-using Application.Services;
-using Application.Services.Admin;
-using Domain.Data.Entities;
 using Domain.DTOs.Order;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -17,7 +14,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
 
         public OrderController(IOrderServices orderServices)
         {
-                _orderServices = orderServices;
+            _orderServices = orderServices;
         }
 
         [HttpPost("create-order")]

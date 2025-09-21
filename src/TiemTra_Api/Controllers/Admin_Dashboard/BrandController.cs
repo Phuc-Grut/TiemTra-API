@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Brand;
 using Application.Interface;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -106,7 +105,5 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var url = await _brandService.UploadBrandImageAsync(dto.File, cancellationToken);
             return Ok(new { fileUrl = url });
         }
-
     }
 }
-

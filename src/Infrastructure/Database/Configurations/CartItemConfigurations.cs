@@ -1,11 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database.Configurations
 {
@@ -15,7 +10,7 @@ namespace Infrastructure.Database.Configurations
         {
             builder.ToTable("CartItems");
 
-            // Khóa chính       
+            // Khóa chính
             builder.HasKey(ci => ci.CartItemId);
 
             // Thiết lập quan hệ với Cart
@@ -24,7 +19,7 @@ namespace Infrastructure.Database.Configurations
                 .HasForeignKey(ci => ci.CartId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Thiết lập quan hệ với Product    
+            // Thiết lập quan hệ với Product
 
             builder.HasOne(ci => ci.Product)
                 .WithMany(p => p.CartItems)
@@ -36,9 +31,9 @@ namespace Infrastructure.Database.Configurations
               .HasForeignKey(ci => ci.ProductVariationId)
               .OnDelete(DeleteBehavior.Restrict);
 
-          builder.Property(c => c.CreatedAt)
-               .HasDefaultValueSql("GETUTCDATE()")
-               .ValueGeneratedOnAdd();
+            builder.Property(c => c.CreatedAt)
+                 .HasDefaultValueSql("GETUTCDATE()")
+                 .ValueGeneratedOnAdd();
 
             builder.Property(c => c.UpdatedAt)
                 .HasDefaultValueSql("GETUTCDATE()")

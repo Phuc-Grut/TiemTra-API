@@ -1,8 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Shared.Common
 {
