@@ -32,15 +32,6 @@ namespace Application.DTOs.GHN
         [JsonPropertyName("weight")]
         public int Weight { get; set; }
 
-        [JsonPropertyName("length")]
-        public int Length { get; set; }
-
-        [JsonPropertyName("width")]
-        public int Width { get; set; }
-
-        [JsonPropertyName("height")]
-        public int Height { get; set; }
-
         [JsonPropertyName("insurance_value")]
         public int? InsuranceValue { get; set; }
 

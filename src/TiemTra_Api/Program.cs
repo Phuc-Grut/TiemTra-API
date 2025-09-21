@@ -82,15 +82,14 @@ builder.Services.AddScoped<IGhnService, GhnService>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // conncet GHN
-var ghnToken = builder.Configuration["GHN:Token"] ?? "YOUR_GHN_TOKEN";
-var ghnShopId = builder.Configuration["GHN:ShopId"] ?? "YOUR_SHOP_ID";
+builder.Services.Configure<GhnOptions>(builder.Configuration.GetSection("GHN"));
 
 builder.Services.AddHttpClient<IGhnService, GhnService>((sp, client) =>
 {
-    var config = sp.GetRequiredService<IConfiguration>();
-    client.BaseAddress = new Uri(config["GHN:BaseUrl"]!);
-    client.DefaultRequestHeaders.Add("Token", config["GHN:Token"]!);
-    client.DefaultRequestHeaders.Add("ShopId", config["GHN:ShopId"]!);
+    var options = sp.GetRequiredService<IOptions<GhnOptions>>().Value;
+    client.BaseAddress = new Uri(options.BaseUrl);
+    client.DefaultRequestHeaders.Add("Token", options.Token);
+    client.DefaultRequestHeaders.Add("ShopId", options.ShopId);
 });
 
 
