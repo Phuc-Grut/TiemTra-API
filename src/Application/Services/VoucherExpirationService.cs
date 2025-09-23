@@ -11,7 +11,7 @@ namespace Application.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<VoucherExpirationService> _logger;
-        private readonly TimeSpan _period = TimeSpan.FromSeconds(1); // Chạy mỗi s
+        private readonly TimeSpan _period = TimeSpan.FromSeconds(600); // Chạy mỗi s
 
         public VoucherExpirationService(IServiceProvider serviceProvider, ILogger<VoucherExpirationService> logger)
         {
