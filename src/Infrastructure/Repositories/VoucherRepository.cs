@@ -1,8 +1,10 @@
+using Domain.DTOs;
 using Domain.Data.Entities;
 using Domain.Enum;
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Infrastructure.Repositories
 {
@@ -40,7 +42,7 @@ namespace Infrastructure.Repositories
         {
             var now = DateTime.UtcNow;
             return await _context.Vouchers
-                .Where(v => v.Status == VoucherStatus.Publish &&
+                .Where(v => v.Status == VoucherStatus.Publish && 
                            v.EndDate > now &&
                            v.UsedQuantity < v.Quantity)
                 .OrderBy(v => v.EndDate)
@@ -75,19 +77,13 @@ namespace Infrastructure.Repositories
 
         public async Task<string> GenerateUniqueVoucherCodeAsync(CancellationToken cancellationToken)
         {
-            var random = new Random();
-            string voucherCode;
-            bool exists;
-
+            string code;
             do
             {
-                int randomNumber = random.Next(100000, 999999);
-                voucherCode = $"VC{randomNumber}";
-                exists = await VoucherCodeExistsAsync(voucherCode, cancellationToken);
-            }
-            while (exists);
+                code = "VOUCHER" + DateTime.UtcNow.Ticks.ToString()[^6..];
+            } while (await VoucherCodeExistsAsync(code, cancellationToken));
 
-            return voucherCode;
+            return code;
         }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
@@ -95,12 +91,12 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        async Task<Domain.DTOs.PagedResult<Voucher>> IVoucherRepository.GetPagedAsync(int pageNumber, int pageSize, VoucherStatus? status, string? keyword, CancellationToken cancellationToken)
+        public async Task<PagedResult<Voucher>> GetPagedAsync(int pageNumber, int pageSize, VoucherStatus? status, string? keyword, CancellationToken cancellationToken)
         {
             var query = _context.Vouchers
-                       .Include(v => v.Creator)
-                       .Include(v => v.Updater)
-                       .AsQueryable();
+                .Include(v => v.Creator)
+                .Include(v => v.Updater)
+                .AsQueryable();
 
             if (status.HasValue)
             {
@@ -110,7 +106,7 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 var searchTerm = keyword.Trim().ToLower();
-                query = query.Where(v =>
+                query = query.Where(v => 
                     v.VoucherName.ToLower().Contains(searchTerm) ||
                     v.VoucherCode.ToLower().Contains(searchTerm) ||
                     (v.Description != null && v.Description.ToLower().Contains(searchTerm))
@@ -125,7 +121,7 @@ namespace Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
 
-            return new Domain.DTOs.PagedResult<Voucher>
+            return new PagedResult<Voucher>
             {
                 Items = items,
                 TotalItems = totalItems,
@@ -133,6 +129,60 @@ namespace Infrastructure.Repositories
                 CurrentPage = pageNumber,
                 PageSize = pageSize
             };
+        }
+
+        // Thêm methods xóa
+        public async Task<bool> SoftDeleteAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken)
+        {
+            var voucher = await _context.Vouchers.FindAsync(voucherId);
+            if (voucher == null) return false;
+
+            voucher.Status = VoucherStatus.Deleted;
+            voucher.UpdatedBy = updatedBy;
+            voucher.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _context.SaveChangesAsync(cancellationToken);
+            return result > 0;
+        }
+
+        public async Task<bool> HardDeleteAsync(Guid voucherId, CancellationToken cancellationToken)
+        {
+            var voucher = await _context.Vouchers.FindAsync(voucherId);
+            if (voucher == null) return false;
+
+            _context.Vouchers.Remove(voucher);
+            var result = await _context.SaveChangesAsync(cancellationToken);
+            return result > 0;
+        }
+
+        public async Task<bool> RestoreAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken)
+        {
+            var voucher = await _context.Vouchers.FindAsync(voucherId);
+            if (voucher == null) return false;
+
+            voucher.Status = VoucherStatus.Pending;
+            voucher.UpdatedBy = updatedBy;
+            voucher.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _context.SaveChangesAsync(cancellationToken);
+            return result > 0;
+        }
+
+        public async Task<bool> HasUsedVouchersAsync(Guid voucherId, CancellationToken cancellationToken)
+        {
+            return await _context.OrderVouchers
+                .AnyAsync(ov => ov.VoucherId == voucherId, cancellationToken);
+        }
+
+        // Thêm method để lấy voucher hết hạn
+        public async Task<List<Voucher>> GetExpiredVouchersAsync(CancellationToken cancellationToken)
+        {
+            var currentTime = DateTime.UtcNow;
+            
+            return await _context.Vouchers
+                .Where(v => v.Status == VoucherStatus.Publish && 
+                           v.EndDate <= currentTime)
+                .ToListAsync(cancellationToken);
         }
     }
 }

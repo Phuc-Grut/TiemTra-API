@@ -125,5 +125,48 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var code = await _voucherService.GenerateVoucherCodeAsync(cancellationToken);
             return Ok(new { voucherCode = code });
         }
+
+        // Thêm API xóa
+        [HttpDelete("soft-delete/{voucherId}")]
+        public async Task<IActionResult> SoftDeleteVoucher(Guid voucherId, CancellationToken cancellationToken)
+        {
+            if (voucherId == Guid.Empty)
+                return BadRequest("Voucher ID không hợp lệ");
+
+            var result = await _voucherService.SoftDeleteVoucherAsync(voucherId, User, cancellationToken);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("hard-delete/{voucherId}")]
+        public async Task<IActionResult> HardDeleteVoucher(Guid voucherId, CancellationToken cancellationToken)
+        {
+            if (voucherId == Guid.Empty)
+                return BadRequest("Voucher ID không hợp lệ");
+
+            var result = await _voucherService.HardDeleteVoucherAsync(voucherId, User, cancellationToken);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut("restore/{voucherId}")]
+        public async Task<IActionResult> RestoreVoucher(Guid voucherId, CancellationToken cancellationToken)
+        {
+            if (voucherId == Guid.Empty)
+                return BadRequest("Voucher ID không hợp lệ");
+
+            var result = await _voucherService.RestoreVoucherAsync(voucherId, User, cancellationToken);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

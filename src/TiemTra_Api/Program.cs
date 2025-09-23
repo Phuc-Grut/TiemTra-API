@@ -171,6 +171,9 @@ builder.Services.AddControllers()
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterDTOValidator>();
 
+// Đăng ký Background Service
+builder.Services.AddHostedService<VoucherExpirationService>();
+
 builder.Services.AddEndpointsApiExplorer();
 
 // Cấu hình CORS
