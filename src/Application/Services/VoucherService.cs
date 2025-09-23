@@ -308,33 +308,30 @@ namespace Application.Services
             try
             {
                 var userId = GetUserIdFromClaims.GetUserId(user);
-
                 var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
-
                 if (voucher == null)
                 {
                     return new ApiResponse(false, "Không tìm thấy voucher");
                 }
-
                 if (voucher.Status != VoucherStatus.Publish)
                 {
                     return new ApiResponse(false, "Voucher chưa được công khai, không thể hủy công khai");
                 }
+
 
                 //Kiểm tra xem voucher đã được sử dụng chưa
                 if (voucher.UsedQuantity > 0)
                 {
                     return new ApiResponse(false, "Không thể hủy công khai voucher đã có người sử dụng");
                 }
-            }
+
+
                 //Cập nhật trạng thái về Pending
                 var result = await _voucherRepository.UpdateStatusAsync(voucherId, VoucherStatus.Pending, userId, cancellationToken);
                 if (!result)
                 {
                     return new ApiResponse(false, "Hủy công khai voucher thất bại");
                 }
-            }
-
                 return new ApiResponse(true, $"Hủy công khai voucher thành công");
             }
             catch (System.Exception ex)
@@ -343,7 +340,6 @@ namespace Application.Services
             }
         }
 
-        // Thêm methods xóa
         public async Task<ApiResponse> SoftDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             try
@@ -446,13 +442,12 @@ namespace Application.Services
             }
         }
 
-        // Thêm method để cập nhật trạng thái voucher hết hạn
         public async Task<int> UpdateExpiredVouchersAsync(CancellationToken cancellationToken)
         {
             try
             {
                 var expiredVouchers = await _voucherRepository.GetExpiredVouchersAsync(cancellationToken);
-                
+
                 if (!expiredVouchers.Any())
                 {
                     return 0;
@@ -476,5 +471,7 @@ namespace Application.Services
                 return 0;
             }
         }
+
     }
+
 }

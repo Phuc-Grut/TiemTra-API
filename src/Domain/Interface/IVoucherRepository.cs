@@ -28,10 +28,13 @@ namespace Domain.Interface
 
         // Thêm methods xóa
         Task<bool> SoftDeleteAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken);
+
         Task<bool> HardDeleteAsync(Guid voucherId, CancellationToken cancellationToken);
+
         Task<bool> RestoreAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken);
+
         Task<bool> HasUsedVouchersAsync(Guid voucherId, CancellationToken cancellationToken);
-        
+
         // Thêm method để lấy voucher hết hạn
         Task<List<Voucher>> GetExpiredVouchersAsync(CancellationToken cancellationToken);
     }
