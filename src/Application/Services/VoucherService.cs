@@ -178,6 +178,7 @@ namespace Application.Services
                 voucher.EndDate = dto.EndDate;
                 voucher.UpdatedAt = DateTime.UtcNow;
                 voucher.UpdatedBy = userId;
+                voucher.Status = dto.VoucherStatus; 
 
                 var result = await _voucherRepository.UpdateAsync(voucher, cancellationToken);
 

@@ -1,3 +1,4 @@
+using Domain.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace Domain.DTOs.Admin.Voucher;
@@ -21,4 +22,5 @@ public class CreateVoucherDto
 
     [Required(ErrorMessage = "Ngày hết hạn không được để trống")]
     public DateTime EndDate { get; set; }
+    public VoucherStatus? VoucherStatus { get; set; }
 }
