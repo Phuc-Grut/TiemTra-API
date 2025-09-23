@@ -234,6 +234,10 @@ namespace Application.Services
             if (voucher != null)
             {
                 voucher.UsedQuantity += 1;
+                if(voucher.UsedQuantity == voucher.Quantity)
+                {
+                    voucher.Status = VoucherStatus.OutStock;
+                }
                 await _voucherRepository.UpdateAsync(voucher, cancellationToken);
             }
         }

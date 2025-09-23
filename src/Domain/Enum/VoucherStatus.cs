@@ -5,6 +5,7 @@ namespace Domain.Enum
         Pending = 0,
         Publish = 1,
         Deleted = 2,
-        OutDate = 3
+        OutDate = 3,
+        OutStock = 4
     }
 }
