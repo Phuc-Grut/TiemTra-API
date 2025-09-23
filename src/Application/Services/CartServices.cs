@@ -2,7 +2,6 @@
 using Application.DTOs.Order;
 using Application.Interface;
 using Domain.Data.Entities;
-using Domain.DTOs.Order;
 using Domain.Interface;
 using Shared.Common;
 
@@ -56,7 +55,6 @@ namespace Application.Services
                     return new ApiResponse(false, "Vui lòng chọn loại sản phẩm");
                 }
 
-
                 var existingItem = cart.CartItem.FirstOrDefault(ci => ci.ProductId == productId && ci.ProductVariationId == productVariationId);
 
                 if (existingItem != null)
@@ -80,7 +78,6 @@ namespace Application.Services
                     await _cartRepository.AddCartItemAsync(cart, newItem, cancellationToken);
                 }
             }
-
             else
             {
                 var existingItem = cart.CartItem
@@ -114,7 +111,7 @@ namespace Application.Services
             return new ApiResponse(true, "Đã thêm sản phẩm vào giỏ hàng");
         }
 
-        public  async Task<CartDTO> GetCartByUserId(Guid userId, CancellationToken cancellationToken)
+        public async Task<CartDTO> GetCartByUserId(Guid userId, CancellationToken cancellationToken)
         {
             var cart = await _cartRepository.GetCartByUserId(userId, cancellationToken);
             if (cart == null)
@@ -136,7 +133,6 @@ namespace Application.Services
             }).ToList();
 
             return new CartDTO { Items = items, TotalPrice = cart.TotalPrice, TotalQuantity = cart.TotalItems };
-
         }
 
         public async Task<int> GetTotalQuantityAsync(Guid userId, CancellationToken cancellationToken)
@@ -194,7 +190,6 @@ namespace Application.Services
                 )
             );
 
-
             if (itemToUpdate == null)
                 return new ApiResponse(false, "Không tìm thấy sản phẩm trong giỏ hàng");
 
@@ -208,7 +203,6 @@ namespace Application.Services
                     return new ApiResponse(false, "Vui lòng chọn biến thể sản phẩm");
 
                 var variation = await _productVariationRepo.GetByIdAsync(productVariationId.Value, cancellationToken);
-               
 
                 itemToUpdate.Quantity = newQuantity;
                 itemToUpdate.Price = variation.Price;

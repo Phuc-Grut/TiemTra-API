@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.DTOs.Dashboard
+﻿namespace Application.DTOs.Dashboard
 {
     public class AnalyticsOverviewDto
     {
-        public long Revenue { get; set; }   
+        public long Revenue { get; set; }
         public double RevenueChange { get; set; }
         public int Orders { get; set; }
         public long Aov { get; set; }

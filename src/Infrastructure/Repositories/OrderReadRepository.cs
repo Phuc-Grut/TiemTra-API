@@ -21,7 +21,8 @@ public class OrderReadRepository : IOrderReadRepository
     {
         var raw = await Base(from, to)
             .GroupBy(o => o.CreatedAt.Date)
-            .Select(g => new {
+            .Select(g => new
+            {
                 Day = g.Key,
                 Revenue = g.Sum(x => x.TotalAmount),
                 Orders = g.Count()

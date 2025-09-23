@@ -1,11 +1,6 @@
 ﻿using Application.DTOs.Order;
 using Domain.DTOs;
 using Domain.DTOs.Customer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Interface
 {

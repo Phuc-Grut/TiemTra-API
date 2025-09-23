@@ -1,12 +1,7 @@
 ﻿using Application.Interface;
 using Domain.DTOs.Profile;
 using Domain.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -16,7 +11,7 @@ namespace Application.Services
 
         public ProfileService(IProfileRepository profileRepository)
         {
-                _profileRepository = profileRepository;
+            _profileRepository = profileRepository;
         }
 
         public async Task<ProfileDto?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
@@ -29,12 +24,10 @@ namespace Application.Services
             var user = await _profileRepository.FindUserForUpdateAsync(userId, ct);
             if (user is null) return false;
 
-           
             var phone = req.PhoneNumber.Trim();
             if (phone.Length > 0 && !Regex.IsMatch(phone, @"^(0|\+84)\d{9,10}$"))
-                    throw new ArgumentException("Số điện thoại không hợp lệ");
+                throw new ArgumentException("Số điện thoại không hợp lệ");
             user.PhoneNumber = phone;
-           
 
             user.FullName = req.FullName.Trim();
 

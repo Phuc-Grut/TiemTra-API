@@ -2,11 +2,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -14,10 +9,12 @@ namespace Application.Services
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _containerName = "image-tiemtra";
+
         public AzureBlobStorageService(BlobServiceClient blobServiceClient)
         {
             _blobServiceClient = blobServiceClient;
         }
+
         public async Task<string> UploadFileAsync(IFormFile file, string folder)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);

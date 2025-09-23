@@ -1,6 +1,6 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
+
 // nếu muốn dùng rút gọn: using BCrypt.Net;
 
 namespace Shared.Common

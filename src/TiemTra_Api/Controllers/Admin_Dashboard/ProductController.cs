@@ -1,11 +1,8 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Admin.Product;
 using Application.Interface;
-using Application.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Common;
 using System.Security.Claims;
 
 namespace TiemTra_Api.Controllers.Admin_Dashboard
@@ -17,6 +14,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
     {
         private readonly IProductServices _productServices;
         private readonly IFileStorageService _fileStorageService;
+
         public ProductController(IProductServices productServices, IFileStorageService fileStorageService)
         {
             _productServices = productServices;
@@ -39,7 +37,6 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             }
 
             return Ok(new { success = true, message = "Tạo sản phẩm thành công" });
-
         }
 
         [HttpPost("add-product-image")]
@@ -52,7 +49,6 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var url = await _fileStorageService.UploadFileAsync(dto.File, "products/");
             return Ok(new { fileUrl = url });
         }
-
 
         [HttpGet("generate-product-code")]
         public async Task<IActionResult> GenerateProductCode(CancellationToken cancellationToken)
@@ -73,7 +69,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
         }
 
         [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetProductById( [FromQuery] Guid productId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProductById([FromQuery] Guid productId, CancellationToken cancellationToken)
         {
             if (productId == Guid.Empty)
                 return BadRequest("Có lỗi khi lấy dữ liệu");
@@ -84,7 +80,6 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
 
             return Ok(product);
         }
-
 
         [HttpPut("update-product/{productId}")]
         public async Task<IActionResult> Update(Guid productId, [FromBody] CreateProductDto dto, CancellationToken cancellationToken)
@@ -126,6 +121,5 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             bool success = affected > 0;
             return Ok(new { success });
         }
-
     }
 }

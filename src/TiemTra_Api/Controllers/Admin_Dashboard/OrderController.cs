@@ -1,9 +1,6 @@
 ﻿using Application.DTOs.Order;
 using Application.Interface;
-using Application.Services;
 using Domain.DTOs.Order;
-using Domain.Enum;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
 using System.Security.Claims;
@@ -27,6 +24,7 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             var result = await _orderServices.GetPagingOrder(fillterDto, pageNumber, pageSize, cancellationToken);
             return Ok(result);
         }
+
         [HttpPost("confirm-order/{orderId}")]
         public async Task<IActionResult> ConfirmOrder(Guid orderId, CancellationToken cancellationToken)
         {

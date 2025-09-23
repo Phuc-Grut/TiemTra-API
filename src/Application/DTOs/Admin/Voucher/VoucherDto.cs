@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Enum;
 
 namespace Application.DTOs.Admin.Voucher
 {
     public class VoucherDto
     {
-         public Guid VoucherId { get; set; }
+        public Guid VoucherId { get; set; }
         public string VoucherCode { get; set; }
         public string VoucherName { get; set; }
         public string? Description { get; set; }

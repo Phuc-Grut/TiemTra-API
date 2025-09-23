@@ -32,15 +32,6 @@ namespace Application.DTOs.GHN
         [JsonPropertyName("weight")]
         public int Weight { get; set; }
 
-        [JsonPropertyName("length")]
-        public int Length { get; set; }
-
-        [JsonPropertyName("width")]
-        public int Width { get; set; }
-
-        [JsonPropertyName("height")]
-        public int Height { get; set; }
-
         [JsonPropertyName("insurance_value")]
         public int? InsuranceValue { get; set; }
 
@@ -50,7 +41,6 @@ namespace Application.DTOs.GHN
         [JsonPropertyName("items")]
         public List<GhnItem>? Items { get; set; }
     }
-
 
     public sealed class GhnCalculateFeeResponse
     {
@@ -73,7 +63,6 @@ namespace Application.DTOs.GHN
         public int? PickStationFee { get; set; }
     }
 
-
     public class GhnItem
     {
         [JsonPropertyName("name")]
@@ -94,5 +83,4 @@ namespace Application.DTOs.GHN
         [JsonPropertyName("weight")]
         public int Weight { get; set; }
     }
-
 }

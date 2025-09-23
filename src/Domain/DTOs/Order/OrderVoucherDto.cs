@@ -1,5 +1,3 @@
-using System;
-
 namespace Domain.DTOs.Order
 {
     public class OrderVoucherDto
@@ -8,4 +6,4 @@ namespace Domain.DTOs.Order
         public decimal DiscountAmount { get; set; }
         public DateTime UsedAt { get; set; }
     }
-} 
+}

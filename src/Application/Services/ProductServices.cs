@@ -1,5 +1,4 @@
 ﻿using Application.DTOs;
-using Application.DTOs.Admin.Category;
 using Application.DTOs.Admin.Product;
 using Application.DTOs.Store.Response;
 using Application.Interface;
@@ -32,6 +31,7 @@ namespace Application.Services.Admin
             _userRepository = userRepository;
             _category = category;
         }
+
         public async Task<bool> CreateProductAsync(CreateProductDto dto, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             var userId = GetUserIdFromClaims.GetUserId(user);
@@ -61,7 +61,6 @@ namespace Application.Services.Admin
                     CreatedBy = userId,
                     Description = dto.Description
                 };
-               
 
                 await _productRepo.AddAsync(product, cancellationToken);
 
@@ -232,7 +231,6 @@ namespace Application.Services.Admin
             var creater = users.FirstOrDefault(u => u.UserId == product?.CreatedBy);
             var updater = users.FirstOrDefault(u => u.UserId == product?.UpdatedBy);
 
-
             var productDto = new CreateProductDto
             {
                 ProductCode = product?.ProductCode,
@@ -391,9 +389,7 @@ namespace Application.Services.Admin
                         await _productVariation.UpdateRangeAsync(updateList, cancellationToken);
                 }
 
-
                 return true;
-
             }
             catch (Exception ex)
             {
@@ -401,7 +397,7 @@ namespace Application.Services.Admin
             }
         }
 
-        public async Task<int> SoftDeleteProductsAsync( IEnumerable<Guid> productIds, ClaimsPrincipal user, CancellationToken ct)
+        public async Task<int> SoftDeleteProductsAsync(IEnumerable<Guid> productIds, ClaimsPrincipal user, CancellationToken ct)
         {
             var ids = productIds?.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
             if (ids.Count == 0) return 0;
@@ -413,11 +409,10 @@ namespace Application.Services.Admin
             return await _productRepo.SoftDeleteByIdsAsync(ids, updatedBy, utcNow, ct);
         }
 
-
-        /// <summary> 
-        /// Store 
+        /// <summary>
+        /// Store
         /// </summary>>
-        /// 
+        ///
 
         public async Task<PagedResult<StoreProducts>> StoreGetAllProductAsync(ProductFilterRequest filters, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
@@ -449,11 +444,9 @@ namespace Application.Services.Admin
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
-            
 
             var items = productsPage.Select(p =>
             {
-
                 return new StoreProducts
                 {
                     ProductId = p.ProductId,
@@ -544,11 +537,9 @@ namespace Application.Services.Admin
                     Price = v.Price,
                     Stock = v.Stock
                 }).ToList() ?? new List<ProductVariationDto>(),
-
             };
             return productDto;
         }
-
 
         public async Task<int> SoftDeleteByIdVarition(IEnumerable<Guid> ids, Guid updatedBy, CancellationToken ct)
         {

@@ -8,7 +8,6 @@ using Domain.Enum;
 using Domain.Interface;
 using Shared.Common;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Application.Services
@@ -55,7 +54,6 @@ namespace Application.Services
             while (exists);
             return orderCode;
         }
-
 
         private async Task<OrderItem> CreateOrderItemAsync(CreateOrderItemDto itemDto, Guid orderId, CancellationToken cancellationToken)
         {
@@ -109,7 +107,6 @@ namespace Application.Services
 
         public async Task<ApiResponse> CreateOrderAsync(CreateOrderRequest request, Guid? userId, CancellationToken cancellationToken)
         {
-
             Console.WriteLine("Request: " + JsonSerializer.Serialize(request));
             if (string.IsNullOrWhiteSpace(request.RecipientName) ||
                 string.IsNullOrWhiteSpace(request.RecipientPhone) ||
@@ -197,8 +194,8 @@ namespace Application.Services
                     // Cập nhật UsedQuantity của voucher
                     await UpdateVoucherUsedQuantityAsync(voucherResult.VoucherId.Value, cancellationToken);
                 }
-                else {
-
+                else
+                {
                     newOrder.TotalOrderItems = newOrder.OrderItems.Sum(ot => ot.Quantity);
                     newOrder.ItemsSubtotal = newOrder.TotalAmount = newOrder.OrderItems.Sum(ot => ot.TotalPrice);
                 }
@@ -241,7 +238,6 @@ namespace Application.Services
             }
         }
 
-
         public async Task<PagedResult<OrderDto>> GetPagingOrder(OrderFillterDto filter, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
             return await _orderRepository.GetPagedOrdersAsync(filter, pageNumber, pageSize, cancellationToken);
@@ -280,7 +276,6 @@ namespace Application.Services
 
             return new ApiResponse(true, "Xác nhận thành công");
         }
-
 
         public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
         {

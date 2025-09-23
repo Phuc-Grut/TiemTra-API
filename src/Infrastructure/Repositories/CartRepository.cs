@@ -2,21 +2,18 @@
 using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
     public class CartRepository : ICartRepository
     {
         private readonly AppDbContext _context;
+
         public CartRepository(AppDbContext context)
         {
-            _context = context;       
+            _context = context;
         }
+
         public async Task AddCart(Cart cart)
         {
             await _context.Cart.AddAsync(cart);
@@ -44,7 +41,6 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-
         public async Task UpdateCartAsync(Cart cart, CancellationToken cancellationToken)
         {
             _context.Cart.Update(cart);
@@ -67,7 +63,6 @@ namespace Infrastructure.Repositories
             {
                 _context.CartItems.Remove(cartItem);
             }
-
         }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)

@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interface;
 using Domain.DTOs.Profile;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -12,7 +11,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
     public class ProfileController : ControllerBase
     {
         private readonly IFileStorageService _fileStorageService;
-        private readonly  IProfileServices _services;
+        private readonly IProfileServices _services;
 
         public ProfileController(IFileStorageService fileStorageService, IProfileServices services)
         {

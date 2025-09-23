@@ -1,20 +1,16 @@
 ﻿using Domain.Data.Entities;
-using Infrastructure.Database;
-using Domain.Interface;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.DTOs.Product;
 using Domain.Enum;
+using Domain.Interface;
+using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
         private readonly AppDbContext _dbContext;
+
         public ProductRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -31,7 +27,7 @@ namespace Infrastructure.Repositories
             return await _dbContext.Products.CountAsync(p => p.CategoryId == categoryId, cancellationToken);
         }
 
-        public  IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken)
+        public IQueryable<Product> GetFilteredProducts(ProductFilterDto filters, CancellationToken cancellationToken)
         {
             var query = _dbContext.Products
                 .AsNoTracking()
@@ -81,20 +77,16 @@ namespace Infrastructure.Repositories
                     query = isFirstSort ? query.OrderBy(p => p.Price) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.Price);
                 else if (sort == "price-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.Price) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.Price);
-
                 else if (sort == "totalsold-asc")
                     query = isFirstSort ? query.OrderBy(p => p.TotalSold ?? 0) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.TotalSold ?? 0);
                 else if (sort == "totalsold-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.TotalSold ?? 0) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.TotalSold ?? 0);
-
                 else if (sort == "stock-asc")
                     query = isFirstSort ? query.OrderBy(p => p.Stock) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.Stock);
                 else if (sort == "stock-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.Stock) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.Stock);
-
                 else if (sort == "createAt-desc")
                     query = isFirstSort ? query.OrderByDescending(p => p.CreatedAt) : ((IOrderedQueryable<Product>)query).ThenByDescending(p => p.CreatedAt);
-
                 else if (sort == "createAt-asc")
                     query = isFirstSort ? query.OrderBy(p => p.CreatedAt) : ((IOrderedQueryable<Product>)query).ThenBy(p => p.CreatedAt);
                 isFirstSort = false;
@@ -106,9 +98,7 @@ namespace Infrastructure.Repositories
                 query = query.OrderByDescending(p => p.CreatedAt);
             }
 
-
             return query;
-
         }
 
         public async Task<Product> GetProductByIdAsync(Guid productId, CancellationToken cancellationToken)
@@ -139,6 +129,7 @@ namespace Infrastructure.Repositories
             }
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+
         public async Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken)
         {
             _dbContext.Products.Update(product);
@@ -206,7 +197,7 @@ namespace Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        public async Task<int> SoftDeleteByIdsAsync( IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct)
+        public async Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct)
         {
             var idList = ids?.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
             if (idList.Count == 0) return 0;
@@ -229,6 +220,5 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync(ct);
             return products.Count;
         }
-
     }
 }

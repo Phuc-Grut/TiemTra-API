@@ -97,7 +97,6 @@ namespace Application.Services
                 };
             }).ToList();
 
-
             return new PagedResult<AttributesDTO>
             {
                 Items = attributesDto,

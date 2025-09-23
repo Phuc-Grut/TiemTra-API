@@ -1,11 +1,5 @@
 ﻿using Domain.Data.Base;
 using Domain.Enum;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.DTOs.Admin.Product
 {
@@ -34,6 +28,4 @@ namespace Application.DTOs.Admin.Product
         public List<ProductAttributeDto> ProductAttributes { get; set; } = new();
         public List<ProductVariationDto> ProductVariations { get; set; } = new();
     }
-
 }
-

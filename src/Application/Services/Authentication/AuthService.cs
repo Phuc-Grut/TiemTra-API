@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.Authentication;
-using Application.Interface;
 using Application.Interface.Authentication;
 using Domain.Data.Entities;
 using Domain.Enum;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Common;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -68,7 +66,6 @@ namespace Application.Services.Authentincation
             };
             await _cartRepository.AddCart(cart);
 
-
             var userRole = new UserRole
             {
                 UserId = user.UserId,
@@ -80,7 +77,6 @@ namespace Application.Services.Authentincation
 
             var emailMessage = $"Mã xác thực của bạn: <strong>{otp}</strong><br> <br>Mã sẽ hết hạn sau 2 phút.";
 
-
             await _emailService.SendEmailAsync(user.Email, "Xác thực tài khoản", emailMessage);
 
             var resultUser = new UserBasicDTO
@@ -89,7 +85,6 @@ namespace Application.Services.Authentincation
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber
             };
-
 
             return new ApiResponse(true, "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.", resultUser);
         }
@@ -189,7 +184,6 @@ namespace Application.Services.Authentincation
                 Status = data.Status,
                 Roles = data.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>()
             };
-
 
             return new ApiResponse(true, "Đăng nhập thành công", user, token, refreshToken);
         }
@@ -302,7 +296,6 @@ namespace Application.Services.Authentincation
             await _emailService.SendEmailAsync(user.Email, "Mã OTP đặt lại mật khẩu", emailMessage);
             return new ApiResponse(true, "Nếu email tồn tại, OTP sẽ được gửi.");
         }
-
 
         public async Task<ApiResponse> ResetPassword(ResetPasswordDTO dto)
         {

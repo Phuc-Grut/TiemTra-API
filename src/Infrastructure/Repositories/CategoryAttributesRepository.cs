@@ -1,6 +1,6 @@
 ﻿using Domain.Data.Entities;
-using Infrastructure.Database;
 using Domain.Interface;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
                     UpdatedBy = ca.Attribute.UpdatedBy,
                     CreatedAt = ca.Attribute.CreatedAt,
                     UpdatedAt = ca.Attribute.UpdatedAt
-                }) 
+                })
                 .ToListAsync(cancellationToken);
         }
 
@@ -49,7 +49,7 @@ namespace Infrastructure.Repositories
 
         public Task<int> CountAttributesByCategory(int categoryId, CancellationToken cancellationToken)
         {
-           return _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).CountAsync(cancellationToken);
+            return _context.CategoryAttributes.Where(ca => ca.CategoryId == categoryId).CountAsync(cancellationToken);
         }
 
         public Task<List<int>> GetAttributeIdsByCategory(int categoryId, CancellationToken cancellationToken)

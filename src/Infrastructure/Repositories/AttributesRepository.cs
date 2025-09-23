@@ -1,6 +1,6 @@
 ﻿using Domain.Data.Entities;
-using Infrastructure.Database;
 using Domain.Interface;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Attributes> GetAttributeById(int attributeId, CancellationToken cancellationToken)
         {
-            return  await _context.Attributes.FirstOrDefaultAsync(a => a.AttributeId == attributeId, cancellationToken);
+            return await _context.Attributes.FirstOrDefaultAsync(a => a.AttributeId == attributeId, cancellationToken);
         }
 
         public async Task<bool> UpdateAttribute(Attributes attributes, CancellationToken cancellationToken)

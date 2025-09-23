@@ -33,8 +33,7 @@ namespace Infrastructure.Database.Configurations
                 .ValueGeneratedOnAdd();
 
             builder.Property(c => c.UpdatedAt)
-            .IsRequired(); 
-
+            .IsRequired();
         }
     }
 }

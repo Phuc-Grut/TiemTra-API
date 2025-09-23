@@ -2,11 +2,6 @@
 using Application.Interface;
 using Domain.DTOs.Dashboard;
 using Domain.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -18,6 +13,7 @@ namespace Application.Services
         {
             _orders = order;
         }
+
         public Task<AnalyticsOverviewDto> GetOverviewAsync(AnalyticsFilterDto filterDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

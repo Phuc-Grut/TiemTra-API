@@ -1,10 +1,5 @@
 ﻿using Domain.Data.Base;
 using Domain.Enum;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Data.Entities
 {
@@ -28,6 +23,7 @@ namespace Domain.Data.Entities
 
         // Navigation property
         public Customer? Customer { get; set; }
+
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public DateTime? ConfirmedAt { get; set; }
 

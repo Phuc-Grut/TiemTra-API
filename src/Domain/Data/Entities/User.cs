@@ -26,6 +26,5 @@ namespace Domain.Data.Entities
 
         public Cart? Cart { get; set; }
         public Customer? Customer { get; set; }
-
     }
 }

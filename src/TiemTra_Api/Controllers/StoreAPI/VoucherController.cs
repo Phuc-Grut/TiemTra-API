@@ -1,7 +1,6 @@
 using Application.DTOs.Store.Voucher;
 using Application.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace TiemTra_Api.Controllers.StoreAPI
 {
@@ -22,6 +21,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
             var result = await _voucherService.GetPublicVouchersAsync(cancellationToken);
             return Ok(result);
         }
+
         [HttpPost("apply")]
         public async Task<IActionResult> ApplyVoucher([FromBody] ApplyVoucherRequest request, CancellationToken cancellationToken)
         {

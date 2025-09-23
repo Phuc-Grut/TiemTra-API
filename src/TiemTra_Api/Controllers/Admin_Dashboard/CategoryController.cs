@@ -1,10 +1,8 @@
 ﻿using Application.DTOs.Admin.Attributes;
 using Application.DTOs.Admin.Category;
 using Application.Interface;
-using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace APISell.Controllers.Admin_Dashboard
 {
@@ -23,7 +21,7 @@ namespace APISell.Controllers.Admin_Dashboard
         }
 
         [HttpGet("get-paging-categories")]
-        public async Task<IActionResult> GetAllCategories( [FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAllCategories([FromQuery] string? keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
             var filter = new CategoryFilterDto
             {
@@ -131,7 +129,7 @@ namespace APISell.Controllers.Admin_Dashboard
         }
 
         [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetCategoryById( [FromQuery] int categoryId, [FromQuery] int pageNumber = 1,
+        public async Task<IActionResult> GetCategoryById([FromQuery] int categoryId, [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
         {

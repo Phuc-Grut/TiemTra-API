@@ -1,24 +1,27 @@
 ﻿using Application.DTOs.GHN;
 using Application.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Options;
+using Shared.Common;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
     public class GhnService : IGhnService
     {
         private readonly HttpClient _http;
-        public GhnService(HttpClient http)
+        private readonly GhnOptions _options;
+
+        public GhnService(HttpClient http, IOptions<GhnOptions> options)
         {
             _http = http;
+            _options = options.Value; // lấy config từ appsettings
         }
 
         public async Task<GhnCalculateFeeResponse> CalculateFeeAsync(GhnCalculateFeeRequest request, CancellationToken ct)
         {
+            request.FromDistrictId = _options.FromDistrictId;
+            request.FromWardCode = _options.FromWardCode;
+
             using var httpRes = await _http.PostAsJsonAsync("shipping-order/fee", request, ct);
             var payload = await httpRes.Content.ReadFromJsonAsync<GhnEnvelope<GhnCalculateFeeResponse>>(cancellationToken: ct);
 

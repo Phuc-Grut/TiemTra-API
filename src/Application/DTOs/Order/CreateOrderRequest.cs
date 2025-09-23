@@ -1,10 +1,4 @@
-﻿using Domain.Data.Entities;
-using Domain.Enum;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Enum;
 
 namespace Application.DTOs.Order
 {
@@ -12,6 +6,7 @@ namespace Application.DTOs.Order
     {
         //public Guid CustomerId { get; set; }
         public string OrderCode { get; set; }
+
         public string? Note { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public List<CreateOrderItemDto> OrderItems { get; set; } = new();
@@ -22,8 +17,8 @@ namespace Application.DTOs.Order
         public decimal ShippingFee { get; set; }
 
         //Thêm Voucher
-        public string? VoucherCode {get; set;}
+        public string? VoucherCode { get; set; }
 
-        public decimal TotalAmount {get; set;}
+        public decimal TotalAmount { get; set; }
     }
 }

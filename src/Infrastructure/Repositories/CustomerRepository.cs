@@ -5,11 +5,6 @@ using Domain.DTOs.Customer;
 using Domain.Enum;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -79,9 +74,11 @@ namespace Infrastructure.Repositories
                     case "name_asc":
                         query = query.OrderBy(c => c.CustomerName);
                         break;
+
                     case "name_desc":
                         query = query.OrderByDescending(c => c.CustomerName);
                         break;
+
                     default:
                         query = query.OrderByDescending(c => c.CustomerCode);
                         break;
@@ -127,7 +124,6 @@ namespace Infrastructure.Repositories
                 PageSize = pageSize,
                 TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
             };
-
         }
     }
 }

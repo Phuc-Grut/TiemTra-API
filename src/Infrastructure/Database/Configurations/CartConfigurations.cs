@@ -1,11 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Database.Configurations
 {
@@ -27,7 +22,7 @@ namespace Infrastructure.Database.Configurations
             builder.HasOne(c => c.User)
                .WithOne(u => u.Cart)
                .HasForeignKey<Cart>(c => c.UserId)
-               .OnDelete(DeleteBehavior.Restrict);   
+               .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(c => c.CreatedAt)
                 .HasDefaultValueSql("GETUTCDATE()")
