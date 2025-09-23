@@ -13,7 +13,7 @@ namespace Domain.Data.Entities
         public int UsedQuantity { get; set; } = 0; // Đã sử dụng
         public decimal DiscountPercentage { get; set; } // % giảm giá
         public DateTime EndDate { get; set; } // Ngày hết hạn
-        public VoucherStatus Status { get; set; } = VoucherStatus.Pending;
+        public VoucherStatus? Status { get; set; } 
 
         // Navigation properties - chỉ cần cho creator/updater
         public virtual User? Creator { get; set; }

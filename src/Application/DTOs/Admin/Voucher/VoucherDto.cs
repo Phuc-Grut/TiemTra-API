@@ -13,21 +13,11 @@ namespace Application.DTOs.Admin.Voucher
         public int RemainingQuantity => Quantity - UsedQuantity;
         public decimal DiscountPercentage { get; set; }
         public DateTime EndDate { get; set; }
-        public VoucherStatus Status { get; set; }
-        public string StatusDisplay => GetStatusDisplay();
+        public VoucherStatus? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? CreatorName { get; set; }
         public string? UpdaterName { get; set; }
 
-        private string GetStatusDisplay()
-        {
-            return Status switch
-            {
-                VoucherStatus.Pending => "Chờ phê duyệt",
-                VoucherStatus.Publish => "Công khai",
-                _ => "Không xác định"
-            };
-        }
     }
 }
