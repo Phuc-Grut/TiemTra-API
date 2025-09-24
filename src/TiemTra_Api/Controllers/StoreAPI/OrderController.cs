@@ -35,54 +35,50 @@ namespace TiemTra_Api.Controllers.StoreAPI
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                Guid? userId = null;
+            Guid? userId = null;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedId))
+                userId = parsedId;
 
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedId))
-                {
-                    userId = parsedId;
-                }
+            var result = await _orderServices.CreateOrderAsync(request, userId, cancellationToken);
 
-                ApiResponse result = await _orderServices.CreateOrderAsync(request, userId, cancellationToken);
-                var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data)).RootElement;
-                Guid orderId = Guid.Parse(data.GetProperty("OrderId").GetString());
-                decimal totalAmount = data.GetProperty("TotalAmount").GetDecimal();
-
-                if (result.Success && request.PaymentMethod == Domain.Enum.PaymentMethod.COD)
-                {
-                    result.Data = new { OrderId = orderId, TotalAmount = totalAmount, Navigate = false, PaymentUrl = "" };
-                    return Ok(result);
-                }
-                else if (result.Success && request.PaymentMethod == Domain.Enum.PaymentMethod.BankTransfer)
-                {
-                    
-
-                    var ipAddress = NetworkHelper.GetIpAddress(HttpContext); // Lấy địa chỉ IP của thiết bị thực hiện giao dịch
-
-                    var payload = new PaymentRequest
-                    {
-                        PaymentId = DateTime.Now.Ticks,
-                        Money =(double)totalAmount,
-                        Description = orderId.ToString(),
-                        IpAddress = ipAddress,
-                        BankCode = BankCode.ANY, // Tùy chọn. Mặc định là tất cả phương thức giao dịch
-                        CreatedDate = DateTime.Now, // Tùy chọn. Mặc định là thời điểm hiện tại
-                        Currency = Currency.VND, // Tùy chọn. Mặc định là VND (Việt Nam đồng)
-                        Language = DisplayLanguage.Vietnamese // Tùy chọn. Mặc định là tiếng Việt
-                    };
-
-                    var paymentUrl = _vnPayservice.GetPaymentUrl(payload);
-                    result.Data = new { OrderId = orderId, TotalAmount = totalAmount, Navigate = true, PaymentUrl = paymentUrl };
-                    return Ok(result);
-                }
+            if (!result.Success || result.Data is null)
                 return BadRequest(result);
+
+            var dataEl = JsonDocument.Parse(JsonSerializer.Serialize(result.Data)).RootElement;
+            var orderId = Guid.Parse(dataEl.GetProperty("OrderId").GetString()!);
+            var totalAmount = dataEl.GetProperty("TotalAmount").GetDecimal();
+
+            if (request.PaymentMethod == Domain.Enum.PaymentMethod.COD)
+            {
+                result.Data = new { OrderId = orderId, TotalAmount = totalAmount, Navigate = false, PaymentUrl = "" };
+                return Ok(result);
             }
-            catch (Exception ex) {
-                return BadRequest(ex.Message);
+
+            if (request.PaymentMethod == Domain.Enum.PaymentMethod.BankTransfer)
+            {
+                var ipAddress = NetworkHelper.GetIpAddress(HttpContext);
+
+                var payload = new PaymentRequest
+                {
+                    PaymentId = DateTime.Now.Ticks,
+                    Money = (double)totalAmount,
+                    Description = orderId.ToString(),
+                    IpAddress = ipAddress,
+                    BankCode = BankCode.ANY,
+                    CreatedDate = DateTime.Now, // dùng UTC
+                    Currency = Currency.VND,
+                    Language = DisplayLanguage.Vietnamese
+                };
+
+                var paymentUrl = _vnPayservice.GetPaymentUrl(payload);
+                result.Data = new { OrderId = orderId, TotalAmount = totalAmount, Navigate = true, PaymentUrl = paymentUrl };
+                return Ok(result);
             }
+
+            return Ok(result);
         }
+
 
         [HttpGet("generate-order-code")]
         public async Task<IActionResult> GenerateProductCode(CancellationToken cancellationToken)
