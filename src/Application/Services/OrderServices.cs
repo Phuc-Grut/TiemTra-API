@@ -6,6 +6,7 @@ using Domain.DTOs;
 using Domain.DTOs.Order;
 using Domain.Enum;
 using Domain.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Shared.Common;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -202,14 +203,10 @@ namespace Application.Services
 
                 if (request.PaymentMethod == PaymentMethod.BankTransfer)
                 {
-                    newOrder.PaymentStatus = PaymentStatus.Paid;
-                    newOrder.OrderStatus = OrderStatus.Confirmed;
+                    newOrder.PaymentStatus = PaymentStatus.Unpaid;
+                    newOrder.OrderStatus = OrderStatus.Pending;
 
                     await _inventoryService.UpdateStockAsync(newOrder.OrderItems, cancellationToken);
-                }
-                else
-                {
-                    newOrder.PaymentStatus = PaymentStatus.Unpaid;
                 }
 
                 await _orderRepository.AddOrderAsync(newOrder, cancellationToken);
@@ -220,7 +217,7 @@ namespace Application.Services
                     await _cartService.RemoveItemsFromCartAsync(userId.Value, cartItemIds, cancellationToken);
                 }
 
-                return new ApiResponse(true, "Đặt đơn hàng thành công", new { OrderId = newOrder.OrderId });
+                return new ApiResponse(true, "Đặt đơn hàng thành công", new { OrderId = newOrder.OrderId, TotalAmount = newOrder.TotalAmount });
             }
             catch (Exception ex)
             {
@@ -281,6 +278,24 @@ namespace Application.Services
             return new ApiResponse(true, "Xác nhận thành công");
         }
 
+        public async Task<bool> CallBackUpdateStatusOrder(Guid orderId, OrderStatus newStatus, CancellationToken ct)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId, ct);
+            if (order == null)
+                throw new Exception("Không tìm thấy đơn hàng");
+
+            order.OrderStatus = newStatus;
+            order.UpdatedBy = new Guid("96A1E2CF-9A25-45F6-905F-866CE6F884B5"); // Tạm thời để Id của Hoàng thay đổi. Các bạn có thể modify chỗ này
+            order.UpdatedAt = DateTime.UtcNow;
+
+            if (order.OrderStatus == OrderStatus.Confirmed)
+                order.PaymentStatus = PaymentStatus.Paid;
+
+            await _orderRepository.UpdateAsync(order, ct);
+
+            return true;
+        }
+
         public async Task<ApiResponse> ChangeOrderStatus(Guid orderId, OrderStatus newStatus, Guid userId, CancellationToken ct)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, ct);
@@ -293,7 +308,7 @@ namespace Application.Services
                 var to = OrderStatusHelper.GetStatusDisplayName(newStatus);
                 return new ApiResponse(false, $"Không thể chuyển trạng thái từ {from} sang {to}");
             }
-
+            
             order.OrderStatus = newStatus;
             order.UpdatedBy = userId;
             order.UpdatedAt = DateTime.UtcNow;
