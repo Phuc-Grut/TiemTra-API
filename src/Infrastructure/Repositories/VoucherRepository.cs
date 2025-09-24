@@ -5,7 +5,6 @@ using Domain.Interface;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Infrastructure.Repositories
 {
     public class VoucherRepository : IVoucherRepository
@@ -131,20 +130,6 @@ namespace Infrastructure.Repositories
             };
         }
 
-        // Thêm methods xóa
-        public async Task<bool> SoftDeleteAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken)
-        {
-            var voucher = await _context.Vouchers.FindAsync(voucherId);
-            if (voucher == null) return false;
-
-            voucher.Status = VoucherStatus.Deleted;
-            voucher.UpdatedBy = updatedBy;
-            voucher.UpdatedAt = DateTime.UtcNow;
-
-            var result = await _context.SaveChangesAsync(cancellationToken);
-            return result > 0;
-        }
-
         public async Task<bool> HardDeleteAsync(Guid voucherId, CancellationToken cancellationToken)
         {
             var voucher = await _context.Vouchers.FindAsync(voucherId);
@@ -183,6 +168,31 @@ namespace Infrastructure.Repositories
                 .Where(v => v.Status == VoucherStatus.Publish && 
                            v.EndDate <= currentTime)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct)
+        {
+            var idList = ids?.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
+            if (idList.Count == 0) return 0;
+
+            // Tải những voucher chưa bị xóa
+            var vouchers = await _context.Vouchers.Where(v => idList.Contains(v.VoucherId) && v.Status != VoucherStatus.Deleted)
+                .ToListAsync(ct);
+
+            if (vouchers.Count == 0)
+            {
+                return 0;
+            }
+
+            foreach (var v in vouchers)
+            {
+                v.Status = VoucherStatus.Deleted;
+                v.UpdatedAt = utcNow;
+                v.UpdatedBy = updatedBy;
+            }
+
+            await _context.SaveChangesAsync(ct);
+            return vouchers.Count;
         }
     }
 }

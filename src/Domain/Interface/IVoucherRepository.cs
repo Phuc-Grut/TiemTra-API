@@ -25,9 +25,7 @@ namespace Domain.Interface
         Task<string> GenerateUniqueVoucherCodeAsync(CancellationToken cancellationToken);
 
         Task SaveChangesAsync(CancellationToken cancellationToken);
-
-        // Thêm methods xóa
-        Task<bool> SoftDeleteAsync(Guid voucherId, Guid updatedBy, CancellationToken cancellationToken);
+        Task<int> SoftDeleteByIdsAsync(IEnumerable<Guid> ids, Guid updatedBy, DateTime utcNow, CancellationToken ct);
 
         Task<bool> HardDeleteAsync(Guid voucherId, CancellationToken cancellationToken);
 

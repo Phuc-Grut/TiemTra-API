@@ -341,44 +341,6 @@ namespace Application.Services
             }
         }
 
-        public async Task<ApiResponse> SoftDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var userId = GetUserIdFromClaims.GetUserId(user);
-
-                var voucher = await _voucherRepository.GetByIdAsync(voucherId, cancellationToken);
-                if (voucher == null)
-                {
-                    return new ApiResponse(false, "Không tìm thấy voucher");
-                }
-
-                if (voucher.Status == VoucherStatus.Deleted)
-                {
-                    return new ApiResponse(false, "Voucher đã được xóa mềm trước đó");
-                }
-
-                // Kiểm tra xem voucher có đang được sử dụng trong đơn hàng không
-                // var hasUsedVouchers = await _voucherRepository.HasUsedVouchersAsync(voucherId, cancellationToken);
-                // if (hasUsedVouchers)
-                // {
-                //     return new ApiResponse(false, "Không thể xóa voucher đã được sử dụng trong đơn hàng");
-                // }
-
-                var result = await _voucherRepository.SoftDeleteAsync(voucherId, userId, cancellationToken);
-                if (!result)
-                {
-                    return new ApiResponse(false, "Xóa mềm voucher thất bại");
-                }
-
-                return new ApiResponse(true, "Xóa mềm voucher thành công");
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse(false, $"Lỗi khi xóa mềm voucher: {ex.Message}");
-            }
-        }
-
         public async Task<ApiResponse> HardDeleteVoucherAsync(Guid voucherId, ClaimsPrincipal user, CancellationToken cancellationToken)
         {
             try
@@ -473,6 +435,22 @@ namespace Application.Services
             }
         }
 
+        public async Task<int> SoftDeleteVoucherAsync(IEnumerable<Guid> voucherIds, ClaimsPrincipal user, CancellationToken ct)
+        {
+            var ids = voucherIds.Where(x => x != Guid.Empty).Distinct().ToList() ?? new();
+
+            if (ids.Count == 0)
+            {
+                return 0;
+            }
+
+            var userId = GetUserIdFromClaims.GetUserId(user);
+            Guid updateBy = userId == Guid.Empty ? Guid.NewGuid() : userId;
+
+            var utcNow = DateTime.UtcNow;
+
+            return await _voucherRepository.SoftDeleteByIdsAsync(ids, updateBy, utcNow, ct);
+        }
     }
 
 }

@@ -1,5 +1,7 @@
+using Application.DTOs.Admin.Product;
 using Application.DTOs.Admin.Voucher;
 using Application.Interface;
+using Application.Services.Admin;
 using Domain.DTOs.Admin.Voucher;
 using Domain.Enum;
 using Microsoft.AspNetCore.Mvc;
@@ -126,20 +128,16 @@ namespace TiemTra_Api.Controllers.Admin_Dashboard
             return Ok(new { voucherCode = code });
         }
 
-        // Thêm API xóa
-        [HttpDelete("soft-delete/{voucherId}")]
-        public async Task<IActionResult> SoftDeleteVoucher(Guid voucherId, CancellationToken cancellationToken)
+        [HttpPost("soft-delete")]
+        public async Task<IActionResult> SoftDeleteMany([FromBody] BulkSoftDeleteRequest req, CancellationToken ct)
         {
-            if (voucherId == Guid.Empty)
-                return BadRequest("Voucher ID không hợp lệ");
+            if (req is null || req.Ids is null || req.Ids.Count == 0)
+                return BadRequest("Ids is required.");
 
-            var result = await _voucherService.SoftDeleteVoucherAsync(voucherId, User, cancellationToken);
-
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Ok(result);
+            var affected = await _voucherService.SoftDeleteVoucherAsync(req.Ids, User, ct);
+            return Ok(new { requested = req.Ids.Count, affected });
         }
+
 
         [HttpDelete("hard-delete/{voucherId}")]
         public async Task<IActionResult> HardDeleteVoucher(Guid voucherId, CancellationToken cancellationToken)
