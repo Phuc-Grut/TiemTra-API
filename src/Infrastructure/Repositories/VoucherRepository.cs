@@ -95,6 +95,7 @@ namespace Infrastructure.Repositories
             var query = _context.Vouchers
                 .Include(v => v.Creator)
                 .Include(v => v.Updater)
+                .Where(v => v.Status != VoucherStatus.Deleted)
                 .AsQueryable();
 
             if (status.HasValue)
