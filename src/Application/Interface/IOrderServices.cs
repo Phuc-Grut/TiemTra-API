@@ -27,5 +27,6 @@ namespace Application.Interface
         Task<ApiResponse> CancelByCustomerAsync(Guid orderId, Guid customerUserId, string? reason, CancellationToken ct);
 
         Task<OrderDto> GetOrderWithVouchersAsync(Guid orderId, CancellationToken cancellationToken);
+        Task<bool> CallBackUpdateStatusOrder(Guid orderId, OrderStatus newStatus, CancellationToken ct);
     }
 }
