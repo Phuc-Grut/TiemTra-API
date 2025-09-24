@@ -48,6 +48,8 @@ namespace TiemTra_Api.Controllers.StoreAPI
             var dataEl = JsonDocument.Parse(JsonSerializer.Serialize(result.Data)).RootElement;
             var orderId = Guid.Parse(dataEl.GetProperty("OrderId").GetString()!);
             var totalAmount = dataEl.GetProperty("TotalAmount").GetDecimal();
+            var shippingFee = dataEl.GetProperty("ShippingFee").GetDecimal();
+
 
             if (request.PaymentMethod == Domain.Enum.PaymentMethod.COD)
             {
@@ -62,7 +64,7 @@ namespace TiemTra_Api.Controllers.StoreAPI
                 var payload = new PaymentRequest
                 {
                     PaymentId = DateTime.Now.Ticks,
-                    Money = (double)totalAmount,
+                    Money = (double)totalAmount + (double)shippingFee,
                     Description = orderId.ToString(),
                     IpAddress = ipAddress,
                     BankCode = BankCode.ANY,

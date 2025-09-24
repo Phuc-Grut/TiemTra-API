@@ -217,7 +217,7 @@ namespace Application.Services
                     await _cartService.RemoveItemsFromCartAsync(userId.Value, cartItemIds, cancellationToken);
                 }
 
-                return new ApiResponse(true, "Đặt đơn hàng thành công", new { OrderId = newOrder.OrderId, TotalAmount = newOrder.TotalAmount });
+                return new ApiResponse(true, "Đặt đơn hàng thành công", new { OrderId = newOrder.OrderId, TotalAmount = newOrder.TotalAmount, ShippingFee = newOrder.ShippingFee });
             }
             catch (Exception ex)
             {
