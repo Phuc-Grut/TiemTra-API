@@ -132,7 +132,7 @@ namespace Application.Services.Admin
             var domainFilter = new ProductFilterDto
             {
                 ProductCode = filters.ProductCode,
-                Keyword = filters.Keyword,
+                Keyword = string.IsNullOrWhiteSpace(filters.Keyword) ? filters.ProductCode : filters.Keyword,
                 SortBy = filters.SortBy,
                 CategoryId = filters.CategoryId,
                 BrandId = filters.BrandId,

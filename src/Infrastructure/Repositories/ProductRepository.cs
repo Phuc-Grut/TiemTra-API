@@ -37,16 +37,22 @@ namespace Infrastructure.Repositories
                 .Where(p => p.ProductStatus != ProductStatus.Deleted && p.ProductStatus != ProductStatus.Draft && p.ProductStatus != ProductStatus.Inactive)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filters.ProductCode))
-            {
-                var code = filters?.ProductCode.Trim();
-                query = query.Where(p => p.ProductCode.Contains(code));
-            }
+            //if (!string.IsNullOrWhiteSpace(filters.ProductCode))
+            //{
+            //    var code = filters?.ProductCode.Trim();
+            //    query = query.Where(p => p.ProductCode.Contains(code));
+            //}
 
             if (!string.IsNullOrWhiteSpace(filters.Keyword))
             {
-                var keyword = filters?.Keyword.Trim();
-                query = query.Where(p => p.ProductName.Contains(keyword) || p.ProductCode.Contains(keyword));
+                var kw = filters.Keyword.Trim();
+                query = query.Where(p => p.ProductName.Contains(kw) || p.ProductCode.Contains(kw));
+            }
+
+            else if (!string.IsNullOrWhiteSpace(filters.ProductCode))
+            {
+                var code = filters.ProductCode.Trim();
+                query = query.Where(p => p.ProductCode.Contains(code));
             }
 
             if (filters.CategoryIds != null && filters.CategoryIds.Any())

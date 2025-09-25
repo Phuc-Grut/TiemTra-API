@@ -112,6 +112,11 @@ namespace Infrastructure.Repositories
                 // nếu sort key không khớp thì bỏ qua
             }
 
+            if (isFirstSort)
+            {
+                query = query.OrderByDescending(o => o.CreatedAt);
+            }
+
             // Paging + Projection
             var orders = await query
                 .Skip((pageNumber - 1) * pageSize)
